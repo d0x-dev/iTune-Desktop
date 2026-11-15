@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Production build outputs
+dist/
+release/
+
+# Temporary / Cache
+.vite/
+*.log
+.DS_Store
+Thumbs.db
