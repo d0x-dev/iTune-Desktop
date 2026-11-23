@@ -168,3 +168,37 @@ export default function Sidebar({
           <AndroidIcon name="ic_player_tools" size={18} />
           <span>Settings</span>
         </button>
+        <div className="sidebar-account">
+          {authLoading ? (
+            <div className="account-button">
+              <Loader2 size={19} className="animate-spin" />
+              <span>Connecting…</span>
+            </div>
+          ) : userProfile?.isLoggedIn ? (
+            <div className="account-button">
+              {userProfile.photo ? (
+                <img src={userProfile.photo} alt="" />
+              ) : (
+                <span className="account-avatar">
+                  {userProfile.name?.[0] || "U"}
+                </span>
+              )}
+              <span>{userProfile.name || "Your account"}</span>
+              <button
+                className="icon-button"
+                aria-label="Sign out"
+                title="Sign out"
+                onClick={onLogout}
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+          ) : (
+            <>
+              <button className="account-button" onClick={onLogin}>
+                <span className="account-avatar google-account-avatar">
+                  <img src={GOOGLE_LOGO} alt="" />
+                </span>
+                <span>Sign In</span>
+              </button>
+              <button
