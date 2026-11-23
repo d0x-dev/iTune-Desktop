@@ -451,3 +451,68 @@ let streamInitPromise = null;
 async function getStreamClient() {
   if (streamClient) return streamClient;
   if (!streamInitPromise) {
+    streamInitPromise = (async () => {
+      try {
+        const { Innertube, Platform } = await getInnertube();
+        if (Platform?.shim) {
+          Platform.shim.eval = (data, env) => {
+            const code =
+              typeof data === "object" && data.output ? data.output : data;
+            return vm.runInNewContext(code, env || {});
+          };
+        }
+        // Dedicated guest Innertube instance without user cookies:
+        // YouTube stream endpoints (VISIONOS, ANDROID_VR, IOS) return HTTP 400 if user web cookies are attached.
+        // A clean guest session provides authentic visitorData and returns unenciphered stream URLs.
+        streamClient = await Innertube.create();
+        logToFile(
+          "Dedicated stream extractor Innertube initialized with clean visitorData.",
+        );
+        return streamClient;
+      } catch (err) {
+        logToFile(
+          "Failed to initialize stream extractor Innertube:",
+          err.message,
+        );
+        streamInitPromise = null;
+        throw err;
+      }
+    })();
+  }
+  return streamInitPromise;
+}
+
+// Initialize YouTube.js client
+function initYouTube(cookie = "") {
+  initPromise = (async () => {
+    try {
+      const cleanCookie = sanitizeAndDeduplicateCookie(cookie);
+      logToFile(
+        "Initializing Innertube with cookie length:",
+        cleanCookie ? cleanCookie.length : 0,
+      );
+      if (cleanCookie) {
+        syncCookiesToSession(cleanCookie).catch(() => {});
+      }
+      const { Innertube, UniversalCache, Platform } = await getInnertube();
+      if (Platform?.shim) {
+        Platform.shim.eval = (data, env) => {
+          const code =
+            typeof data === "object" && data.output ? data.output : data;
+          return vm.runInNewContext(code, env || {});
+        };
+      }
+
+      const cacheDir = path.join(
+        app.getPath("userData"),
+        "yt_cache",
+      );
+      let cache = null;
+      try {
+        fs.mkdirSync(cacheDir, { recursive: true });
+        cache = new UniversalCache(true, cacheDir);
+      } catch (e) {
+        logToFile("Falling back to memory cache:", e.message);
+        cache = new UniversalCache(false);
+      }
+
