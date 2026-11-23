@@ -791,3 +791,47 @@ export default function LyricsModal({
                 </div>
               ) : lines.length ? (
                 <div className={`lyric-lines ${timed ? "timed" : ""}`}>
+                  {lines.map((line, index) =>
+                    line.start != null ? (
+                      <button
+                        data-line={index}
+                        key={index}
+                        className={`lyric-line ${activeIndex === index ? "active" : ""} ${activeIndex > index ? "past" : ""}`}
+                        style={lineStyle(index)}
+                        onClick={() => {
+                          onSeek(Math.max(0, line.start - lyricsOffsetMs / 1000));
+                          resumeFollowing();
+                        }}
+                      >
+                        <LyricLine
+                          line={line}
+                          currentTime={lyricsTime}
+                          active={activeIndex === index}
+                          isPlaying={isPlaying}
+                        />
+                        {translations[index] && (
+                          <span className="lyric-translation">
+                            {translations[index]}
+                          </span>
+                        )}
+                      </button>
+                    ) : (
+                      <p
+                        data-line={index}
+                        className="lyric-line untimed"
+                        style={lineStyle(index)}
+                        key={index}
+                      >
+                        <span>{line.text}</span>
+                        {translations[index] && (
+                          <span className="lyric-translation">
+                            {translations[index]}
+                          </span>
+                        )}
+                      </p>
+                    ),
+                  )}
+                </div>
+              ) : (
+                <div className="empty-state">
+                  <Music2 />
