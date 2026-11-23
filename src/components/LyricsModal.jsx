@@ -86,3 +86,47 @@ export default function LyricsModal({
   const [lyricsOffsetMs, setLyricsOffsetMs] = useState(0);
   const [controlsVisible, setControlsVisible] = useState(true);
   const { preferences, updatePreference } = usePreferences();
+  const dialog = useRef(null);
+  const scroll = useRef(null);
+  const fileInput = useRef(null);
+  const revision = useRef(0);
+  const idleTimer = useRef(null);
+  const scrollMotion = useRef(null);
+  const placedLyrics = useRef(null);
+  const manualScrollTimer = useRef(null);
+  const scrollLead = useRef(0);
+  const pointerActive = useRef(false);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+  const artistId = artistAssetId(track);
+  const canvas = useMediaAsset(artistId ? `artist:${artistId}:canvas` : null);
+  const signature = useMediaAsset(
+    artistId ? `artist:${artistId}:signature` : null,
+  );
+  const lyricsTime = Math.max(0, playback.currentTime + lyricsOffsetMs / 1000);
+  const lyricsDuration = Math.round(
+    playback.duration || track.durationSeconds || 0,
+  );
+  const activeIndex = activeLyricIndex(lines, lyricsTime);
+  const timed = lines.some((line) => line.start != null);
+  const lastStartedIndex = activeLyricIndex(lines, lyricsTime, HOLD_PAST_END);
+  scrollLead.current = lyricScrollLead(lines, lastStartedIndex);
+  const focusIndex = isPlaying
+    ? activeLyricIndex(lines, lyricsTime + scrollLead.current / 1000, HOLD_PAST_END)
+    : lastStartedIndex;
+
+  const scheduleControlsHide = useCallback(() => {
+    clearTimeout(idleTimer.current);
+    setControlsVisible(true);
+    if (!compact || toolsPage || pointerActive.current) return;
+    idleTimer.current = setTimeout(() => {
+      if (!pointerActive.current) setControlsVisible(false);
+    }, 2000);
+  }, [compact, toolsPage]);
+
+  useEffect(() => {
+    scheduleControlsHide();
+    return () => clearTimeout(idleTimer.current);
+  }, [scheduleControlsHide, track.id]);
+
+  useEffect(() => {
