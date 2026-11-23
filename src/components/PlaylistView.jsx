@@ -150,3 +150,41 @@ export default function PlaylistView({
           onClick={() => setSelected(null)}
         >
           <ArrowLeft size={16} />
+          Playlists
+        </button>
+        <header className="collection-header">
+          <Artwork
+            src={selected.thumbnail || detail?.thumbnail}
+            title={selected.title}
+            eager
+          />
+          <div>
+            <span className="eyebrow">Playlist</span>
+            <h1><ExplicitTitle item={selected} /></h1>
+            <h2>{selected.author || userProfile?.name || "YouTube Music"}</h2>
+            <p>{detail?.tracks?.length || 0} songs</p>
+            <div className="collection-actions">
+              <button
+                className="primary-button"
+                disabled={!detail?.tracks?.length}
+                onClick={() => onSelectTrack(detail.tracks[0], detail.tracks)}
+              >
+                <Play size={15} fill="currentColor" />
+                Play
+              </button>
+              <button
+                className="secondary-button"
+                disabled={!detail?.tracks?.length}
+                onClick={() => onShuffleTracks(detail.tracks)}
+              >
+                <Shuffle size={15} />
+                Shuffle
+              </button>
+              {userProfile?.isLoggedIn &&
+                playlists.some((playlist) => playlist.id === selected.id) &&
+                !/^(LM|RD)/.test(selected.id) && (
+                  <button
+                    className="icon-button"
+                    disabled={deleting}
+                    aria-label="Delete playlist"
+                    onClick={deletePlaylist}
