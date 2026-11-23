@@ -1080,3 +1080,87 @@ body {
   border-color: var(--border-subtle);
 }
 .queue-track strong {
+  color: var(--foreground);
+}
+.queue-track small,
+.queue-panel > h3 {
+  color: var(--muted);
+}
+.queue-track:hover {
+  background: var(--plate);
+}
+.search-input-wrap {
+  background: var(--plate);
+  border-color: var(--border-subtle);
+  color: var(--muted);
+}
+.search-input-wrap input {
+  color: var(--foreground);
+}
+.search-suggestions {
+  background: var(--surface);
+  border-color: var(--border-subtle);
+}
+.search-suggestions button {
+  color: var(--foreground);
+}
+.search-tabs button {
+  color: var(--muted);
+}
+.search-tabs button.active {
+  background: var(--plate-hover);
+}
+.search-categories {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+.search-category {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  aspect-ratio: 1.72;
+  padding: 0;
+  text-align: left;
+  box-shadow: 0 3px 12px #0001;
+  background: #202027;
+}
+.search-category img {
+  display: block;
+  position: absolute;
+  inset: -3px;
+  width: calc(100% + 6px);
+  height: calc(100% + 6px);
+  object-fit: cover;
+  transform: scale(1.035);
+  transition: transform 400ms var(--ease-out);
+}
+.search-category:hover img {
+  transform: scale(1.07);
+}
+.explicit-title { display: inline-flex; align-items: baseline; gap: 5px; min-width: 0; max-width: 100%; vertical-align: baseline; }
+.explicit-title > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.explicit-title .explicit-mark { flex: none; font-size: 9px; font-weight: 700; line-height: 1.15; padding: 0 2px; color: #333; background: #d6d6da; border-radius: 2px; }
+.search-category::after {
+  content: "";
+  position: absolute;
+  inset: 40% 0 0;
+  background: linear-gradient(transparent, #0005);
+}
+.search-category > span {
+  position: absolute;
+  bottom: 12px;
+  left: 13px;
+  z-index: 1;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+}
+.search-browse-title {
+  font-size: 21px;
+  margin-bottom: 16px;
+  color: var(--foreground);
+}
+.search-scope {
+  display: inline-flex;
+  border-radius: 20px;
