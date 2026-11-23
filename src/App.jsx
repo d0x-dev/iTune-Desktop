@@ -1197,3 +1197,63 @@ export default function App() {
             onNext={next}
             onPrevious={previous}
             onOpenLyrics={() => {
+              setLyricsCompact(true);
+              setShowLyrics((value) => !value);
+              setShowQueue(false);
+            }}
+            isLiked={likedSongIds.has(getTrackVideoId(currentTrack))}
+            onToggleLike={() => toggleLike(getTrackVideoId(currentTrack))}
+            isShuffle={isShuffle}
+            onToggleShuffle={toggleShuffle}
+            repeatMode={repeatMode}
+            onToggleRepeat={() =>
+              setRepeatMode((value) =>
+                value === "off" ? "all" : value === "all" ? "one" : "off",
+              )
+            }
+            endlessQueueEnabled={endlessQueueEnabled}
+            onToggleEndlessQueue={toggleEndlessQueue}
+            onToggleQueue={() => setShowQueue((value) => !value)}
+            showQueue={showQueue}
+            showLyrics={showLyrics}
+            showListenTogether={showListenTogether}
+            listenTogetherActive={Boolean(listenTogether)}
+            onToggleListenTogether={() => {
+              setShowListenTogether((value) => !value);
+              setShowQueue(false);
+            }}
+            onPlaybackChange={updatePlayback}
+            onUserPlaybackAction={handleSharedPlaybackAction}
+          />
+          <div className="content-toolbar">
+            <div>
+              <button
+                className="icon-button"
+                aria-label="Go back"
+                disabled={navigation.index === 0}
+                onClick={() =>
+                  setNavigation((previous) => ({
+                    ...previous,
+                    index: previous.index - 1,
+                  }))
+                }
+              >
+                <ChevronLeft size={21} />
+              </button>
+              <button
+                className="icon-button"
+                aria-label="Go forward"
+                disabled={navigation.index === navigation.entries.length - 1}
+                onClick={() =>
+                  setNavigation((previous) => ({
+                    ...previous,
+                    index: previous.index + 1,
+                  }))
+                }
+              >
+                <ChevronRight size={21} />
+              </button>
+            </div>
+            <span>{tabLabels[activeTab]}</span>
+          </div>
+          <div className="content-with-queue">
