@@ -29,3 +29,34 @@ function lyricWords(node, lineStart, lineEnd, time) {
     if (child.localName === "br") {
       words.push({ text: "\n", start: null, end: null });
       continue;
+    }
+    const begin = time(child.getAttribute?.("begin"));
+    const end = time(child.getAttribute?.("end"));
+    if (
+      begin != null &&
+      !Array.from(child.children || []).some((element) =>
+        element.hasAttribute("begin"),
+      )
+    ) {
+      // Apple lyric spans use the song clock. Offset spans are relative to the line.
+      const relative = begin < (lineStart || 0);
+      const start = begin + (relative ? lineStart || 0 : 0);
+      const finish =
+        end != null
+          ? end + (relative ? lineStart || 0 : 0)
+          : start + (time(child.getAttribute("dur")) || 0);
+      words.push({
+        text: lyricText(child),
+        start,
+        end: finish > start ? finish : lineEnd,
+      });
+    } else words.push(...lyricWords(child, lineStart, lineEnd, time));
+  }
+  return words.some((word) => word.start != null) ? words : [];
+}
+
+function lyricText(node) {
+  return Array.from(node.childNodes)
+    .map((child) =>
+      child.nodeType === 3
+        ? child.textContent
