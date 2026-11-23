@@ -357,3 +357,43 @@ const PROVIDERS = {
   paxsenix: (metadata) => paxsenix(metadata),
   spotify: (metadata) =>
     paxsenix(metadata, "spotify", "Spotify via Paxsenix"),
+  musixmatch: (metadata) =>
+    paxsenix(metadata, "musixmatch", "Musixmatch via Paxsenix"),
+  apple_music: (metadata) =>
+    paxsenix(metadata, "apple-music", "Apple Music via Paxsenix"),
+  netease: (metadata) =>
+    paxsenix(metadata, "netease", "NetEase via Paxsenix"),
+  unison,
+  betterlyrics: betterLyrics,
+  portato,
+  youly: youLy,
+  megalobiz,
+  genius,
+  lyricsovh: lyricsOvh,
+};
+
+const AUTO_ORDER = [
+  "lrclib",
+  "kugou",
+  "simpmusic",
+  "paxsenix",
+  "unison",
+  "betterlyrics",
+  "portato",
+  "youly",
+  "megalobiz",
+  "genius",
+  "lyricsovh",
+];
+
+async function fetchLyricsProvider(provider, metadata) {
+  const handler = PROVIDERS[provider];
+  if (!handler) return null;
+  try {
+    return await handler(metadata);
+  } catch {
+    return null;
+  }
+}
+
+module.exports = { AUTO_ORDER, betterLyrics, fetchLyricsProvider };
