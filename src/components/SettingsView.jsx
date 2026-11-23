@@ -216,3 +216,46 @@ export default function SettingsView({
         >
           <Toggle
             label="Apple Artist Artwork"
+            value={preferences.artistArtwork}
+            onChange={(value) => updatePreference("artistArtwork", value)}
+          />
+        </Setting>
+        <Setting title="Lyrics Provider">
+          <GlassSelect
+            label="Lyrics Provider"
+            value={preferences.lyricsProvider}
+            onChange={(value) => updatePreference("lyricsProvider", value)}
+            options={[
+              { value: "auto", label: "Automatic" },
+              { value: "lrclib", label: "LRC Lib · Synced & Plain" },
+              { value: "kugou", label: "KuGou" },
+              { value: "simpmusic", label: "SimpMusic · YouTube ID" },
+              { value: "youtube_subtitles", label: "YouTube Subtitles / CC" },
+              { value: "paxsenix", label: "Paxsenix · Multi-source" },
+              { value: "unison", label: "Unison" },
+              { value: "betterlyrics", label: "BetterLyrics · TTML / Word Timing" },
+              { value: "portato", label: "Portato" },
+              { value: "youly", label: "YouLy · TTML / LRC Mirrors" },
+              { value: "megalobiz", label: "Megalobiz" },
+              { value: "youtube_music", label: "YouTube Music" },
+              { value: "spotify", label: "Spotify via Paxsenix" },
+              { value: "apple_music", label: "Apple Music via Paxsenix" },
+              { value: "musixmatch", label: "Musixmatch via Paxsenix" },
+              { value: "netease", label: "NetEase via Paxsenix" },
+              { value: "genius", label: "Genius · Plain Lyrics" },
+              { value: "lyricsovh", label: "Lyrics.ovh · Plain Lyrics" },
+            ]}
+          />
+        </Setting>
+        <Setting
+          title="Translate Lyrics"
+          description="Show a translated line below every original lyric."
+        >
+          <Toggle
+            label="Translate Lyrics"
+            value={preferences.lyricsTranslation}
+            onChange={(value) => updatePreference("lyricsTranslation", value)}
+          />
+        </Setting>
+        <Setting title="Translation Language">
+          <GlassSelect
