@@ -270,3 +270,42 @@ const Player = forwardRef(function Player(
     const audio = activeAudio();
     if (!currentTrack || !audio || loading) return;
     desiredPlaying.current = !isPlaying;
+    onUserPlaybackAction?.(isPlaying ? "pause" : "play", {
+      positionMs: Math.round((audio.currentTime || 0) * 1000),
+    });
+    if (isPlaying) {
+      decks.current.forEach((deck) => deck?.pause());
+    }
+    else if (!audio.getAttribute("src") || audio.error) loadStream();
+    else audio.play().catch(() => setError("Press play to try again."));
+  };
+  const seek = (seconds, notify = true) => {
+    const audio = activeAudio();
+    const knownDuration = Number.isFinite(audio?.duration) && audio.duration > 0
+      ? audio.duration
+      : Number(audio?.dataset.durationSeconds) || duration;
+    if (!audio || !knownDuration) return;
+    const time = Math.max(0, Math.min(seconds, knownDuration));
+    audio.currentTime = time;
+    setCurrentTime(time);
+    if (notify)
+      onUserPlaybackAction?.("seek", { positionMs: Math.round(time * 1000) });
+  };
+  const restart = () => {
+    seek(0, false);
+    activeAudio()?.play().catch(() => {});
+  };
+  useImperativeHandle(
+    ref,
+    () => ({
+      togglePlay,
+      seek: (seconds) => seek(seconds, false),
+      restart,
+      preparePlayback: (playing) => {
+        desiredPlaying.current = Boolean(playing);
+        if (!playing) decks.current.forEach((audio) => audio?.pause());
+      },
+      play: () => {
+        desiredPlaying.current = true;
+        const audio = activeAudio();
+        if (!audio?.getAttribute("src") || audio.error) loadStream();
