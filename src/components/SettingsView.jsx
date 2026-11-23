@@ -128,3 +128,47 @@ export default function SettingsView({
           />
         </Setting>
         <Setting
+          title="Liquid Glass"
+          description="Use translucent app panels without showing the desktop behind the window."
+        >
+          <Toggle
+            label="Liquid Glass"
+            value={preferences.glass}
+            disabled={preferences.desktopTransparency}
+            onChange={(value) => updatePreference("glass", value)}
+          />
+        </Setting>
+        <Setting
+          title="Artwork Background"
+          description="Add a light blurred artwork tint over the transparent desktop background."
+        >
+          <Toggle
+            label="Artwork Background"
+            value={preferences.backgroundArtwork}
+            disabled={preferences.desktopTransparency}
+            onChange={(value) => updatePreference("backgroundArtwork", value)}
+          />
+        </Setting>
+        <Setting
+          title="Home Top Cards"
+          description="Choose the same top-card layout used by iTune on Android."
+        >
+          <GlassSelect
+            label="Home Top Cards"
+            value={preferences.homeHeroStyle}
+            onChange={(value) => updatePreference("homeHeroStyle", value)}
+            options={[
+              { value: "apple", label: "Apple" },
+              { value: "portrait", label: "Portrait" },
+              { value: "landscape", label: "Landscape" },
+            ]}
+          />
+        </Setting>
+        <Setting
+          title="Animated Artwork"
+          description="Play artist and album motion artwork when available."
+        >
+          <Toggle
+            label="Animated Artwork"
+            value={preferences.motion}
+            onChange={(value) => updatePreference("motion", value)}
