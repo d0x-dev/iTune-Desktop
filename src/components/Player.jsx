@@ -659,3 +659,42 @@ const Player = forwardRef(function Player(
           show={showEffects}
           duration={220}
           className="presence-audio-effects"
+        >
+          <AudioEffectsPanel
+            radioMode={currentTrack?.type === "radio"}
+            onClose={() => setShowEffects(false)}
+          />
+        </AnimatedPresence>
+        <button
+          className={`icon-button ${showListenTogether || listenTogetherActive ? "selected" : ""}`}
+          onClick={onToggleListenTogether}
+          aria-label="Listen Together"
+          title="Listen Together"
+          aria-pressed={showListenTogether}
+        >
+          <AndroidIcon name="ic_ishare" size={19} />
+        </button>
+        <button
+          className={`icon-button ${showLyrics ? "selected" : ""}`}
+          onClick={onOpenLyrics}
+          disabled={!currentTrack}
+          aria-label="Open lyrics"
+          title="Lyrics"
+          aria-pressed={showLyrics}
+        >
+          <AndroidIcon name="lyrics" size={19} />
+        </button>
+        <button
+          className={`icon-button ${showQueue ? "selected" : ""}`}
+          onClick={onToggleQueue}
+          aria-label="Up Next"
+          title="Up Next"
+          aria-pressed={showQueue}
+        >
+          <AndroidIcon name="queue_music" size={20} />
+        </button>
+      </div>
+    </div>
+  );
+});
+export default Player;
