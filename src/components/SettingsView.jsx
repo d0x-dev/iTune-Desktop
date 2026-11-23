@@ -564,3 +564,47 @@ export default function SettingsView({
         </Setting>
       </section>
     </div>
+  );
+}
+function Setting({ title, description, children }) {
+  return (
+    <div className="setting-row">
+      <div>
+        <h3>{title}</h3>
+        {description && <p>{description}</p>}
+      </div>
+      {children}
+    </div>
+  );
+}
+function Toggle({ label, value, disabled = false, onChange }) {
+  return (
+    <button
+      className={`setting-toggle ${value ? "enabled" : ""}`}
+      role="switch"
+      aria-label={label}
+      aria-checked={value}
+      disabled={disabled}
+      onClick={() => onChange(!value)}
+    >
+      <span />
+    </button>
+  );
+}
+
+function GlassSelect({ label, value, options, disabled = false, onChange }) {
+  const [open, setOpen] = useState(false);
+  const root = useRef(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (event) => {
+      if (!root.current?.contains(event.target)) setOpen(false);
+    };
+    const onKey = (event) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", close);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", close);
+      window.removeEventListener("keydown", onKey);
