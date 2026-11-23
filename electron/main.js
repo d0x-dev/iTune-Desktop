@@ -192,3 +192,68 @@ function writeAITranslationConfig(config = {}) {
     baseUrl: String(config.baseUrl ?? previous.baseUrl ?? "").trim(),
   };
   let apiKey = config.clearKey ? "" : String(config.apiKey || previous.apiKey || "");
+  if (apiKey) {
+    if (!safeStorage.isEncryptionAvailable())
+      throw new Error("System secure key storage is unavailable.");
+    next.encryptedKey = safeStorage.encryptString(apiKey).toString("base64");
+  }
+  fs.mkdirSync(path.dirname(aiConfigPath()), { recursive: true });
+  fs.writeFileSync(aiConfigPath(), JSON.stringify(next, null, 2), "utf8");
+  return { ...next, hasKey: Boolean(apiKey) };
+}
+
+function aiProviderDefaults(provider) {
+  if (provider === "openrouter")
+    return {
+      url: "https://openrouter.ai/api/v1/chat/completions",
+      model: "openai/gpt-4o-mini",
+    };
+  if (provider === "gemini")
+    return {
+      url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+      model: "gemini-2.5-flash",
+    };
+  if (provider === "claude")
+    return {
+      url: "https://api.anthropic.com/v1/messages",
+      model: "claude-haiku-4-5-20251001",
+    };
+  return {
+    url: "https://api.openai.com/v1/chat/completions",
+    model: "gpt-4o-mini",
+  };
+}
+
+function resolveAiEndpoint(provider, customUrl) {
+  const defaults = aiProviderDefaults(provider);
+  const raw = String(customUrl || defaults.url).replace(/\/$/, "");
+  if (/\/(chat\/completions|messages)$/.test(raw)) return raw;
+  if (provider === "claude") return `${raw}/messages`;
+  return `${raw}/chat/completions`;
+}
+
+function parseAiTranslation(text, expectedCount) {
+  const cleaned = String(text || "")
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/, "");
+  const start = cleaned.indexOf("[");
+  const end = cleaned.lastIndexOf("]");
+  if (start < 0 || end < start) throw new Error("The AI returned an unreadable answer.");
+  const parsed = JSON.parse(cleaned.slice(start, end + 1));
+  if (!Array.isArray(parsed) || parsed.length !== expectedCount)
+    throw new Error(`The AI returned ${parsed?.length || 0} lines instead of ${expectedCount}.`);
+  return parsed.map((line) => String(line ?? ""));
+}
+
+async function translateLyricsWithAI(lines, targetLanguage, mode, config) {
+  if (!config.apiKey) throw new Error("Add an API key in Settings → AI Lyrics Translation.");
+  const provider = config.provider;
+  const defaults = aiProviderDefaults(provider);
+  const model = config.model || defaults.model;
+  const endpoint = resolveAiEndpoint(provider, config.baseUrl || defaults.url);
+  const lineCount = lines.length;
+  const modeInstruction =
+    mode === "hinglish"
+      ? "Translate into natural Hinglish using only the English/Latin alphabet. Never use Devanagari."
+      : mode === "romanized"
