@@ -83,3 +83,45 @@ export default function ArtistsView({
         apple?.heroUrl || detail?.header?.thumbnail || selectedArtist.thumbnail,
       videoUrl: canvas || apple?.videoUrl,
     });
+    return () => onArtworkChange?.(null);
+  }, [
+    selectedArtist?.id,
+    apple,
+    detail?.header?.thumbnail,
+    canvas,
+    onArtworkChange,
+  ]);
+
+  useEffect(() => {
+    let active = true;
+    setArtists([]);
+    if (!userProfile?.isLoggedIn) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    window.api.yt
+      .getSubscribedArtists()
+      .then((data) => {
+        if (!active) return;
+        setArtists(data?.artists || []);
+        if (data?.error) setError("Your artists couldn’t load.");
+      })
+      .catch(() => {
+        if (active) setError("Your artists couldn’t load.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [userProfile?.isLoggedIn]);
+
+  useEffect(() => {
+    const revision = ++requestId.current;
+    setDetail(null);
+    setShowAssets(false);
+    setError("");
+    if (!selectedArtist?.id) return;
+    setLoadingDetail(true);
