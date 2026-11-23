@@ -1942,3 +1942,67 @@ function registerIpcHandlers() {
     }
   });
 
+  ipcMain.handle("yt:getAlbum", async (_event, albumId) => {
+    if (initPromise) await initPromise;
+    if (!yt) return { tracks: [], error: "Music service is unavailable" };
+    try {
+      const album = await yt.music.getAlbum(albumId);
+      const albumName = album.header?.title?.text || "";
+      const tracks = (album.contents || [])
+        .map((item) => {
+          const track = normalizeSearchTrack(item);
+          return track
+            ? {
+                ...track,
+                album: track.album || { name: albumName, id: albumId },
+              }
+            : null;
+        })
+        .filter(Boolean);
+      return {
+        id: albumId,
+        title: albumName,
+        thumbnail: getThumbnailUrl(album.header?.thumbnail),
+        tracks,
+      };
+    } catch (error) {
+      logToFile("Get Album error:", error.message);
+      return { tracks: [], error: error.message };
+    }
+  });
+
+  ipcMain.handle("yt:getPlaylist", async (_event, playlistId) => {
+    if (initPromise) await initPromise;
+    if (!yt) return { tracks: [] };
+    if (playlistId.startsWith("RD")) {
+      try {
+        const response = await yt.actions.execute("/next", {
+          playlistId,
+          client: "YTMUSIC",
+          enablePersistentPlaylistPanel: true,
+        });
+        const tracks = parseRadioTracks(response.data, highQualityArtwork);
+        if (tracks.length) return { tracks };
+      } catch {}
+    }
+    if (playlistId.startsWith("MPSP")) {
+      try {
+        const response = await yt.actions.execute("/browse", {
+          browseId: playlistId,
+          client: "YTMUSIC",
+        });
+        const page = parseHomePage(
+          response.data,
+          playlistId,
+          "podcasts",
+          highQualityArtwork,
+        );
+        return {
+          tracks: page.sections
+            .flatMap((section) => section.contents)
+            .filter((item) => item.videoId)
+            .map((item) => ({ ...item, id: item.videoId })),
+        };
+      } catch (error) {
+        return { tracks: [], error: error.message };
+      }
