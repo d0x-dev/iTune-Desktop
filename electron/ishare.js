@@ -71,3 +71,40 @@ function decodeSession(session = {}) {
   ];
   const settings = {
     allowGuestsToControlPlayback: false,
+    allowGuestsToAddTracks: true,
+    ...(session.settings || {}),
+    ...(state.settings || {}),
+  };
+  let durationMs = Number(state.durationMs) || 0;
+  let totalQueueSize = Number(state.totalQueueSize) || 0;
+  const addEncodedQueue = (payload) => {
+    String(payload || "")
+      .split(";")
+      .forEach((entry) => {
+        const divider = entry.indexOf(":");
+        if (divider <= 0) return;
+        const id = entry.slice(0, divider).trim();
+        const title = entry.slice(divider + 1).trim() || "Queued track";
+        if (id)
+          queue.push({
+            id,
+            title,
+            artist: "iShare",
+            thumbnailUrl: `https://i.ytimg.com/vi/${id}/mqdefault.jpg`,
+            durationMs: 0,
+          });
+      });
+  };
+  const rawThumbnail = String(state.thumbnailUrl || "");
+  if (rawThumbnail.includes("#Q=")) addEncodedQueue(rawThumbnail.split("#Q=")[1]);
+  artists.forEach((artist) => {
+    const value = String(artist || "");
+    if (value.startsWith(META_PREFIX)) {
+      const params = new URLSearchParams(value.slice(META_PREFIX.length));
+      if (params.has("pb"))
+        settings.allowGuestsToControlPlayback = params.get("pb") === "1";
+      if (params.has("tr"))
+        settings.allowGuestsToAddTracks = params.get("tr") !== "0";
+      durationMs = Number(params.get("dur")) || durationMs;
+      totalQueueSize = Number(params.get("qs")) || totalQueueSize;
+    } else if (value.startsWith(QUEUE_PREFIX)) {
