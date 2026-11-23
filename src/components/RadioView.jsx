@@ -170,3 +170,38 @@ export default function RadioView({
           <div className="radio-grid">
             {visibleStations.map((station) => {
               const selected = currentTrack?.id === station.id;
+              const favorite = favoriteIds.has(station.id);
+              return (
+                <article
+                  className={`radio-card ${selected ? "current" : ""}`}
+                  key={station.id}
+                  onContextMenu={(event) =>
+                    onContextMenu?.(event, station, visibleStations)
+                  }
+                >
+                  <button
+                    className="radio-card-main"
+                    onClick={() => playStation(station)}
+                  >
+                    <div className="radio-art">
+                      <Artwork src={station.thumbnail} title={station.title} />
+                      <span className="cover-play">
+                        {selected && isPlaying ? (
+                          <span className="equalizer"><i /><i /><i /></span>
+                        ) : (
+                          <Play size={18} fill="currentColor" />
+                        )}
+                      </span>
+                    </div>
+                    <span className="radio-card-copy">
+                      <strong>{station.title}</strong>
+                      <small>
+                        {[station.cityState, station.countryName]
+                          .filter(Boolean)
+                          .join(", ") || "Online Radio"}
+                      </small>
+                      <span className="radio-meta">
+                        <Signal size={12} /> {station.codec}
+                        {station.bitrateKbps ? ` · ${station.bitrateKbps} kbps` : ""}
+                      </span>
+                    </span>
