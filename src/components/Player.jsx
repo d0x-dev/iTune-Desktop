@@ -542,3 +542,42 @@ const Player = forwardRef(function Player(
           disabled={!currentTrack || loading}
           aria-label={isPlaying ? "Pause" : "Play"}
         >
+          {loading ? (
+            <Loader2 size={24} className="animate-spin" />
+          ) : isPlaying ? (
+            <Pause size={25} fill="currentColor" />
+          ) : (
+            <Play size={25} fill="currentColor" />
+          )}
+        </button>
+        <button
+          className="icon-button"
+          onClick={() => onNext()}
+          disabled={!currentTrack}
+          aria-label="Next song"
+        >
+          <AndroidIcon name="skip_next" size={22} />
+        </button>
+        <button
+          className={`icon-button ${repeatMode !== "off" ? "selected" : ""}`}
+          onClick={onToggleRepeat}
+          aria-label={`Repeat ${repeatMode}`}
+          title={`Repeat ${repeatMode}`}
+          aria-pressed={repeatMode !== "off"}
+        >
+          <AndroidIcon
+            name={repeatMode === "one" ? "repeat_one" : "repeat"}
+            size={17}
+          />
+        </button>
+      </div>
+      <div className="now-playing">
+        <Artwork
+          src={currentTrack?.thumbnail}
+          title={currentTrack?.title || ""}
+          className="player-art"
+          eager
+        />
+        <div className="now-playing-details">
+          <div className="now-playing-title">
+            {currentTrack ? <ExplicitTitle item={currentTrack} /> : <Music2 size={24} />}
