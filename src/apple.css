@@ -81,3 +81,86 @@ body {
 :root[data-acrylic="true"],
 :root[data-acrylic="true"] body,
 :root[data-acrylic="true"] #root {
+  background: transparent;
+}
+:root[data-acrylic="true"] {
+  --surface: #2b141b8c;
+  --chrome: #2412188f;
+  --plate: #ffffff10;
+  --plate-hover: #ffffff1a;
+  --glass-sidebar: #28111991;
+  --glass-player: #2d161d8c;
+  --background-shade: transparent;
+  --acrylic-panel: #2a141a6e;
+  --acrylic-panel-strong: #25111799;
+  --acrylic-border: #ffffff1c;
+  --acrylic-highlight: #ffffff0e;
+}
+:root[data-acrylic="true"] .app-container {
+  background:
+    radial-gradient(circle at 18% 12%, #ff31462b, transparent 34%),
+    linear-gradient(135deg, #3d08134a, #140c1238 52%, #4f101b45);
+}
+.app-container,
+.app-shell {
+  position: relative;
+  isolation: isolate;
+}
+.app-container > .artwork-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.desktop-titlebar,
+.app-shell {
+  position: relative;
+  z-index: 1;
+}
+.workspace,
+.sidebar {
+  position: relative;
+  z-index: 1;
+}
+.desktop-titlebar {
+  background: var(--chrome);
+  border-bottom-color: var(--border-subtle);
+}
+[data-acrylic="true"] .desktop-titlebar {
+  background: #2512189e;
+  backdrop-filter: none;
+  border-bottom: 1px solid var(--acrylic-border);
+  box-shadow: inset 0 1px var(--acrylic-highlight);
+}
+.desktop-titlebar span {
+  color: var(--muted);
+}
+.sidebar {
+  background: var(--glass-sidebar);
+  backdrop-filter: blur(38px) saturate(1.4);
+  border-right-color: var(--border-subtle);
+  padding-top: 20px;
+}
+.sidebar-brand {
+  color: var(--foreground);
+  font-size: 26px;
+  gap: 8px;
+  letter-spacing: -1px;
+  padding-bottom: 20px;
+  min-height: 68px;
+}
+.brand-app-icon {
+  width: 31px;
+  height: 31px;
+  object-fit: contain;
+}
+.android-icon {
+  display: inline-block;
+  flex-shrink: 0;
+  background: currentColor;
+  mask-size: contain;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+}
