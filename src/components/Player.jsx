@@ -620,3 +620,42 @@ const Player = forwardRef(function Player(
           className={`icon-button favorite-button ${isLiked ? "selected" : ""}`}
           onClick={onToggleLike}
           aria-label={isLiked ? "Remove favorite" : "Favorite song"}
+          disabled={!currentTrack}
+        >
+          <FavoriteIcon filled={isLiked} size={17} />
+        </button>
+      </div>
+      <div className="player-tools">
+        <div className="volume-control">
+          <button
+            className="icon-button"
+            aria-label={muted ? "Unmute" : "Mute"}
+            onClick={toggleMute}
+          >
+            {muted || !volume ? <VolumeX size={17} /> : <Volume2 size={17} />}
+          </button>
+          <input
+            className="apple-seekbar apple-volume-bar"
+            aria-label="Volume"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={muted ? 0 : volume}
+            onChange={changeVolume}
+            style={{ "--progress": `${muted ? 0 : volume * 100}%` }}
+          />
+        </div>
+        <button
+          className={`icon-button ${preferences.audioEffectsEnabled ? "selected" : ""}`}
+          onClick={() => setShowEffects((value) => !value)}
+          aria-label="Audio effects"
+          title="Audio effects"
+          aria-pressed={showEffects}
+        >
+          <SlidersHorizontal size={18} />
+        </button>
+        <AnimatedPresence
+          show={showEffects}
+          duration={220}
+          className="presence-audio-effects"
