@@ -2654,3 +2654,68 @@ function registerIpcHandlers() {
         hidebroken: "true",
         order: options.query ? "votes" : "clickcount",
         reverse: "true",
+      });
+      if (options.countryCode) params.set("countrycode", options.countryCode);
+      if (String(options.query || "").trim())
+        params.set("name", String(options.query).trim());
+      const rows = await fetchRadioJson(`/json/stations/search?${params}`);
+      return {
+        stations: rows.map(normalizeRadioStation).filter(Boolean),
+        hasMore: rows.length >= Number(params.get("limit")),
+      };
+    } catch (err) {
+      return { stations: [], hasMore: false, error: err.message };
+    }
+  });
+
+  ipcMain.handle("radio:recordClick", async (_event, stationUuid) => {
+    if (!stationUuid) return { ok: false };
+    try {
+      await fetchRadioJson(`/json/url/${encodeURIComponent(stationUuid)}`);
+      return { ok: true };
+    } catch {
+      return { ok: false };
+    }
+  });
+
+  ipcMain.handle("yt:getLyrics", async (_event, videoId, metadata = {}) => {
+    if (initPromise) await initPromise;
+    if (!yt) return { lyrics: null };
+    const requestMetadata = { ...metadata, videoId };
+    const youtubeMusic = async () => {
+      try {
+        const lyrics = await yt.music.getLyrics(videoId);
+        const text = lyrics?.description?.text || lyrics?.text || null;
+        return text ? { lyrics: text, source: "YouTube Music" } : null;
+      } catch {
+        return null;
+      }
+    };
+    const getProvider = async (provider) => {
+      if (provider === "youtube_music" || provider === "youtube")
+        return youtubeMusic();
+      if (provider === "youtube_subtitles")
+        return youtubeSubtitleLyrics(yt, videoId);
+      return fetchLyricsProvider(provider, requestMetadata);
+    };
+    const selected = metadata.provider || "auto";
+    if (selected !== "auto") {
+      const found = await getProvider(selected);
+      return found || { lyrics: null, source: null };
+    }
+
+    const automaticOrder = [
+      ...AUTO_ORDER.slice(0, 3),
+      "youtube_subtitles",
+      ...AUTO_ORDER.slice(3, 9),
+      "youtube_music",
+      ...AUTO_ORDER.slice(9),
+    ];
+    for (let index = 0; index < automaticOrder.length; index += 4) {
+      const batch = automaticOrder.slice(index, index + 4);
+      const results = await Promise.all(batch.map(getProvider));
+      const found = results.find((candidate) => candidate?.lyrics);
+      if (found) return found;
+    }
+    return { lyrics: null, source: null };
+  });
