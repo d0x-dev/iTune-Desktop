@@ -36,3 +36,22 @@ export function initializeBrowserApi() {
       getItems: fetchDeveloperNews,
       openLink: async (value) => {
         const url = newsWebUrl(value);
+        if (url) window.open(url, "_blank", "noopener,noreferrer");
+      },
+    },
+    auth: {
+      getStatus: async () => ({ isLoggedIn: false }),
+      login: desktopRequired,
+      logout: desktopRequired,
+      importCookie: desktopRequired,
+    },
+    yt: {
+      getHome: async () => ({ sections: [] }),
+      getSearchSuggestions: async () => ({ suggestions: [] }),
+      search: desktopRequired,
+      getLyrics: desktopRequired,
+      getSongStream: desktopRequired,
+    },
+    onAuthChanged: () => () => {},
+  };
+}
