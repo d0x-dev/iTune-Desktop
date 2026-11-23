@@ -31,3 +31,37 @@ export default function DiscoveryView({
   }, [feed.continuation, feed.error, feed.loadingMore, feed.loadMore]);
   const title = kind === "new" ? "New" : kind === "radio" ? "Radio" : "Home";
   const allItems = feed.sections.flatMap((section) => section.contents);
+  const featured = allItems
+    .filter((item) => ["album", "playlist"].includes(item.type))
+    .filter(
+      (item, index, items) =>
+        items.findIndex((other) => other.id === item.id) === index,
+    )
+    .slice(0, 6);
+  const radioSections = feed.sections.filter((section) =>
+    /radio|mix|station/i.test(section.title),
+  );
+  const sections = kind === "radio" ? radioSections : feed.sections;
+  useEffect(() => {
+    const artwork =
+      featured[0]?.thumbnail ||
+      sections.find((section) => section.contents?.[0]?.thumbnail)
+        ?.contents?.[0]?.thumbnail ||
+      null;
+    onBackdropChange?.(artwork);
+  }, [featured[0]?.thumbnail, sections, onBackdropChange]);
+  return (
+    <div className={`page home-page ${kind}-page`}>
+      <header className="page-heading">
+        <h1>{title}</h1>
+        <button
+          className="icon-button"
+          aria-label={`Refresh ${title}`}
+          onClick={feed.refresh}
+        >
+          <RefreshCw size={17} />
+        </button>
+      </header>
+      {feed.loading && !feed.sections.length ? (
+        <div
+          className="home-skeleton"
