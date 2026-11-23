@@ -70,3 +70,27 @@ export function PreferencesProvider({ children }) {
       document.documentElement.dataset.motion = String(preferences.motion);
       document.documentElement.dataset.playerPlacement =
         preferences.playerPlacement;
+      document.documentElement.dataset.collectionEffects = String(
+        preferences.collectionVisualEffects,
+      );
+      window.api.window?.setAppearance?.(
+        theme,
+        preferences.desktopTransparency,
+      );
+    };
+    apply();
+    media.addEventListener("change", apply);
+    try {
+      localStorage.setItem("itune-preferences", JSON.stringify(preferences));
+    } catch {}
+    return () => media.removeEventListener("change", apply);
+  }, [preferences]);
+  const updatePreference = (key, value) =>
+    setPreferences((previous) => ({ ...previous, [key]: value }));
+  return (
+    <PreferencesContext.Provider value={{ preferences, updatePreference }}>
+      {children}
+    </PreferencesContext.Provider>
+  );
+}
+export const usePreferences = () => useContext(PreferencesContext);
