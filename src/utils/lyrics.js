@@ -91,3 +91,34 @@ export function parseLyrics(source) {
       throw new Error("This file needs TTML lyric paragraphs.");
     return paragraphs
       .map((paragraph) => {
+        let inheritedTime = 0;
+        for (
+          let parent = paragraph.parentElement;
+          parent;
+          parent = parent.parentElement
+        )
+          inheritedTime += time(parent.getAttribute("begin")) || 0;
+        const ownStart = time(paragraph.getAttribute("begin"));
+        const start = ownStart == null ? null : inheritedTime + ownStart;
+        const end = time(paragraph.getAttribute("end"));
+        const duration = time(paragraph.getAttribute("dur"));
+        const finish =
+          end != null
+            ? inheritedTime + end
+            : start != null && duration != null
+              ? start + duration
+              : null;
+        return {
+          text: lyricText(paragraph).trim(),
+          start,
+          end: finish,
+          words: lyricWords(paragraph, start, finish, time),
+        };
+      })
+      .filter((line) => line.text)
+      .sort((a, b) => (a.start ?? Infinity) - (b.start ?? Infinity));
+  }
+  const lines = [];
+  for (const text of source.split(/\r?\n/)) {
+    const timestamps = [...text.matchAll(/\[(\d+:\d+(?:\.\d+)?)\]/g)];
+    const content = text
