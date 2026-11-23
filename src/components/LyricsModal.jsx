@@ -615,3 +615,47 @@ export default function LyricsModal({
                   />
                   <div>
                     <button onClick={() => setLyricsDraft("")}>
+                      <FileText size={15} /> Clear
+                    </button>
+                    <button onClick={restoreOnlineLyrics}>
+                      <RotateCcw size={15} /> Reset
+                    </button>
+                    <button
+                      className="lyrics-primary-action"
+                      onClick={async () => {
+                        try {
+                          await applyLyrics(lyricsDraft, "Edited lyrics");
+                        } catch (failure) {
+                          setError(failure.message);
+                        }
+                      }}
+                    >
+                      <Check size={16} /> Save
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {toolsPage === "offset" && (
+                <div className="lyrics-offset-tools">
+                  <strong>{offsetLabel}</strong>
+                  <p>Move forward when lyrics appear late, backward when they appear early. Audio is unchanged.</p>
+                  <input
+                    className="apple-seekbar lyrics-offset-seekbar"
+                    type="range"
+                    min="-5000"
+                    max="5000"
+                    step="100"
+                    value={lyricsOffsetMs}
+                    onChange={(event) => updateLyricsOffset(event.target.value)}
+                    style={{ "--progress": `${(lyricsOffsetMs + 5000) / 100}%` }}
+                  />
+                  <div className="lyrics-offset-scale"><span>−5.0s</span><span>0</span><span>+5.0s</span></div>
+                  <div className="lyrics-offset-actions">
+                    <button onClick={() => updateLyricsOffset(lyricsOffsetMs - 500)}>−0.5s</button>
+                    <button onClick={() => updateLyricsOffset(0)}>Reset</button>
+                    <button onClick={() => updateLyricsOffset(lyricsOffsetMs + 500)}>+0.5s</button>
+                  </div>
+                </div>
+              )}
+            </div>
