@@ -2996,3 +2996,86 @@ button:not(:disabled):active {
 .radio-card:hover .cover-play,
 .radio-card.current .cover-play { opacity: 1; }
 .radio-card-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.radio-card-copy strong,
+.radio-card-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.radio-card-copy small,
+.radio-meta { color: var(--secondary-text); }
+.radio-meta { display: flex; align-items: center; font-size: 11px; }
+.radio-favorite { flex: 0 0 auto; }
+
+/* Item-aware macOS-style contextual menus. */
+.apple-context-menu {
+  position: fixed;
+  z-index: 10000;
+  width: 248px;
+  padding: 6px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 13px;
+  color: var(--text-color);
+  background: color-mix(in srgb, var(--panel-color) 84%, transparent);
+  box-shadow: 0 18px 55px rgba(0,0,0,.35), inset 0 1px rgba(255,255,255,.1);
+  backdrop-filter: blur(28px) saturate(170%);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  animation: context-menu-in 100ms ease-out;
+}
+@keyframes context-menu-in {
+  from { opacity: 0; transform: scale(.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+.context-menu-title {
+  display: grid;
+  gap: 2px;
+  padding: 7px 9px 8px;
+  overflow: hidden;
+}
+.context-menu-title strong,
+.context-menu-title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.context-menu-title span { color: var(--secondary-text); font-size: 11px; }
+.apple-context-menu button,
+.context-submenu button {
+  width: 100%;
+  min-height: 29px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  color: inherit;
+  text-align: left;
+  font-size: 13px;
+}
+.apple-context-menu button > span { flex: 1; }
+.apple-context-menu button:hover,
+.apple-context-menu button:focus-visible,
+.apple-context-menu button.selected {
+  color: white;
+  background: var(--accent-color);
+  outline: none;
+}
+.context-divider { height: 1px; margin: 5px 6px; background: var(--border-color); }
+.context-submenu-wrap { position: relative; }
+.context-submenu {
+  display: none;
+  position: absolute;
+  left: calc(100% - 2px);
+  top: -6px;
+  width: 220px;
+  max-height: 340px;
+  overflow: auto;
+  padding: 6px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel-color) 92%, transparent);
+  box-shadow: 0 14px 42px rgba(0,0,0,.32);
+  backdrop-filter: blur(24px) saturate(160%);
+}
+.context-submenu-wrap:hover .context-submenu,
+.context-submenu-wrap:focus-within .context-submenu { display: block; }
