@@ -13,3 +13,18 @@ export function useFestival() {
       return inactive;
     }
   });
+
+  useEffect(() => {
+    let active = true;
+    window.api.festival.getConfig().then((fresh) => {
+      if (!active) return;
+      setConfig(fresh);
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify(fresh));
+      } catch {}
+    }).catch(() => {});
+    return () => { active = false; };
+  }, []);
+
+  return config;
+}
