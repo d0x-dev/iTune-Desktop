@@ -3,147 +3,79 @@
 @tailwind utilities;
 
 :root {
-  --bg-main: #0a0b0e;
-  --bg-sidebar: #07080a;
-  --bg-player: rgba(14, 16, 22, 0.85);
-  --bg-card: rgba(255, 255, 255, 0.04);
-  --bg-card-hover: rgba(255, 255, 255, 0.08);
-  --accent-color: #fa2d48;
-  --accent-gradient: linear-gradient(135deg, #fa2d48 0%, #fa586a 100%);
-  --text-primary: #ffffff;
-  --text-secondary: #98989f;
-  --border-subtle: rgba(255, 255, 255, 0.08);
+  color-scheme: dark;
+  --bg-main: #1f1f1f;
+  --bg-sidebar: #252525;
+  --accent-color: #fa586a;
+  --text-primary: #f5f5f7;
+  --text-secondary: #a0a0a5;
+  --border-subtle: rgba(255, 255, 255, 0.085);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-apple: cubic-bezier(0.22, 1, 0.36, 1);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica,
+    Arial, sans-serif;
+  font-synthesis: none;
 }
-
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  user-select: none;
 }
-
 body {
-  background-color: var(--bg-main);
+  margin: 0;
   color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg-main);
   overflow: hidden;
-  height: 100vh;
-  width: 100vw;
 }
-
-/* Custom Scrollbar */
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+button {
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+  background: none;
+}
+button:disabled,
+.disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-app-region: no-drag;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+label:focus-within {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 4px;
+}
+input,
+textarea {
+  user-select: text;
+}
+input::placeholder,
+textarea::placeholder {
+  color: #87878b;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+img {
+  display: block;
+}
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-/* App Layout */
-.app-container {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  flex-direction: column;
-}
-
-.main-body {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-.sidebar {
-  width: 260px;
-  background-color: var(--bg-sidebar);
-  border-right: 1px solid var(--border-subtle);
-  display: flex;
-  flex-direction: column;
-  padding: 24px 16px 16px 16px;
-  gap: 24px;
-}
-
-.content-area {
-  flex: 1;
-  overflow-y: auto;
-  position: relative;
-  padding: 32px 40px;
-  background: radial-gradient(circle at 50% 0%, rgba(250, 45, 72, 0.05) 0%, transparent 60%);
-}
-
-.player-bar {
-  height: 88px;
-  background: var(--bg-player);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border-subtle);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 28px;
-  z-index: 50;
-}
-
-/* Glass Cards */
-.glass-card {
-  background: var(--bg-card);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.glass-card:hover {
-  background: var(--bg-card-hover);
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.14);
-}
-
-/* Range input scrubber styling */
-input[type="range"] {
-  -webkit-appearance: none;
-  background: rgba(255, 255, 255, 0.15);
-  height: 4px;
-  border-radius: 2px;
-  outline: none;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-input[type="range"]:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-  cursor: pointer;
-  transition: transform 0.1s;
-}
-
-input[type="range"]:hover::-webkit-slider-thumb {
-  transform: scale(1.2);
+  width: 7px;
+  height: 7px;
 }
