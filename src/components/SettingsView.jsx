@@ -172,3 +172,47 @@ export default function SettingsView({
             label="Animated Artwork"
             value={preferences.motion}
             onChange={(value) => updatePreference("motion", value)}
+          />
+        </Setting>
+        <Setting
+          title="Splash Screen"
+          description="Play the Android iTune typing and travelling-logo intro when iTune starts."
+        >
+          <Toggle
+            label="Splash Screen"
+            value={preferences.splashScreenEnabled}
+            onChange={(value) => updatePreference("splashScreenEnabled", value)}
+          />
+        </Setting>
+        <Setting
+          title="Collection Atmosphere"
+          description="Spread artist, album, and playlist artwork color and motion across the full app."
+        >
+          <Toggle
+            label="Collection Atmosphere"
+            value={preferences.collectionVisualEffects}
+            onChange={(value) =>
+              updatePreference("collectionVisualEffects", value)
+            }
+          />
+        </Setting>
+        <Setting title="Player Position">
+          <GlassSelect
+            label="Player Position"
+            value={preferences.playerPlacement}
+            onChange={(value) => updatePreference("playerPlacement", value)}
+            options={[
+              { value: "top", label: "Top Bar" },
+              { value: "floating", label: "Floating Player" },
+            ]}
+          />
+        </Setting>
+      </section>
+      <section className="settings-section">
+        <h2>Artists & Lyrics</h2>
+        <Setting
+          title="Apple Artist Artwork"
+          description="Look up matching artist photos, signature logos, and motion artwork."
+        >
+          <Toggle
+            label="Apple Artist Artwork"
