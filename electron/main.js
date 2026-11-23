@@ -1164,3 +1164,68 @@ function openGoogleLogin() {
               checkInterval = null;
             }
 
+            logToFile(
+              "Google login completed! Building clean deduplicated YouTube Music session cookies.",
+            );
+            const finalCookies = await authSession.cookies.get({});
+            const finalYt = finalCookies.filter(
+              (c) => c.domain && c.domain.includes("youtube.com"),
+            );
+            const finalGoogle = finalCookies.filter(
+              (c) =>
+                c.domain &&
+                c.domain.includes("google.com") &&
+                !c.domain.includes("youtube.com"),
+            );
+
+            const finalMap = new Map();
+            for (const c of finalGoogle) {
+              if (c.name && c.value) finalMap.set(c.name, c.value);
+            }
+            for (const c of finalYt) {
+              if (c.name && c.value) finalMap.set(c.name, c.value);
+            }
+
+            const cleanCookieString = Array.from(finalMap.entries())
+              .map(([k, v]) => `${k}=${v}`)
+              .join("; ");
+
+            saveCookie(cleanCookieString);
+            const profile = await initYouTube(cleanCookieString);
+
+            if (mainWindow && !mainWindow.isDestroyed()) {
+              mainWindow.webContents.send("auth:changed", profile);
+            }
+
+            if (authWindow && !authWindow.isDestroyed()) {
+              authWindow.destroy();
+            }
+            authWindow = null;
+
+            if (loginResolver) {
+              loginResolver(profile);
+              loginResolver = null;
+            }
+          }, 1200);
+        }
+      } catch (err) {
+        logToFile("Error checking login cookies:", err);
+      }
+    };
+
+    checkInterval = setInterval(checkCookies, 1000);
+
+    authWindow.webContents.on("did-navigate", async () => {
+      await checkCookies();
+    });
+
+    authWindow.webContents.on("did-frame-navigate", async () => {
+      await checkCookies();
+    });
+
+    authWindow.webContents.on("did-finish-load", async () => {
+      await checkCookies();
+    });
+
+    authWindow.on("closed", () => {
+      if (checkInterval) {
