@@ -146,3 +146,40 @@ export default function AboutDialog({
                     <span>Preparing update download…</span>
                     <LoaderCircle className="about-spin" size={17} />
                   </div>
+                )}
+              </section>
+            ) : (
+              <button
+                className="about-primary-action"
+                type="button"
+                onClick={latest ? () => window.api.updates.openReleases() : checkForUpdates}
+                disabled={checking}
+              >
+                {checking ? <LoaderCircle className="about-spin" size={16} /> : <ArrowDownToLine size={16} />}
+                {latest ? "View GitHub Release" : checking ? "Checking GitHub…" : "Check for Updates"}
+              </button>
+            )}
+            {message && <p className="about-status" role="status">{message}</p>}
+          </div>
+
+          <details className="about-downloads">
+            <summary>
+              <span>Available downloads</span>
+              <ArrowUpRight size={15} />
+            </summary>
+            <div className="about-release-list">
+              {releases.length ? releases.map((release) => (
+                <details className="about-release" key={release.tag}>
+                  <summary>
+                    <span><strong>{release.name}</strong><small>{release.tag}{release.publishedAt ? ` · ${new Date(release.publishedAt).toLocaleDateString()}` : ""}</small></span>
+                    <ArrowUpRight size={14} />
+                  </summary>
+                  <ReleaseNotes notes={release.notes} />
+                  <div className="about-asset-list">
+                    {release.assets.length ? release.assets.map((asset) => {
+                      const downloading = busyAsset === asset.name;
+                      const downloaded = downloadedAssets.has(asset.name) || updateResult?.downloadedAsset === asset.name;
+                      return (
+                        <div className="about-asset" key={asset.name}>
+                          <div><strong>{asset.name}</strong><small>{formatSize(asset.size)}</small></div>
+                          {downloaded ? (
