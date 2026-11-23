@@ -148,3 +148,41 @@ export default function LibraryView({
           className="text-button back-link"
           onClick={() => setAlbum(null)}
         >
+          <ArrowLeft size={16} />
+          Albums
+        </button>
+        <header className="collection-header">
+          <Artwork
+            src={albumArtwork?.heroUrl || album.thumbnail || detail?.thumbnail}
+            title={album.title}
+            eager
+          >
+            <Canvas src={albumArtwork?.videoUrl} />
+          </Artwork>
+          <div>
+            <span className="eyebrow">Album</span>
+            <h1><ExplicitTitle item={album} /></h1>
+            <h2>{getArtistName(album)}</h2>
+            <p>{detail?.tracks?.length || 0} songs</p>
+            <div className="collection-actions">
+              <button
+                className="primary-button"
+                disabled={!detail?.tracks?.length}
+                onClick={() => onSelectTrack(detail.tracks[0], detail.tracks)}
+              >
+                <Play size={15} fill="currentColor" />
+                Play
+              </button>
+              <button
+                className="secondary-button"
+                disabled={!detail?.tracks?.length}
+                onClick={() => onShuffleTracks(detail.tracks)}
+              >
+                <Shuffle size={15} />
+                Shuffle
+              </button>
+            </div>
+          </div>
+        </header>
+        {error && (
+          <p role="alert" className="error-text">
