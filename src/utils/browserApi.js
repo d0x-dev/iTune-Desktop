@@ -17,3 +17,22 @@ export function initializeBrowserApi() {
         platform: "web",
         architecture: "browser",
         releasesUrl: "https://github.com/d0x-dev/iTune-Desktop/releases",
+      }),
+      check: async () => ({ releases: [], latestRelease: null, updateAvailable: false }),
+      download: desktopRequired,
+      install: desktopRequired,
+      openReleases: async () =>
+        window.open("https://github.com/d0x-dev/iTune-Desktop/releases", "_blank", "noopener,noreferrer"),
+      openRepository: async () =>
+        window.open("https://github.com/d0x-dev/iTune-Desktop", "_blank", "noopener,noreferrer"),
+      openLicense: async () =>
+        window.open("https://www.gnu.org/licenses/gpl-3.0.html", "_blank", "noopener,noreferrer"),
+      onDownloadProgress: () => () => {},
+    },
+    festival: {
+      getConfig: () => fetchFestivalConfig(packageInfo.version),
+    },
+    news: {
+      getItems: fetchDeveloperNews,
+      openLink: async (value) => {
+        const url = newsWebUrl(value);
