@@ -62,3 +62,35 @@ export default function AudioEffectsPanel({ onClose, radioMode = false }) {
         value={preferences.spatialWidth}
         min={0}
         max={1}
+        step={0.01}
+        display={`${Math.round(preferences.spatialWidth * 100)}%`}
+        disabled={!preferences.audioEffectsEnabled || !preferences.virtualAtmos || radioMode}
+        onChange={(value) => set("spatialWidth", value)}
+      />
+      <EffectRange
+        label="Bass"
+        value={preferences.bassBoost}
+        min={-6}
+        max={12}
+        step={1}
+        display={`${preferences.bassBoost > 0 ? "+" : ""}${preferences.bassBoost} dB`}
+        disabled={!preferences.audioEffectsEnabled || radioMode}
+        onChange={(value) => set("bassBoost", value)}
+      />
+      <EffectRange
+        label="Treble"
+        value={preferences.trebleBoost}
+        min={-6}
+        max={10}
+        step={1}
+        display={`${preferences.trebleBoost > 0 ? "+" : ""}${preferences.trebleBoost} dB`}
+        disabled={!preferences.audioEffectsEnabled || radioMode}
+        onChange={(value) => set("trebleBoost", value)}
+      />
+      <EffectRange
+        label="Room"
+        value={preferences.reverbAmount}
+        min={0}
+        max={0.55}
+        step={0.01}
+        display={`${Math.round(preferences.reverbAmount * 100)}%`}
