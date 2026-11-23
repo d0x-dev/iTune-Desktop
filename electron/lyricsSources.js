@@ -277,3 +277,43 @@ async function youLy(metadata) {
     "https://lyricsplus-seven.vercel.app/",
   ];
   const query = paramsFor(metadata);
+  for (const mirror of mirrors) {
+    for (const route of ["v1/ttml/get", "v2/lyrics/get"]) {
+      try {
+        const data = await request(`${mirror}${route}?${query}`, { json: true });
+        const found = result(findLyrics(data), "YouLy");
+        if (found) return found;
+      } catch {}
+    }
+  }
+  return null;
+}
+
+function decodeHtml(value) {
+  return String(value || "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
+
+async function megalobiz(metadata) {
+  const query = [metadata.artist, metadata.title].filter(Boolean).join(" ");
+  if (!query) return null;
+  const search = await request(
+    `https://www.megalobiz.com/searchall?qry=${encodeURIComponent(query)}`,
+  );
+  const match = search.match(
+    /href=["'](\/lrc\/maker\/download\/[^"']+)["']/i,
+  );
+  if (!match) return null;
+  const page = await request(`https://www.megalobiz.com${match[1]}`);
+  const detail = page.match(
+    /id=["']lrc_[^"']*_details["'][^>]*>([\s\S]*?)<\/span>/i,
+  )?.[1];
+  return result(decodeHtml(detail), "Megalobiz", true);
+}
+
