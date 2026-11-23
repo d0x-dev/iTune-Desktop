@@ -350,3 +350,47 @@ export default function LyricsModal({
     setSearchError("");
     try {
       const result = await window.api.yt.searchLyrics(track.id, {
+        title: searchTitle.trim(),
+        artist: searchArtist.trim(),
+        duration: lyricsDuration,
+      });
+      setSearchResults(result?.results || []);
+      if (!result?.results?.length)
+        setSearchError("No matching lyrics found. Try changing the title or artist.");
+    } catch {
+      setSearchResults([]);
+      setSearchError("Lyrics search couldn’t be completed.");
+    } finally {
+      setSearching(false);
+    }
+  };
+  const openToolsPage = (page) => {
+    if (page === "edit") setLyricsDraft(rawLyrics);
+    if (page === "search" && !searchResults.length) queueMicrotask(searchLyrics);
+    setToolsPage(page);
+  };
+  const updateLyricsOffset = (value) => {
+    const offset = Math.max(-5000, Math.min(5000, Math.round(Number(value) / 100) * 100));
+    setLyricsOffsetMs(offset);
+    localStorage.setItem(`itune:lyrics-offset:${track.id}`, String(offset));
+  };
+  const offsetLabel = `${lyricsOffsetMs >= 0 ? "+" : ""}${(lyricsOffsetMs / 1000).toFixed(1)}s`;
+  const lineStyle = (index) => {
+    const distance = Math.abs(index - Math.max(0, activeIndex));
+    return {
+      "--lyric-opacity": !timed
+        ? 0.95
+        : index === activeIndex
+          ? 1
+          : !following
+            ? 0.8
+            : [1, 0.72, 0.56, 0.44, 0.34, 0.26][Math.min(distance, 5)],
+      "--lyric-blur": `${!timed || !following || index === activeIndex ? 0 : [0, 1.1, 1.8, 2.6, 3.4][Math.min(distance, 4)]}px`,
+    };
+  };
+  const video = track.canvasUrl || canvasUrl || canvas;
+  return (
+    <div
+      className={`lyrics-overlay ${compact ? "compact-lyrics" : ""} ${compact && !controlsVisible ? "lyrics-controls-hidden" : ""}`}
+      onPointerMove={scheduleControlsHide}
+      onPointerDown={() => {
