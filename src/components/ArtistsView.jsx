@@ -296,3 +296,45 @@ export default function ArtistsView({
               </button>
             </div>
           </div>
+          <button
+            className="artist-customize icon-button"
+            aria-label="Customize artist artwork"
+            title="Signature and canvas artwork"
+            onClick={() => setShowAssets(!showAssets)}
+            aria-expanded={showAssets}
+          >
+            <SlidersHorizontal size={19} />
+          </button>
+        </div>
+        <AnimatedPresence
+          show={showAssets}
+          duration={220}
+          className="presence-artist-assets"
+        >
+          <section className="artist-asset-panel">
+            <div className="section-heading">
+              <h2>Artist artwork</h2>
+              <button
+                className="icon-button"
+                aria-label="Close artwork settings"
+                onClick={() => setShowAssets(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <p>
+              Add signature artwork and a looping video canvas for this artist.
+              Your files are saved on this device.
+            </p>
+            <div className="asset-actions">
+              {[
+                {
+                  kind: "signature",
+                  label: "Signature image",
+                  accept: ".png,.webp,.jpg,.jpeg",
+                  present: signature,
+                },
+                {
+                  kind: "canvas",
+                  label: "Canvas video",
+                  accept: ".mp4,.webm",
