@@ -56,3 +56,32 @@ export function animateLyricScroll(element, line, { duration, immediate, stagger
   }
 
   const delays = Array.from({ length: STAGGER_STEPS }, (_, index) =>
+    (index + 1) * STAGGER_FRACTION * duration,
+  );
+  const total = duration + (rows.length ? delays.at(-1) : 0);
+  const began = performance.now();
+  let frame;
+  const clearRows = () => {
+    for (const row of rows) row.style.removeProperty("--lyric-scroll-offset");
+  };
+  const update = (now) => {
+    const elapsed = now - began;
+    const distance = resolveTarget() - start;
+    const progress = lyricEase(elapsed / duration);
+    // Cancel part of the list movement on trailing rows so they catch up in sequence.
+    for (const [index, row] of rows.entries()) {
+      const delay = delays[Math.min(index, STAGGER_STEPS - 1)];
+      const delayed = lyricEase((elapsed - delay) / duration);
+      const offset = distance * (progress - delayed);
+      row.style.setProperty("--lyric-scroll-offset", `${offset}px`);
+    }
+    element.scrollTop = start + distance * progress;
+    if (elapsed < total) frame = requestAnimationFrame(update);
+    else clearRows();
+  };
+  frame = requestAnimationFrame(update);
+  return () => {
+    cancelAnimationFrame(frame);
+    clearRows();
+  };
+}
