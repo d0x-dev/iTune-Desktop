@@ -775,3 +775,68 @@ function normalizeSearchTrack(item) {
     type: item.item_type || item.type || "track",
     isExplicit: hasExplicitBadge(item),
   };
+}
+
+function hasExplicitBadge(item) {
+  if (item?.isExplicit === true || item?.is_explicit === true || item?.explicit === true) return true;
+  const badges = [item?.badges, item?.subtitleBadges, item?.subtitle_badges, item?.menu?.badges];
+  return badges.some((value) => /EXPLICIT|MUSIC_EXPLICIT_BADGE|explicitBadge/i.test(JSON.stringify(value || [])));
+}
+
+function parseResponsiveListItem(row) {
+  if (!row) return null;
+  const flex = row.flexColumns || [];
+  const col0 =
+    flex[0]?.musicResponsiveListItemFlexColumnRenderer?.text?.runs || [];
+  const col1 =
+    flex[1]?.musicResponsiveListItemFlexColumnRenderer?.text?.runs || [];
+  const col2 =
+    flex[2]?.musicResponsiveListItemFlexColumnRenderer?.text?.runs || [];
+
+  const title = col0
+    .map((r) => r.text)
+    .join("")
+    .trim();
+  const artistRuns = col1.filter(
+    (r) =>
+      r.navigationEndpoint?.browseEndpoint?.browseId?.startsWith("UC") ||
+      !r.text.includes("•"),
+  );
+  const artistName =
+    artistRuns
+      .map((r) => r.text)
+      .join("")
+      .trim() ||
+    col1
+      .map((r) => r.text)
+      .join("")
+      .trim();
+  const artistId = col1.find((run) =>
+    run.navigationEndpoint?.browseEndpoint?.browseId?.startsWith("UC"),
+  )?.navigationEndpoint.browseEndpoint.browseId;
+  const albumName = col2
+    .map((r) => r.text)
+    .join("")
+    .trim();
+
+  const fixed = row.fixedColumns || [];
+  const duration =
+    fixed[0]?.musicResponsiveListItemFixedColumnRenderer?.text?.runs
+      ?.map((r) => r.text)
+      .join("")
+      .trim() || "";
+
+  const thumbs =
+    row.thumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails || [];
+  const thumbnail = getThumbnailUrl(
+    row.thumbnail?.musicThumbnailRenderer?.thumbnail,
+  );
+
+  const videoId =
+    row.playlistItemData?.videoId ||
+    row.overlay?.musicItemThumbnailOverlayRenderer?.content
+      ?.musicPlayButtonRenderer?.playNavigationEndpoint?.watchEndpoint
+      ?.videoId ||
+    col0[0]?.navigationEndpoint?.watchEndpoint?.videoId ||
+    row.navigationEndpoint?.watchEndpoint?.videoId;
+
