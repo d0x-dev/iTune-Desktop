@@ -521,3 +521,46 @@ export default function SettingsView({
         </Setting>
         <Setting
           title="Crossfade Duration"
+          description={`${preferences.crossfadeDuration} seconds`}
+        >
+          <input
+            className="settings-range"
+            type="range"
+            min="1"
+            max="12"
+            step="1"
+            value={preferences.crossfadeDuration}
+            style={{ "--progress": `${((preferences.crossfadeDuration - 1) / 11) * 100}%` }}
+            disabled={!preferences.crossfadeEnabled}
+            onChange={(event) =>
+              updatePreference("crossfadeDuration", Number(event.target.value))
+            }
+          />
+        </Setting>
+        <Setting
+          title="Download Quality"
+          description="Songs are saved to your Music/iTune folder."
+        >
+          <GlassSelect
+            label="Download quality"
+            value={preferences.downloadQuality}
+            onChange={(value) => updatePreference("downloadQuality", value)}
+            options={[
+              { value: "best", label: "Best Available" },
+              { value: "data-saver", label: "Data Saver" },
+            ]}
+          />
+        </Setting>
+      </section>
+      <section className="settings-section settings-about-section">
+        <h2>General</h2>
+        <Setting
+          title="General & About"
+          description="Build details, release notes, and iTune updates."
+        >
+          <button className="secondary-button" onClick={onShowAbout}>
+            About
+          </button>
+        </Setting>
+      </section>
+    </div>
