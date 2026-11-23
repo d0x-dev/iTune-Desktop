@@ -218,3 +218,39 @@ class IShareLanHost {
       sendJson(response, 200, this.snapshot(body.participantId));
       return;
     }
+    if (pathname === "/together/leave" && request.method === "POST") {
+      const body = await readBody(request);
+      if (body.participantId && body.participantId !== "host") {
+        this.participants.delete(body.participantId);
+        this.stateVersion++;
+      }
+      sendJson(response, 200, { status: "ok" });
+      return;
+    }
+    sendJson(response, 404, { error: "Not Found" });
+  }
+
+  start() {
+    if (!this.ip) throw new Error("Connect this PC to Wi-Fi or Ethernet first.");
+    return new Promise((resolve, reject) => {
+      this.server = http.createServer((request, response) => {
+        this.route(request, response).catch((error) =>
+          sendJson(response, 500, { error: error.message }),
+        );
+      });
+      this.server.once("error", reject);
+      this.server.listen(this.port, "0.0.0.0", () => {
+        this.server.removeListener("error", reject);
+        this.discovery = dgram.createSocket({ type: "udp4", reuseAddr: true });
+        this.discovery.on("message", (message, remote) => {
+          const text = message.toString("utf8").trim();
+          if (!text.startsWith("AIRBEATS_DISCOVER") && !text.startsWith("ISHARE_DISCOVER")) return;
+          const reply = Buffer.from(
+            `AIRBEATS_HOST:${this.port}:${this.displayName}:${this.sessionId}:${this.participants.size}`,
+          );
+          this.discovery.send(reply, remote.port, remote.address);
+        });
+        this.discovery.bind(this.port, "0.0.0.0", () => {
+          this.discovery.setBroadcast(true);
+        });
+        resolve(this.snapshot("host"));
