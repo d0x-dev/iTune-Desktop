@@ -229,3 +229,41 @@ export function WelcomeExperience({
       for (let index = 0; active && index < value.length; index += 1) {
         await wait(reducedMotion ? 4 : 62 + ((index * 23) % 32));
         if (active) setOutroText(value.slice(0, index + 1));
+      }
+    };
+    const erase = async (value) => {
+      await wait(reducedMotion ? 10 : 320);
+      for (let deleted = 0; active && deleted < value.length; deleted += 1) {
+        await wait(reducedMotion ? 3 : deleted < 3 ? [86, 62, 48][deleted] : 34 + (deleted % 3) * 4);
+        if (active) setOutroText(value.slice(0, Math.max(0, value.length - deleted - 1)));
+      }
+    };
+    const run = async () => {
+      const timing = (normal) => (reducedMotion ? 20 : normal);
+      setShowLoader(true);
+      await type("Signing In");
+      await wait(timing(1050));
+      await erase("Signing In");
+      setShowLoader(false);
+      await wait(timing(220));
+      const greeting = `Hi, ${finalName.current}, We Got You!`;
+      await type(greeting);
+      await wait(timing(1250));
+      await erase(greeting);
+      await wait(timing(220));
+      const customising = "Customising Your feed..";
+      await type(customising);
+      await wait(timing(1150));
+      await erase(customising);
+      await wait(timing(240));
+      setOutroText("iTune");
+      setTravel("to-center");
+      await wait(timing(1430));
+      await erase("iTune");
+      await wait(timing(2000));
+      await type("AirBeats");
+      await wait(timing(2500));
+      await erase("AirBeats");
+      await wait(timing(220));
+      await type("iTune");
+      await wait(timing(520));
