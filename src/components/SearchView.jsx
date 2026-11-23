@@ -200,3 +200,44 @@ export default function SearchView({
                 aria-label="Clear search"
                 onClick={() => {
                   searchRevision.current++;
+                  setQuery("");
+                  setResults([]);
+                  setSearched(false);
+                  setLoading(false);
+                  setError("");
+                  input.current?.focus();
+                }}
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+        </form>
+        <AnimatedPresence
+          show={showSuggestions && suggestions.length > 0}
+          duration={180}
+          className="presence-search-suggestions"
+        >
+          <div className="search-suggestions">
+            {suggestions.slice(0, 8).map((item, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setQuery(item.text);
+                  search(item.text);
+                }}
+              >
+                {item.isHistory ? <Clock size={15} /> : <Search size={15} />}
+                <span>{item.text}</span>
+              </button>
+            ))}
+          </div>
+        </AnimatedPresence>
+      </div>
+      <div className="search-tabs" aria-label="Search filters">
+        {filters.map((item) => (
+          <button
+            key={item.id}
+            className={filter === item.id ? "active" : ""}
+            aria-pressed={filter === item.id}
+            onClick={() => {
