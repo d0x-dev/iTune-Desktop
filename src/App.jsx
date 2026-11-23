@@ -1257,3 +1257,63 @@ export default function App() {
             <span>{tabLabels[activeTab]}</span>
           </div>
           <div className="content-with-queue">
+            <main className="content-area" ref={content}>
+              <div
+                className="view-transition"
+                key={`${activeTab}-${view.artist?.id || view.album?.id || view.playlist?.id || ""}`}
+              >
+                {["home", "new"].includes(activeTab) && (
+                  <DiscoveryView
+                    kind={activeTab}
+                    {...accountProps}
+                    {...trackProps}
+                    onNavigate={navigate}
+                    onStartRadio={startRadio}
+                    onBackdropChange={setHomeArtwork}
+                  />
+                )}
+                {activeTab === "radio" && (
+                  <RadioView {...trackProps} />
+                )}
+                {activeTab === "news" && (
+                  <DeveloperNewsView
+                    feed={developerNews}
+                    initialItemKey={view.newsItemKey}
+                  />
+                )}
+                {activeTab === "search" && (
+                  <SearchView {...trackProps} {...accountProps} />
+                )}
+                {activeTab === "playlists" && (
+                  <PlaylistView
+                    {...accountProps}
+                    {...trackProps}
+                    initialPlaylist={view.playlist}
+                    onShuffleTracks={shuffleTracks}
+                    onArtworkChange={setSceneArtwork}
+                  />
+                )}
+                {activeTab === "artists" && (
+                  <ArtistsView
+                    {...accountProps}
+                    {...trackProps}
+                    initialArtist={view.artist}
+                    onShuffleTracks={shuffleTracks}
+                    onArtworkChange={setSceneArtwork}
+                  />
+                )}
+                {["albums", "songs", "favorites"].includes(activeTab) && (
+                  <LibraryView
+                    mode={activeTab}
+                    {...accountProps}
+                    {...trackProps}
+                    initialAlbum={view.album}
+                    onShuffleTracks={shuffleTracks}
+                    onArtworkChange={setSceneArtwork}
+                  />
+                )}
+                {activeTab === "history" && (
+                  <HistoryView {...accountProps} {...trackProps} />
+                )}
+                {activeTab === "settings" && (
+                  <SettingsView
