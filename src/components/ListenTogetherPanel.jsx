@@ -70,3 +70,39 @@ export default function ListenTogetherPanel({
             >
               <Cloud size={15} /> Online
             </button>
+            <button
+              className={mode === "lan" ? "selected" : ""}
+              onClick={() => setMode("lan")}
+            >
+              <Wifi size={15} /> Local Wi-Fi
+            </button>
+          </div>
+          <label>
+            <span>Your Name</span>
+            <input value={name} maxLength={40} onChange={(event) => setName(event.target.value)} />
+          </label>
+          {mode === "online" ? (
+            <>
+              <button className="listen-primary" disabled={busy || !name.trim()} onClick={() => onCreate(name.trim())}>
+                {busy ? <Loader2 size={16} className="animate-spin" /> : <Radio size={16} />}
+                Host an Online Session
+              </button>
+              <div className="listen-divider"><span>or join with a code</span></div>
+              <div className="listen-code-entry">
+                <input
+                  aria-label="Pairing code"
+                  value={code}
+                  maxLength={12}
+                  placeholder="PAIRING CODE"
+                  onChange={(event) => setCode(event.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, ""))}
+                />
+                <button disabled={busy || !name.trim() || !code.trim()} onClick={() => onJoin(code, name.trim())}>
+                  Join
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <button className="listen-primary" disabled={busy || !name.trim()} onClick={() => onHostLan(name.trim())}>
+                {busy ? <Loader2 size={16} className="animate-spin" /> : <Wifi size={16} />}
+                Host on Local Wi-Fi
