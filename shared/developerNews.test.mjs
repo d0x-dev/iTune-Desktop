@@ -46,3 +46,27 @@ test("invalid feeds do not masquerade as an empty announcement list", () => {
   assert.throws(() => parseDeveloperNews({ news: {} }), /Invalid news feed/);
 });
 
+test("keeps external news links on HTTP or HTTPS", () => {
+  assert.equal(newsWebUrl("https://example.com/read"), "https://example.com/read");
+  assert.equal(newsWebUrl("javascript:alert(1)"), "");
+  assert.equal(newsWebUrl("//example.com/read"), "");
+  assert.equal(newsWebUrl("https://user:pass@example.com/read"), "");
+});
+
+test("chooses one undismissed popup and advances only to newer news", () => {
+  const items = parseDeveloperNews({
+    news: [
+      { id: "new", title: "iTune new", showPopup: true, active: true, timestamp: 3000, priority: 50 },
+      { id: "old", title: "iTune old", showPopup: true, active: true, timestamp: 2000, priority: 200 },
+      { id: "post", title: "iTune post", active: true, timestamp: 4000 },
+    ],
+  });
+
+  assert.equal(findNewsPopup(items)?.id, "old");
+  assert.equal(
+    findNewsPopup(items, { lastTimestamp: 2000 })?.id,
+    "new",
+  );
+  assert.equal(findNewsPopup(items, { lastTimestamp: 3000 }), null);
+  assert.equal(newsInstanceKey(items[0]), JSON.stringify(["old", 2000]));
+});
