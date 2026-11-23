@@ -38,3 +38,44 @@ export default function SearchView({
   const [searched, setSearched] = useState(false);
   const [error, setError] = useState("");
   const [submittedQuery, setSubmittedQuery] = useState("");
+  const container = useRef(null);
+  const input = useRef(null);
+  const searchRevision = useRef(0);
+  const filters = [
+    { id: "", label: "All" },
+    { id: "song", label: "Songs" },
+    { id: "album", label: "Albums" },
+    { id: "artist", label: "Artists" },
+    { id: "playlist", label: "Playlists" },
+    { id: "video", label: "Music Videos" },
+  ];
+
+  useEffect(() => {
+    let active = true;
+    const timeout = setTimeout(
+      () =>
+        window.api.yt
+          .getSearchSuggestions(query)
+          .then((data) => {
+            if (active) setSuggestions(data?.suggestions || []);
+          })
+          .catch(() => {
+            if (active) setSuggestions([]);
+          }),
+      200,
+    );
+    return () => {
+      active = false;
+      clearTimeout(timeout);
+    };
+  }, [query]);
+  useEffect(() => {
+    const close = (event) => {
+      if (!container.current?.contains(event.target)) setShowSuggestions(false);
+    };
+    document.addEventListener("pointerdown", close);
+    return () => {
+      searchRevision.current++;
+      document.removeEventListener("pointerdown", close);
+    };
+  }, []);
