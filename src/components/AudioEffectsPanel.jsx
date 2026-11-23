@@ -94,3 +94,36 @@ export default function AudioEffectsPanel({ onClose, radioMode = false }) {
         max={0.55}
         step={0.01}
         display={`${Math.round(preferences.reverbAmount * 100)}%`}
+        disabled={!preferences.audioEffectsEnabled || radioMode}
+        onChange={(value) => set("reverbAmount", value)}
+      />
+      <div className="audio-engine-badge">
+        <Sparkles size={13} />
+        {preferences.virtualAtmos && preferences.audioEffectsEnabled
+          ? "Virtual Atmos active"
+          : preferences.audioEffectsEnabled
+            ? `${preferences.audioPreset} EQ active`
+            : "Direct sound"}
+      </div>
+    </section>
+  );
+}
+
+function EffectRange({ label, display, onChange, ...props }) {
+  const progress =
+    ((Number(props.value) - Number(props.min)) /
+      Math.max(0.0001, Number(props.max) - Number(props.min))) *
+    100;
+  return (
+    <label className="audio-effect-range">
+      <span><strong>{label}</strong><small>{display}</small></span>
+      <input
+        className="apple-seekbar"
+        type="range"
+        {...props}
+        style={{ "--progress": `${progress}%` }}
+        onChange={(event) => onChange(Number(event.target.value))}
+      />
+    </label>
+  );
+}
