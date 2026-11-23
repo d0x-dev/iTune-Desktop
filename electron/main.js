@@ -1553,3 +1553,68 @@ function registerIpcHandlers() {
       const rawVideos = fallbackRes.videos || fallbackRes.results || [];
       const fallbackItems = rawVideos
         .map((v) => ({
+          id: v.id,
+          title: v.title?.text || v.title?.toString() || "Track",
+          artists: parseArtistsFromItem(v),
+          thumbnail:
+            getThumbnailUrl(v) ||
+            `https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`,
+          duration: v.duration?.text || "",
+          durationSeconds: v.duration?.seconds || null,
+          type: "track",
+        }))
+        .filter((t) => t.id && t.title);
+
+      logToFile(
+        `Fallback search found ${fallbackItems.length} tracks for query: ${query}`,
+      );
+      return { results: fallbackItems };
+    } catch (fbErr) {
+      logToFile("Fallback search also failed:", fbErr?.message || fbErr);
+      return { results: [], error: fbErr?.message || "Search failed" };
+    }
+  });
+
+  ipcMain.handle("yt:getSearchSuggestions", async (_event, query) => {
+    if (initPromise) await initPromise;
+    if (!yt) return { suggestions: [] };
+    try {
+      const q = typeof query === "string" ? query : "";
+      const sections = await yt.music.getSearchSuggestions(q);
+      const suggestions = [];
+
+      for (const sec of sections || []) {
+        for (const item of sec.contents || []) {
+          const text =
+            item.suggestion?.text ||
+            item.suggestion?.toString() ||
+            item.title?.text ||
+            item.title?.toString() ||
+            item.endpoint?.payload?.query ||
+            "";
+          const isHistory = item.type === "HistorySuggestion";
+
+          if (text) {
+            suggestions.push({
+              text,
+              isHistory,
+              type: item.type,
+            });
+          }
+        }
+      }
+
+      const seen = new Set();
+      const deduped = suggestions.filter((s) => {
+        const lower = s.text.toLowerCase().trim();
+        if (seen.has(lower)) return false;
+        seen.add(lower);
+        return true;
+      });
+
+      return { suggestions: deduped };
+    } catch (err) {
+      logToFile("getSearchSuggestions error:", err);
+      return { suggestions: [], error: err.message };
+    }
+  });
