@@ -254,3 +254,40 @@ class IShareLanHost {
           this.discovery.setBroadcast(true);
         });
         resolve(this.snapshot("host"));
+      });
+    });
+  }
+
+  stop() {
+    this.discovery?.close();
+    this.server?.close();
+    this.discovery = null;
+    this.server = null;
+  }
+}
+
+async function lanRequest(address, pathname, options = {}) {
+  const normalized = normalizeAddress(address);
+  const response = await fetch(`http://${normalized}${pathname}`, {
+    ...options,
+    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+    signal: AbortSignal.timeout(3500),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || `LAN request failed (${response.status})`);
+  return data;
+}
+
+function postLan(address, pathname, body) {
+  return lanRequest(address, pathname, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+async function scan(port = 8765) {
+  const ip = localIpv4();
+  if (!ip) throw new Error("Connect this PC to Wi-Fi or Ethernet first.");
+  const found = new Map();
+  const socket = dgram.createSocket("udp4");
+  await new Promise((resolve, reject) => {
