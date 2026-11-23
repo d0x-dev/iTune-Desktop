@@ -108,3 +108,40 @@ function decodeSession(session = {}) {
       durationMs = Number(params.get("dur")) || durationMs;
       totalQueueSize = Number(params.get("qs")) || totalQueueSize;
     } else if (value.startsWith(QUEUE_PREFIX)) {
+      addEncodedQueue(value.slice(value.indexOf(":") + 1));
+    } else if (value) {
+      cleanArtists.push(value);
+    }
+  });
+  const seen = new Set();
+  const distinctQueue = queue.filter((item) => {
+    const id = item?.id || item?.songId;
+    if (!id || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+  return {
+    ...session,
+    settings,
+    queue: distinctQueue,
+    state: {
+      ...state,
+      artists: cleanArtists,
+      thumbnailUrl: rawThumbnail.split("#")[0],
+      durationMs,
+      totalQueueSize: totalQueueSize || distinctQueue.length,
+      settings,
+      queue: distinctQueue,
+    },
+  };
+}
+
+async function request(baseUrl, pathname, options = {}) {
+  const response = await fetch(`${baseUrl}${pathname}`, {
+    ...options,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json; charset=utf-8",
+      "User-Agent": "iTune Desktop/1.0.0",
+      ...options.headers,
+    },
