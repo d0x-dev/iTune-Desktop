@@ -66,3 +66,37 @@ export default function ContextMenu({
             <strong>{item.title || item.name}</strong>
             <span>{radioStation ? "Live Radio" : collection ? item.type : "Song"}</span>
           </div>
+          <MenuItem icon={Play} label={collection ? "Open" : "Play"} onClick={() => invoke("play")} />
+          {!collection && (
+            <>
+              <MenuItem icon={SkipForward} label="Play Next" onClick={() => invoke("next")} />
+              <MenuItem icon={ListEnd} label="Add to Queue" onClick={() => invoke("queue")} />
+            </>
+          )}
+          {song && (
+            <>
+              <div className="context-divider" />
+              <MenuItem icon={Radio} label="Start Station" onClick={() => invoke("radio")} />
+              <MenuItem
+                icon={() => <FavoriteIcon filled={isLiked} size={17} />}
+                label={isLiked ? "Remove from Favorites" : "Add to Favorites"}
+                selected={isLiked}
+                onClick={() => invoke("favorite")}
+              />
+              <div className="context-submenu-wrap">
+                <MenuItem icon={Library} label="Add to Playlist" trailing={<ChevronRight size={14} />} />
+                <div className="context-submenu">
+                  {playlists.length ? (
+                    playlists.slice(0, 12).map((playlist) => (
+                      <button
+                        role="menuitem"
+                        key={playlist.id}
+                        onClick={() => invoke("playlist", playlist)}
+                      >
+                        <ListPlus size={15} />
+                        <span>{playlist.title}</span>
+                      </button>
+                    ))
+                  ) : (
+                    <span className="context-empty">Sign in or create a playlist first</span>
+                  )}
