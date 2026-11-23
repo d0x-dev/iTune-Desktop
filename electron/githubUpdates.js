@@ -64,3 +64,36 @@ async function checkForUpdates(currentVersion) {
   const latestRelease = stableReleases[0] || null;
   return {
     repository: REPOSITORY,
+    releases,
+    latestRelease,
+    currentVersion,
+    updateAvailable:
+      Boolean(latestRelease) &&
+      compareVersions(latestRelease.tag, currentVersion) > 0,
+    checkedAt: new Date().toISOString(),
+    releasesUrl: RELEASES_PAGE,
+  };
+}
+
+async function findReleaseAsset(tag, assetName) {
+  const releases = await fetchReleases();
+  const release = releases.find((item) => item.tag === tag);
+  const asset = release?.assets.find((item) => item.name === assetName);
+  if (!asset) throw new Error("That file is no longer attached to the release.");
+
+  const url = new URL(asset.downloadUrl);
+  if (
+    !["github.com", "release-assets.githubusercontent.com", "objects.githubusercontent.com"].includes(
+      url.hostname,
+    )
+  ) {
+    throw new Error("GitHub returned an unexpected download address.");
+  }
+  return { release, asset };
+}
+
+function isInstallerAsset(name) {
+  return /.*(?:setup|installer).*\.exe$/i.test(name);
+}
+
+function findPlatformUpdateAsset(assets, platform) {
