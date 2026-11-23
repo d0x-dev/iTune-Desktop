@@ -231,3 +231,42 @@ const Player = forwardRef(function Player(
     [],
   );
 
+  useEffect(() => {
+    const resumePlayback = () => {
+      if (document.visibilityState !== "visible" || !desiredPlaying.current) return;
+      const audio = activeAudio();
+      if (!audio?.getAttribute("src")) return;
+      resumeAudioEffects(audio)
+        .then(() => audio.play())
+        .catch(() => {});
+    };
+    document.addEventListener("visibilitychange", resumePlayback);
+    window.addEventListener("focus", resumePlayback);
+    return () => {
+      document.removeEventListener("visibilitychange", resumePlayback);
+      window.removeEventListener("focus", resumePlayback);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (currentTrack?.type === "radio") return;
+    decks.current.forEach((audio) => {
+      if (audio?.getAttribute("src")) applyAudioEffects(audio, preferences);
+    });
+  }, [
+    currentTrack?.id,
+    currentTrack?.type,
+    preferences.audioEffectsEnabled,
+    preferences.audioPreset,
+    preferences.virtualAtmos,
+    preferences.spatialWidth,
+    preferences.bassBoost,
+    preferences.trebleBoost,
+    preferences.reverbAmount,
+    preferences.loudnessNormalization,
+  ]);
+
+  const togglePlay = () => {
+    const audio = activeAudio();
+    if (!currentTrack || !audio || loading) return;
+    desiredPlaying.current = !isPlaying;
