@@ -2330,3 +2330,68 @@ function registerIpcHandlers() {
             .map((item) => {
               const videoId =
                 item.id ||
+                item.videoId ||
+                item.endpoint?.payload?.videoId ||
+                item.endpoint?.payload?.browseId;
+              const trackTitle =
+                item.title?.text || item.title?.toString() || "";
+              const subtitle =
+                item.subtitle?.text || item.subtitle?.toString() || "";
+              const artists = item.artists?.map((a) => ({
+                name: a.name,
+                id: a.channel_id || a.id,
+              })) || [{ name: header.name, id: artistId }];
+              const album = item.album ? { name: item.album.name } : null;
+              const duration = item.duration?.text || "";
+              const thumbnail =
+                item.thumbnails?.[item.thumbnails.length - 1]?.url ||
+                item.thumbnail?.[0]?.url ||
+                null;
+
+              return {
+                id: videoId,
+                title: trackTitle,
+                subtitle,
+                type: item.item_type || item.type || "track",
+                artistId,
+                artists,
+                album,
+                duration,
+                thumbnail,
+                isExplicit: hasExplicitBadge(item),
+              };
+            })
+            .filter((t) => t.id && t.title);
+
+          return { title, tracks };
+        })
+        .filter((s) => s.tracks.length > 0);
+
+      return {
+        id: artistId,
+        header,
+        sections,
+      };
+    } catch (err) {
+      logToFile("Get Artist error:", err);
+      return { artist: null, error: err.message };
+    }
+  });
+
+  ipcMain.handle("yt:getSongStream", async (_event, request) => {
+    const videoId = typeof request === "string" ? request : request?.videoId;
+    const requestedQuality =
+      typeof request === "object" ? request?.quality : "best";
+    try {
+      logToFile("Resolving stream for videoId:", videoId);
+      const sc = await getStreamClient();
+
+      // Primary clients that return direct, unenciphered stream URLs (matching AirBeats architecture)
+      // Dedicated guest client sc is used so user cookies are not sent, avoiding HTTP 400 errors.
+      const clients = ["VISIONOS", "ANDROID_VR", "IOS"];
+      for (const client of clients) {
+        try {
+          const res = await sc.actions.execute("/player", { videoId, client });
+          if (res.data?.playabilityStatus?.status !== "OK") {
+            logToFile(
+              `Client ${client} playabilityStatus not OK:`,
