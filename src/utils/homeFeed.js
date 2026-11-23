@@ -201,3 +201,37 @@ export function useHomeFeed(kind, userProfile) {
   const loadMore = useCallback(async () => {
     if (!continuation || loadingNext.current || loadingMore) return;
     const currentGeneration = generation.current;
+    loadingNext.current = true;
+    setLoadingMore(true);
+    try {
+      const data = await window.api.yt.getHome({ browseId, continuation });
+      if (currentGeneration !== generation.current) return;
+      if (data?.error) throw new Error(data.error);
+      append(data);
+      tokens.current.add(continuation);
+      setContinuation(
+        data?.continuation && !tokens.current.has(data.continuation)
+          ? data.continuation
+          : null,
+      );
+      setError("");
+    } catch {
+      if (currentGeneration === generation.current)
+        setError("More music couldn’t load. Try again.");
+    } finally {
+      if (currentGeneration === generation.current) {
+        loadingNext.current = false;
+        setLoadingMore(false);
+      }
+    }
+  }, [continuation, loadingMore, browseId, append]);
+  return {
+    sections: orderedSections(sections, userProfile?.isLoggedIn),
+    loading,
+    loadingMore,
+    continuation,
+    error,
+    refresh: () => setRevision((value) => value + 1),
+    loadMore,
+  };
+}
