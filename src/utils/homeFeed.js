@@ -65,3 +65,37 @@ export function useHomeFeed(kind, userProfile) {
     let active = true;
     const currentGeneration = ++generation.current;
     tokens.current.clear();
+    setSections([]);
+    setError("");
+    setLoading(true);
+    setLoadingMore(false);
+    setContinuation(null);
+    loadingNext.current = true;
+    const initial = async () => {
+      try {
+        let page = await window.api.yt.getHome({ browseId, page: "initial" });
+        if (!active) return;
+        if (page?.error) throw new Error(page.error);
+        append(page);
+        setLoading(false);
+        // Match the Android feed's initial continuation depth, then page further on scroll.
+        for (let index = 0; active && page?.continuation && index < 3; index++) {
+          const token = page.continuation;
+          setContinuation(token);
+          setLoadingMore(true);
+          const next = await window.api.yt.getHome({ browseId, continuation: token });
+          if (!active) return;
+          if (next?.error) throw new Error(next.error);
+          tokens.current.add(token);
+          page = next;
+          append(page);
+          if (tokens.current.has(page?.continuation)) {
+            setContinuation(null);
+            return;
+          }
+        }
+        if (active) setContinuation(page?.continuation || null);
+      } catch {
+        if (active) setError("Some music couldn’t load. Try refreshing.");
+      } finally {
+        if (active) {
