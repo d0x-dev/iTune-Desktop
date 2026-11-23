@@ -210,3 +210,46 @@ export default function ArtistsView({
       (artist) => artist.id === selectedArtist.id,
     );
     const sections = (detail?.sections || []).map((section, index) => {
+      if (!/^songs$/i.test(section.title)) return section;
+      const type = section.tracks[0]?.type;
+      const title = type === "album" ? "Albums" : type === "video" ? "Music Videos" : type === "playlist" ? "Playlists" : type === "artist" ? "Similar Artists" : index === 0 ? "Top Songs" : "Songs";
+      return { ...section, title };
+    });
+    const topSongs = sections.find((section) =>
+      /top songs|popular|songs/i.test(section.title) && section.tracks.some((track) => track.type === "song" || track.type === "track"),
+    );
+    const latest = sections.find((section) =>
+      /album|single|ep/i.test(section.title),
+    )?.tracks?.[0];
+    const songs = sections
+      .flatMap((section) => section.tracks)
+      .filter((track) => !["album", "playlist"].includes(track.type));
+    const selectArtistTrack = (track) =>
+      onSelectTrack(
+        { ...track, artistId: selectedArtist.id },
+        [{ ...track, artistId: selectedArtist.id }],
+      );
+    return (
+      <div
+        className="page artist-page"
+        style={{ "--artist-background": apple?.background }}
+      >
+        <ArtworkBackdrop src={thumbnail} canvas={canvas || apple?.videoUrl} />
+        <div className="artist-hero">
+          <Artwork
+            src={thumbnail}
+            title={name}
+            className="artist-hero-image"
+            eager
+          />
+          <Canvas
+            src={canvas || apple?.videoUrl || detail?.header?.canvasUrl}
+          />
+          <div className="artist-hero-shade" />
+          <div className="artist-hero-blur" aria-hidden="true" />
+          <button className="artist-back icon-button" aria-label="Back to artists" title="Back to artists" onClick={() => setSelectedArtist(null)}>
+            <ArrowLeft size={23} />
+          </button>
+          <div className="artist-hero-content">
+            {signatureUrl ? (
+              <>
