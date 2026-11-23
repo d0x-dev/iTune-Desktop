@@ -1099,3 +1099,68 @@ function openGoogleLogin() {
     });
 
     authWindow.setMenuBarVisibility(false);
+    authWindow.webContents.setUserAgent(mobileUA);
+    authWindow.webContents.on("did-create-window", (child) => {
+      child.webContents.setUserAgent(mobileUA);
+    });
+
+    // YouTube Music Login entrypoint
+    const loginUrl =
+      "https://accounts.google.com/ServiceLogin?service=youtube&passive=true&continue=https%3A%2F%2Fmusic.youtube.com%2F";
+    authWindow.loadURL(loginUrl, { userAgent: mobileUA });
+
+    let checkInterval = null;
+    let authSettleTimer = null;
+
+    const checkCookies = async () => {
+      if (!authWindow || authWindow.isDestroyed() || isCompleted) return;
+      try {
+        const currentUrl = authWindow.webContents.getURL() || "";
+
+        // CRITICAL FIX: Only capture once the user has finished Google auth and redirected to music.youtube.com!
+        // Never close or capture while still on accounts.google.com!
+        if (
+          !currentUrl.includes("music.youtube.com") ||
+          currentUrl.includes("accounts.google.com")
+        ) {
+          return;
+        }
+
+        const cookies = await authSession.cookies.get({});
+        const ytCookies = cookies.filter(
+          (c) => c.domain && c.domain.includes("youtube.com"),
+        );
+        const googleCookies = cookies.filter(
+          (c) =>
+            c.domain &&
+            c.domain.includes("google.com") &&
+            !c.domain.includes("youtube.com"),
+        );
+
+        // Put google cookies first, then overwrite with youtube cookies to ensure YouTube's SAPISID wins!
+        const cookieMap = new Map();
+        for (const c of googleCookies) {
+          if (c.name && c.value) cookieMap.set(c.name, c.value);
+        }
+        for (const c of ytCookies) {
+          if (c.name && c.value) cookieMap.set(c.name, c.value);
+        }
+
+        const hasYtAuth =
+          cookieMap.has("SAPISID") &&
+          (cookieMap.has("LOGIN_INFO") ||
+            cookieMap.has("__Secure-3PAPISID") ||
+            cookieMap.has("SSID"));
+
+        if (hasYtAuth && !authSettleTimer) {
+          logToFile(
+            "Detected valid YouTube auth cookies. Waiting 1.2s for session to fully settle...",
+          );
+          authSettleTimer = setTimeout(async () => {
+            if (!authWindow || authWindow.isDestroyed() || isCompleted) return;
+            isCompleted = true;
+            if (checkInterval) {
+              clearInterval(checkInterval);
+              checkInterval = null;
+            }
+
