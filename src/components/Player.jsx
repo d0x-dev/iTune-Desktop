@@ -192,3 +192,42 @@ const Player = forwardRef(function Player(
         if (canCrossfade) {
           fadeDecks(
             outgoing,
+            incoming,
+            Math.max(250, preferences.crossfadeDuration * 1000),
+            targetVolume,
+            revision,
+          );
+        }
+      } else {
+        activeDeck.current = incomingIndex;
+        if (outgoing !== incoming) resetDeck(outgoing);
+      }
+      previousTrackType.current = currentTrack.type;
+      crossfadeRequested.current = null;
+    } catch (failure) {
+      if (revision === requestId.current) {
+        setIsPlaying(false);
+        setError(
+          failure.name === "NotAllowedError"
+            ? "Press play to start listening."
+            : "This song couldn’t play. Press play to try again.",
+        );
+      }
+    } finally {
+      if (revision === requestId.current) setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (currentTrack?.id) loadStream();
+  }, [currentTrack?.id]);
+
+  useEffect(
+    () => () => {
+      requestId.current++;
+      stopFade();
+      decks.current.forEach((audio) => audio?.pause());
+    },
+    [],
+  );
+
