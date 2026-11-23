@@ -49,3 +49,29 @@ export function parseDeveloperNews(payload) {
       tag: string(item.tag).trim(),
       timestamp: Math.max(0, number(item.timestamp)),
       priority: number(item.priority),
+      showPopup: boolean(item.showPopup, false),
+      active: boolean(item.active, boolean(item.isActive, true)),
+    }))
+    .filter((item) => item.active && (item.title || item.message.trim()) && isITuneNews(item))
+    .sort((left, right) => right.priority - left.priority || right.timestamp - left.timestamp);
+}
+
+export async function fetchDeveloperNews() {
+  const response = await fetch(NEWS_URL, {
+    headers: { "Cache-Control": "no-cache" },
+    credentials: "omit",
+    signal: AbortSignal.timeout(9000),
+  });
+  if (!response.ok) throw new Error(`News feed returned HTTP ${response.status}`);
+  return parseDeveloperNews(await response.json());
+}
+
+export const newsInstanceKey = ({ id, timestamp }) => JSON.stringify([id, timestamp]);
+
+export function findNewsPopup(items, { lastTimestamp = 0, keys = [] } = {}) {
+  return items.find((item) =>
+    item.showPopup && item.id &&
+    (!lastTimestamp || item.timestamp > lastTimestamp) &&
+    !keys.includes(newsInstanceKey(item)),
+  ) ?? null;
+}
