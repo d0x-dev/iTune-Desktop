@@ -646,3 +646,67 @@ function parseArtistsFromItem(item) {
     item.subtitle?.text ||
     item.subtitle?.toString() ||
     item.subtitle ||
+    ""
+  ).trim();
+  if (subText) {
+    const parts = subText.split("•").map((p) => p.trim());
+    if (parts.length >= 2) {
+      const first = parts[0].toLowerCase();
+      if (["song", "video", "track", "album", "single", "ep"].includes(first)) {
+        return [{ name: parts[1] }];
+      }
+      return [{ name: parts[0] }];
+    } else if (parts.length === 1 && parts[0]) {
+      return [{ name: parts[0] }];
+    }
+  }
+  return [{ name: "YouTube Music" }];
+}
+
+function getThumbnailUrl(item) {
+  if (!item) return null;
+  if (typeof item === "string" && item.startsWith("http")) return item;
+  const list =
+    (Array.isArray(item) ? item : null) ||
+    item.thumbnails ||
+    (Array.isArray(item.contents) ? item.contents : null) ||
+    item.thumbnail?.contents ||
+    item.thumbnail?.thumbnails ||
+    (Array.isArray(item.thumbnail) ? item.thumbnail : null) ||
+    [];
+  if (Array.isArray(list) && list.length > 0) {
+    // Get the last (highest available) thumbnail URL
+    let url =
+      [...list]
+        .reverse()
+        .filter((item) => item?.url)
+        .sort(
+          (a, b) =>
+            (b.width || 0) * (b.height || 0) - (a.width || 0) * (a.height || 0),
+        )[0]?.url || null;
+    if (!url) return null;
+    // Ensure high-quality thumbnail by upgrading to hqdefault
+    // YouTube thumbnail URL patterns:
+    // - i.ytimg.com/vi/{id}/default.jpg (120x90)
+    // - i.ytimg.com/vi/{id}/hqdefault.jpg (480x360)
+    // - i.ytimg.com/vi/{id}/maxresdefault.jpg (1280x720)
+    if (url.includes("i.ytimg.com/vi/")) {
+      // Replace existing quality suffix or add hqdefault
+      url = url.replace(/\/(?:default|mqdefault)\.jpg$/i, "/hqdefault.jpg");
+    } else if (
+      url.includes("youtube.com/embed/") ||
+      url.includes("youtube.com/watch?v=")
+    ) {
+      // Extract video ID and add hqdefault
+      const videoId =
+        url.match(/[?&]v=([^&]+)/)?.[1] ||
+        url.match(/\/embed\/([^/?]+)/)?.[1] ||
+        "";
+      if (videoId) {
+        url = "https://i.ytimg.com/vi/" + videoId + "/hqdefault.jpg";
+      }
+    }
+    return highQualityArtwork(url);
+  }
+  // Fallback to hqdefault for known YouTube video IDs
+  if (
