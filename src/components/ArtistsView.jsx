@@ -168,3 +168,45 @@ export default function ArtistsView({
         subscribed
           ? previous.filter((artist) => artist.id !== selectedArtist.id)
           : [...previous, { ...selectedArtist, ...detail?.header }],
+      );
+    } catch {
+      setError("Your subscription couldn’t be updated. Try again.");
+    } finally {
+      setSubscribing(false);
+    }
+  };
+
+  const changeAsset = async (kind, file) => {
+    setSaving(true);
+    setError("");
+    try {
+      if (
+        file &&
+        !(
+          kind === "canvas"
+            ? ["video/mp4", "video/webm"]
+            : ["image/png", "image/webp", "image/jpeg"]
+        ).includes(file.type)
+      )
+        throw new Error(
+          kind === "canvas"
+            ? "Choose an MP4 or WebM video."
+            : "Choose a PNG, WebP, or JPEG image.",
+        );
+      await saveAsset(`artist:${selectedArtist.id}:${kind}`, file);
+    } catch (failure) {
+      setError(failure.message || "This file couldn’t be saved.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (selectedArtist) {
+    const name =
+      detail?.header?.name || selectedArtist.name || selectedArtist.title;
+    const thumbnail =
+      apple?.heroUrl || detail?.header?.thumbnail || selectedArtist.thumbnail;
+    const subscribed = artists.some(
+      (artist) => artist.id === selectedArtist.id,
+    );
+    const sections = (detail?.sections || []).map((section, index) => {
