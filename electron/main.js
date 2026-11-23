@@ -1488,3 +1488,68 @@ function registerIpcHandlers() {
     clearSavedCookie();
     await session.fromPartition("persist:google_auth").clearStorageData();
     const profile = await initYouTube("");
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("auth:changed", profile);
+    }
+    return { ok: true, userProfile: profile };
+  });
+
+  ipcMain.handle("auth:status", async () => {
+    if (initPromise) {
+      await initPromise;
+    }
+    return userProfile;
+  });
+
+  // Legacy Player IPC Handlers (Renderer manages playback directly via HTML5 audio)
+  ipcMain.handle("player:loadTrack", async () => ({ ok: true }));
+  ipcMain.handle("player:play", async () => true);
+  ipcMain.handle("player:pause", async () => true);
+  ipcMain.handle("player:next", async () => {});
+  ipcMain.handle("player:previous", async () => {});
+  ipcMain.handle("player:seek", async () => {});
+  ipcMain.handle("player:setVolume", async () => {});
+
+  // YouTube Music Handlers
+  ipcMain.handle("yt:search", async (_event, { query, type }) => {
+    if (initPromise) await initPromise;
+    if (!yt) return { results: [] };
+    try {
+      logToFile("Executing yt.music.search for query:", query, "type:", type);
+      const searchRes = await yt.music.search(
+        query,
+        type ? { type } : undefined,
+      );
+      const items = extractTracksFromSearch(searchRes);
+      if (items.length > 0) {
+        logToFile(`Search found ${items.length} tracks for query: ${query}`);
+        return { results: items };
+      }
+
+      // Intermediate fallback: direct InnerTube /search with YTMUSIC client
+      try {
+        const directSearch = await yt.actions.execute("/search", {
+          query,
+          client: "YTMUSIC",
+        });
+        if (directSearch?.data) {
+          const directItems = extractTracksFromBrowseData(directSearch.data);
+          if (directItems.length > 0) {
+            logToFile(
+              `Direct /search found ${directItems.length} tracks for query: ${query}`,
+            );
+            return { results: directItems };
+          }
+        }
+      } catch (e) {}
+    } catch (err) {
+      logToFile("yt.music.search error, trying fallback:", err?.message || err);
+    }
+
+    // Fallback: yt.search (Standard YouTube search that never fails)
+    try {
+      logToFile("Running fallback yt.search for query:", query);
+      const fallbackRes = await yt.search(query, { type: "video" });
+      const rawVideos = fallbackRes.videos || fallbackRes.results || [];
+      const fallbackItems = rawVideos
+        .map((v) => ({
