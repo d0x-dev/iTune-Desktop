@@ -2330,3 +2330,86 @@ body {
     transform 340ms var(--ease-apple),
     box-shadow 300ms ease;
 }
+
+/* Shared enter and exit motion for transient windows and popovers. */
+.animated-presence {
+  display: contents;
+}
+.animated-presence[data-state="closing"] {
+  pointer-events: none;
+}
+@keyframes presence-scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes presence-scrim-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes presence-window-in {
+  from { opacity: 0; transform: translate3d(0, 12px, 0) scale(0.975); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes presence-window-out {
+  from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  to { opacity: 0; transform: translate3d(0, 8px, 0) scale(0.985); }
+}
+@keyframes presence-panel-in {
+  from { opacity: 0; transform: translate3d(18px, 0, 0) scale(0.99); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes presence-panel-out {
+  from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  to { opacity: 0; transform: translate3d(16px, 0, 0) scale(0.99); }
+}
+@keyframes presence-menu-in {
+  from { opacity: 0; transform: translate3d(0, 5px, 0) scale(0.97); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes presence-menu-out {
+  from { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  to { opacity: 0; transform: translate3d(0, 3px, 0) scale(0.985); }
+}
+
+.animated-presence[data-state="open"] .modal-backdrop,
+.animated-presence[data-state="open"] .lyrics-overlay {
+  animation: presence-scrim-in 240ms var(--ease-apple) both !important;
+}
+.animated-presence[data-state="open"] .modal-backdrop .dialog,
+.animated-presence[data-state="open"] .lyrics-dialog,
+.animated-presence[data-state="open"] .news-popup[open] {
+  animation: presence-window-in 300ms var(--ease-apple) both !important;
+}
+.animated-presence[data-state="open"] .queue-panel,
+.animated-presence[data-state="open"] .listen-together-panel {
+  animation: presence-panel-in 280ms var(--ease-apple) both !important;
+}
+.animated-presence[data-state="open"] .apple-context-menu,
+.animated-presence[data-state="open"] .audio-effects-panel,
+.animated-presence[data-state="open"] .search-suggestions,
+.animated-presence[data-state="open"] .toast,
+.animated-presence[data-state="open"] .artist-asset-panel {
+  animation: presence-menu-in 220ms var(--ease-apple) both !important;
+}
+.animated-presence[data-state="open"] .news-popup[open]::backdrop {
+  animation: presence-scrim-in 240ms var(--ease-apple) both;
+}
+.animated-presence[data-state="open"] .lyrics-tools-scrim {
+  animation: presence-scrim-in 220ms var(--ease-apple) both;
+}
+.animated-presence[data-state="open"] .lyrics-tools-popover {
+  animation: presence-window-in 260ms var(--ease-apple) both;
+}
+.animated-presence[data-state="open"] .glass-select-menu {
+  animation: presence-menu-in 180ms var(--ease-apple) both !important;
+}
+
+.animated-presence[data-state="closing"] .modal-backdrop,
+.animated-presence[data-state="closing"] .lyrics-overlay {
+  animation: presence-scrim-out 220ms ease both !important;
+}
+.animated-presence[data-state="closing"] .modal-backdrop .dialog,
+.animated-presence[data-state="closing"] .lyrics-dialog,
+.animated-presence[data-state="closing"] .news-popup[open] {
+  animation: presence-window-out 220ms ease both !important;
+}
