@@ -597,3 +597,63 @@ export default function App() {
           item.videoId || item.id,
           preferences.downloadQuality,
         );
+        if (!stream?.streamUrl) throw new Error(stream?.error);
+        const result = await window.api.yt.downloadSong({
+          streamUrl: stream.streamUrl,
+          title: item.title,
+          artist: getArtistName(item),
+          container: stream.format?.container,
+          contentType: stream.format?.codec,
+          contentLength: stream.format?.contentLength,
+        });
+        if (!result?.ok) throw new Error(result?.error);
+        setMessage("Download complete. Saved to Music\\iTune.");
+      } catch (error) {
+        setMessage(error?.message || "This song couldn’t be downloaded.");
+      }
+    }
+  };
+  const toggleShuffle = () => {
+    if (isShuffle) {
+      const index = originalQueue.current.findIndex(
+        (track) => track.id === currentTrack?.id,
+      );
+      if (index >= 0) {
+        setQueue(originalQueue.current);
+        setCurrentIndex(index);
+      }
+    } else {
+      setQueue((previous) => [
+        ...previous.slice(0, currentIndex + 1),
+        ...shuffledCopy(previous.slice(currentIndex + 1)),
+      ]);
+    }
+    setIsShuffle((value) => !value);
+  };
+  const toggleEndlessQueue = () =>
+    setEndlessQueueEnabled((enabled) => !enabled);
+
+  useEffect(() => {
+    if (
+      !endlessQueueEnabled ||
+      currentTrack?.type === "radio" ||
+      !queue.length ||
+      currentIndex < queue.length - 4
+    )
+      return;
+    extendRelatedQueue(currentTrack, queueGeneration.current);
+  }, [
+    currentIndex,
+    currentTrack?.id,
+    currentTrack?.type,
+    endlessQueueEnabled,
+    extendRelatedQueue,
+    queue,
+  ]);
+
+  const next = useCallback(
+    async (ended = false) => {
+      const shared = listenTogetherRef.current;
+      if (
+        !ended &&
+        shared?.mode === "lan" &&
