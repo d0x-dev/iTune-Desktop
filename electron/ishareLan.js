@@ -328,3 +328,40 @@ module.exports = {
   },
   stopHost() {
     lanHost?.stop();
+    lanHost = null;
+  },
+  updateHost(state, settings) {
+    if (!lanHost) throw new Error("LAN hosting is not active.");
+    lanHost.state = { ...state, settings };
+    lanHost.settings = { ...lanHost.settings, ...settings };
+    lanHost.stateVersion++;
+    const actions = lanHost.pendingActions.splice(0);
+    return { session: lanHost.snapshot("host"), actions };
+  },
+  scan,
+  join(address, displayName) {
+    return postLan(address, "/together/join", { name: displayName });
+  },
+  get(address, participantId) {
+    return lanRequest(
+      address,
+      `/together/state?participantId=${encodeURIComponent(participantId || "guest")}`,
+    );
+  },
+  action(address, participantId, action, payload = {}) {
+    return postLan(address, "/together/action", {
+      participantId,
+      action,
+      ...payload,
+    });
+  },
+  settings(address, participantId, settings) {
+    return postLan(address, "/together/settings", {
+      participantId,
+      ...settings,
+    });
+  },
+  leave(address, participantId) {
+    return postLan(address, "/together/leave", { participantId }).catch(() => ({ status: "ok" }));
+  },
+};
