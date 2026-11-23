@@ -1229,3 +1229,68 @@ function openGoogleLogin() {
 
     authWindow.on("closed", () => {
       if (checkInterval) {
+        clearInterval(checkInterval);
+        checkInterval = null;
+      }
+      if (authSettleTimer) {
+        clearTimeout(authSettleTimer);
+        authSettleTimer = null;
+      }
+      authWindow = null;
+      if (!isCompleted && loginResolver) {
+        loginResolver(userProfile);
+        loginResolver = null;
+      }
+    });
+  });
+}
+
+// Register IPC handlers
+function registerIpcHandlers() {
+  ipcMain.handle("updates:getInfo", async () => ({
+    name: app.getName(),
+    version: app.getVersion(),
+    appPath: app.getAppPath(),
+    platform: process.platform,
+    architecture: process.arch,
+    electron: process.versions.electron,
+    chromium: process.versions.chrome,
+    node: process.versions.node,
+    releasesUrl: githubUpdates.RELEASES_PAGE,
+  }));
+  ipcMain.handle("updates:check", async () => {
+    try {
+      const result = await githubUpdates.checkForUpdates(app.getVersion());
+      if (!result.updateAvailable) return result;
+      const updateAsset = githubUpdates.findPlatformUpdateAsset(
+        result.latestRelease?.assets || [],
+        process.platform,
+      );
+      if (!updateAsset) return { ...result, downloadUnavailable: true };
+      const updateDirectory = path.join(app.getPath("userData"), "updates");
+      const destination = path.join(updateDirectory, path.basename(updateAsset.name));
+      const existing = await fs.promises.stat(destination).catch(() => null);
+      if (existing?.isFile() && existing.size > 0 && (!updateAsset.size || existing.size === updateAsset.size)) {
+        return { ...result, downloadedAsset: updateAsset.name };
+      }
+      try {
+        await githubUpdates.downloadReleaseAsset(updateAsset, destination, (progress) => {
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send("updates:downloadProgress", {
+              assetName: updateAsset.name,
+              ...progress,
+            });
+          }
+        });
+      } catch (error) {
+        return { ...result, downloadError: error.message };
+      }
+      return { ...result, downloadedAsset: updateAsset.name };
+    } catch (error) {
+      return { ok: false, error: error.message, releasesUrl: githubUpdates.RELEASES_PAGE };
+    }
+  });
+  ipcMain.handle("updates:download", async (_event, tag, assetName) => {
+    try {
+      if (typeof tag !== "string" || typeof assetName !== "string") {
+        throw new Error("Choose a file from a GitHub release.");
