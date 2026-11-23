@@ -130,3 +130,36 @@ async function downloadReleaseAsset(asset, destination, onProgress) {
       downloadedBytes += chunk.length;
       onProgress({ downloadedBytes, totalBytes });
       callback(null, chunk);
+    },
+  });
+  await fs.promises.mkdir(path.dirname(destination), { recursive: true });
+  try {
+    await pipeline(
+      Readable.fromWeb(response.body),
+      progress,
+      fs.createWriteStream(temporaryDestination),
+    );
+    if (asset.size && downloadedBytes !== asset.size) {
+      throw new Error("The downloaded file size did not match the GitHub release.");
+    }
+    await fs.promises.rename(temporaryDestination, destination);
+  } catch (error) {
+    await fs.promises.rm(temporaryDestination, { force: true });
+    throw error;
+  }
+  if (/\.appimage$/i.test(asset.name)) {
+    await fs.promises.chmod(destination, 0o755);
+  }
+  return { downloadedBytes, totalBytes };
+}
+
+module.exports = {
+  REPOSITORY,
+  RELEASES_PAGE,
+  checkForUpdates,
+  compareVersions,
+  downloadReleaseAsset,
+  findReleaseAsset,
+  findPlatformUpdateAsset,
+  isInstallerAsset,
+};
