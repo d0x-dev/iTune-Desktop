@@ -381,3 +381,45 @@ export default function ArtistsView({
         {loadingDetail ? (
           <div className="empty-state">
             <Loader2 className="animate-spin" />
+            <p>Loading artist…</p>
+          </div>
+        ) : (
+          <>
+            {latest && topSongs && (
+              <div className="artist-overview">
+                <section>
+                  <div className="section-heading">
+                    <h2>Latest Release</h2>
+                  </div>
+                  <button
+                    className="latest-release"
+                    onClick={() => selectArtistTrack(latest, [latest])}
+                    onContextMenu={(event) =>
+                      onContextMenu?.(event, latest, [latest])
+                    }
+                  >
+                    <Artwork src={latest.thumbnail} title={latest.title} />
+                    <span>
+                      <strong><ExplicitTitle item={latest} /></strong>
+                      <small>{latest.subtitle || "Album"}</small>
+                    </span>
+                  </button>
+                </section>
+                <MediaShelf
+                  title="Top Songs"
+                  items={topSongs.tracks}
+                  layout="songs"
+                  onSelect={selectArtistTrack}
+                  currentTrack={currentTrack}
+                  isPlaying={isPlaying}
+                  onContextMenu={onContextMenu}
+                />
+              </div>
+            )}
+            {sections.map((section, index) =>
+              latest &&
+              section === topSongs ? null : /album|single|ep|playlist/i.test(
+                  section.title,
+                ) ? (
+                <MediaShelf
+                  key={index}
