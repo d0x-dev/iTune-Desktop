@@ -608,3 +608,47 @@ function GlassSelect({ label, value, options, disabled = false, onChange }) {
     return () => {
       document.removeEventListener("pointerdown", close);
       window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+  const selected = options.find((option) => option.value === value) || options[0];
+  return (
+    <div className={`glass-select ${open ? "open" : ""}`} ref={root}>
+      <button
+        type="button"
+        className="glass-select-trigger"
+        aria-label={label}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        disabled={disabled}
+        onClick={() => setOpen((shown) => !shown)}
+      >
+        <span>{selected?.label}</span>
+        <ChevronDown size={15} />
+      </button>
+      <AnimatedPresence
+        show={open}
+        duration={180}
+        className="presence-select-menu"
+      >
+        <div className="glass-select-menu no-scrollbar" role="listbox" aria-label={label}>
+          {options.map((option) => (
+            <button
+              type="button"
+              role="option"
+              aria-selected={option.value === value}
+              className={option.value === value ? "selected" : ""}
+              key={option.value}
+              onClick={() => {
+                onChange(option.value);
+                setOpen(false);
+              }}
+            >
+              <span>{option.label}</span>
+              {option.value === value && <Check size={15} />}
+            </button>
+          ))}
+        </div>
+      </AnimatedPresence>
+    </div>
+  );
+}
