@@ -75,3 +75,42 @@ const Player = forwardRef(function Player(
   const [muted, setMuted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showEffects, setShowEffects] = useState(false);
+
+  const activeAudio = () => decks.current[activeDeck.current];
+
+  const resetDeck = (audio) => {
+    if (!audio) return;
+    audio.pause();
+    try {
+      audio.currentTime = 0;
+    } catch {}
+    audio.removeAttribute("src");
+    delete audio.dataset.trackId;
+    delete audio.dataset.durationSeconds;
+    audio.load();
+  };
+
+  const stopFade = () => {
+    if (fadeFrame.current) cancelAnimationFrame(fadeFrame.current);
+    fadeFrame.current = null;
+    const interrupted = fadeState.current;
+    fadeState.current = null;
+    if (interrupted?.outgoing && interrupted.outgoing !== activeAudio())
+      resetDeck(interrupted.outgoing);
+  };
+
+  const fadeDecks = (outgoing, incoming, milliseconds, targetVolume, revision) => {
+    stopFade();
+    fadeState.current = { outgoing, incoming };
+    const startedAt = performance.now();
+    const step = (now) => {
+      if (revision !== requestId.current) {
+        resetDeck(outgoing);
+        fadeState.current = null;
+        fadeFrame.current = null;
+        return;
+      }
+      const progress = Math.min(1, (now - startedAt) / milliseconds);
+      const liveTarget = settings.current.muted
+        ? 0
