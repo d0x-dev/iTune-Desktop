@@ -125,3 +125,46 @@ export default function ArtistsView({
     setError("");
     if (!selectedArtist?.id) return;
     setLoadingDetail(true);
+    window.api.yt
+      .getArtist(selectedArtist.id)
+      .then((data) => {
+        if (requestId.current !== revision) return;
+        if (data?.error) throw new Error(data.error);
+        setDetail(data);
+      })
+      .catch(() => {
+        if (requestId.current === revision)
+          setError("This artist couldn’t load. Try opening their page again.");
+      })
+      .finally(() => {
+        if (requestId.current === revision) setLoadingDetail(false);
+      });
+    return () => {
+      requestId.current++;
+    };
+  }, [selectedArtist?.id]);
+
+  useEffect(() => {
+    if (initialArtist) setSelectedArtist(initialArtist);
+  }, [initialArtist]);
+
+  const toggleSubscribe = async () => {
+    if (!userProfile?.isLoggedIn) {
+      onLogin();
+      return;
+    }
+    if (subscribing) return;
+    const subscribed = artists.some(
+      (artist) => artist.id === selectedArtist.id,
+    );
+    setSubscribing(true);
+    setError("");
+    try {
+      const result = await (subscribed
+        ? window.api.yt.unsubscribeArtist(selectedArtist.id)
+        : window.api.yt.subscribeArtist(selectedArtist.id));
+      if (result?.error || result?.ok === false) throw new Error(result.error);
+      setArtists((previous) =>
+        subscribed
+          ? previous.filter((artist) => artist.id !== selectedArtist.id)
+          : [...previous, { ...selectedArtist, ...detail?.header }],
