@@ -1077,3 +1077,63 @@ export default function App() {
       }
     };
     timer = setTimeout(sync, 350);
+    return () => {
+      mounted = false;
+      clearTimeout(timer);
+    };
+  }, [
+    applySharedSession,
+    applyLanHostActions,
+    buildSharedState,
+    ishareSettings,
+    listenTogether?.role,
+    listenTogether?.mode,
+    listenTogether?.hostAddress,
+    listenTogether?.session?.code,
+    listenTogether?.session?.participantId,
+  ]);
+  useEffect(() => {
+    const onKey = (event) => {
+      const editing = event.target.closest(
+        'input, textarea, select, [contenteditable="true"]',
+      );
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setShowLyrics(false);
+        navigate("search");
+      }
+      if (
+        !editing &&
+        event.code === "Space" &&
+        event.target.tagName !== "BUTTON"
+      ) {
+        event.preventDefault();
+        player.current?.togglePlay();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [navigate]);
+
+  const trackProps = {
+    onSelectTrack: selectTrack,
+    currentTrack,
+    isPlaying,
+    likedSongIds,
+    onToggleLike: toggleLike,
+    onContextMenu: openContextMenu,
+  };
+  const appUserProfile = {
+    ...userProfile,
+    name:
+      (userProfile.isLoggedIn ? userProfile.name : preferredName) ||
+      userProfile.name ||
+      "Listener",
+  };
+  const accountProps = { userProfile: appUserProfile, onLogin: login };
+  const collectionAtmosphere =
+    preferences.collectionVisualEffects && sceneArtwork?.heroUrl;
+  return (
+    <div
+      className={`app-container ${collectionAtmosphere ? "collection-atmosphere-active" : ""}`}
+      onContextMenu={(event) => {
