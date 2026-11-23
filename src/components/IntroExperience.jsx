@@ -113,3 +113,42 @@ export function SplashExperience({ newUser, onFinished }) {
     const type = async (value, delay) => {
       setTyping(true);
       for (let index = 1; active && index <= value.length; index += 1) {
+        currentText = value.slice(0, index);
+        setText(currentText);
+        await wait(delay + ((index * 17) % 25));
+      }
+      setTyping(false);
+    };
+    const erase = async (delay) => {
+      setTyping(true);
+      while (active && currentText.length) {
+        currentText = currentText.slice(0, -1);
+        setText(currentText);
+        await wait(delay);
+      }
+      setTyping(false);
+    };
+    const run = async () => {
+      if (reducedMotion) {
+        setText("iTune");
+        await wait(260);
+      } else {
+        await wait(220);
+        await type("iTune", 75);
+        await wait(550);
+        await erase(48);
+        await wait(200);
+        await type("AirBeats", 68);
+        await wait(600);
+        await erase(45);
+        await wait(200);
+        await type("Naah!", 72);
+        await wait(600);
+        await erase(48);
+        await wait(200);
+        await type("iTune", 80);
+        await wait(480);
+      }
+      if (!active) return;
+      if (!newUser) {
+        setRevealing(true);
