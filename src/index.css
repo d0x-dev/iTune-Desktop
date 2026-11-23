@@ -1632,3 +1632,85 @@ input[type="range"]:disabled {
 }
 .retry-lyrics {
   position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.compact-lyrics {
+  inset: 0;
+  padding: 45px;
+  background: #0007;
+  backdrop-filter: blur(12px);
+  display: grid;
+  place-items: center;
+}
+.compact-lyrics .lyrics-dialog {
+  width: min(850px, 95vw);
+  height: min(620px, 87vh);
+  border-radius: 15px;
+  border: 1px solid #ffffff1a;
+  box-shadow: 0 25px 100px #0008;
+  animation: dialog-in 300ms var(--ease-out) both;
+}
+.compact-lyrics .lyrics-layout {
+  grid-template-columns: minmax(200px, 0.85fr) minmax(230px, 1.15fr);
+  gap: 35px;
+  padding: 0 35px 30px;
+}
+.compact-lyrics .lyrics-cover {
+  width: 100%;
+  margin-bottom: 20px;
+}
+.compact-lyrics .lyric-line {
+  font-size: 27px;
+  letter-spacing: -0.6px;
+}
+.compact-lyrics .lyrics-track-info h2 {
+  font-size: 17px;
+}
+.compact-lyrics .lyrics-track-info p {
+  font-size: 13px;
+}
+.compact-lyrics .lyrics-transport {
+  gap: 23px;
+}
+@keyframes view-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes queue-in {
+  from {
+    opacity: 0;
+    transform: translateX(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes ambient-drift {
+  from {
