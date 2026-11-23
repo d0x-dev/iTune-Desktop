@@ -133,3 +133,37 @@ export function useHomeFeed(kind, userProfile) {
             append({
               sections: [
                 {
+                  key: "personal-recent",
+                  title: "Recently Played",
+                  group: "personal",
+                  layout: "songs",
+                  contents: recent,
+                },
+              ],
+            });
+          })
+          .catch(() => {});
+        window.api.yt
+          .getSubscribedArtists()
+          .then((data) => {
+            if (active)
+              append({
+                sections: [
+                  {
+                    key: "personal-artists",
+                    title: "Your Artists",
+                    group: "personal",
+                    layout: "artists",
+                    contents: (data?.artists || []).map((artist) => ({
+                      ...artist,
+                      title: artist.name,
+                      type: "artist",
+                    })),
+                  },
+                ],
+              });
+          })
+          .catch(() => {});
+        window.api.yt
+          .getPlaylists()
+          .then((data) => {
