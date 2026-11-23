@@ -67,3 +67,37 @@ export default function RadioView({
       setStations((previous) =>
         append ? [...previous, ...(result?.stations || [])] : result?.stations || [],
       );
+      setHasMore(Boolean(result?.hasMore));
+    } catch (failure) {
+      if (requestRevision === revision.current)
+        setError(failure.message || "Online radio couldn’t load.");
+    } finally {
+      if (requestRevision === revision.current) {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    localStorage.setItem("itune-radio-country", countryCode);
+    const timeout = setTimeout(() => loadStations(), query ? 350 : 0);
+    return () => clearTimeout(timeout);
+  }, [countryCode, query]);
+
+  const favoriteIds = useMemo(
+    () => new Set(favorites.map((station) => station.id)),
+    [favorites],
+  );
+  const visibleStations = favoritesOnly ? favorites : stations;
+  const toggleFavorite = (station) => {
+    const next = favoriteIds.has(station.id)
+      ? favorites.filter((item) => item.id !== station.id)
+      : [station, ...favorites];
+    setFavorites(next);
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
+  };
+  const playStation = (station) => {
+    window.api.radio.recordClick(station.uuid).catch(() => {});
+    onSelectTrack(station, visibleStations);
+  };
