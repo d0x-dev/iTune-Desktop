@@ -2266,3 +2266,67 @@ function registerIpcHandlers() {
         const flexCols = r.flexColumns || [];
         const nameRuns =
           flexCols[0]?.musicResponsiveListItemFlexColumnRenderer?.text?.runs ||
+          [];
+        const name = nameRuns.map((x) => x.text).join("");
+        const artistId =
+          r.navigationEndpoint?.browseEndpoint?.browseId ||
+          nameRuns[0]?.navigationEndpoint?.browseEndpoint?.browseId ||
+          null;
+
+        const subRuns =
+          flexCols[1]?.musicResponsiveListItemFlexColumnRenderer?.text?.runs ||
+          [];
+        const subscribers = subRuns.map((x) => x.text).join("");
+
+        const thumbs =
+          r.thumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails || [];
+        const thumbnail = getThumbnailUrl(
+          r.thumbnail?.musicThumbnailRenderer?.thumbnail,
+        );
+
+        if (name) {
+          artists.push({
+            id: artistId,
+            name,
+            subscribers,
+            thumbnail,
+          });
+        }
+      }
+
+      return { artists };
+    } catch (err) {
+      logToFile("Get Subscribed Artists error:", err);
+      return { artists: [], error: err.message };
+    }
+  });
+
+  ipcMain.handle("yt:getArtist", async (_event, artistId) => {
+    if (initPromise) await initPromise;
+    if (!yt) return { artist: null };
+    try {
+      logToFile("Fetching artist details for:", artistId);
+      const artist = await yt.music.getArtist(artistId);
+
+      const header = {
+        name:
+          artist.header?.title?.text ||
+          artist.header?.title?.toString() ||
+          "Artist",
+        description: artist.header?.description?.text || "",
+        subscribers:
+          artist.header?.subscription_button?.subscribe_accessibility_label ||
+          "",
+        thumbnail:
+          artist.header?.thumbnail?.contents?.[
+            artist.header?.thumbnail?.contents?.length - 1
+          ]?.url || null,
+      };
+
+      const sections = (artist.sections || [])
+        .map((sec) => {
+          const title = sec.title?.text || sec.title?.toString() || "Songs";
+          const tracks = (sec.contents || [])
+            .map((item) => {
+              const videoId =
+                item.id ||
