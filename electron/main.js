@@ -2719,3 +2719,68 @@ function registerIpcHandlers() {
     }
     return { lyrics: null, source: null };
   });
+
+  ipcMain.handle("yt:searchLyrics", async (_event, videoId, metadata = {}) => {
+    if (initPromise) await initPromise;
+    const requestMetadata = { ...metadata, videoId };
+    const youtubeMusic = async () => {
+      if (!yt) return null;
+      try {
+        const lyrics = await yt.music.getLyrics(videoId);
+        const text = lyrics?.description?.text || lyrics?.text || null;
+        return text
+          ? { lyrics: text, source: "YouTube Music", synced: false }
+          : null;
+      } catch {
+        return null;
+      }
+    };
+    const providers = [
+      "lrclib",
+      "kugou",
+      "simpmusic",
+      "youtube_subtitles",
+      "paxsenix",
+      "unison",
+      "betterlyrics",
+      "portato",
+      "youly",
+      "megalobiz",
+      "youtube_music",
+      "genius",
+      "lyricsovh",
+    ];
+    const getProvider = async (provider) => {
+      if (provider === "youtube_music") return youtubeMusic();
+      if (provider === "youtube_subtitles")
+        return yt ? youtubeSubtitleLyrics(yt, videoId) : null;
+      return fetchLyricsProvider(provider, requestMetadata);
+    };
+    const settled = await Promise.all(
+      providers.map(async (provider) => ({
+        provider,
+        result: await getProvider(provider),
+      })),
+    );
+    const seen = new Set();
+    return {
+      results: settled
+        .filter(({ result }) => result?.lyrics)
+        .filter(({ result }) => {
+          const key = result.lyrics.slice(0, 300);
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        })
+        .map(({ provider, result }) => ({
+          provider,
+          source: result.source,
+          lyrics: result.lyrics,
+          synced: Boolean(result.synced),
+          trackName: result.trackName || metadata.title || "",
+          artistName: result.artistName || metadata.artist || "",
+          duration: Number(result.duration) || Number(metadata.duration) || 0,
+          preview: String(result.lyrics)
+            .split(/\r?\n/)
+            .map((line) => line.replace(/\[[^\]]+\]|<[^>]+>/g, "").trim())
+            .filter(Boolean)
