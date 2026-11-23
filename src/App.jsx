@@ -537,3 +537,63 @@ export default function App() {
       selectTrack(item, contextMenu.list || []);
       return;
     }
+    if (action === "next" || action === "queue") {
+      if (!currentTrack) {
+        selectTrack(item, [item]);
+        return;
+      }
+      setQueue((previous) => {
+        const withoutItem = previous.filter((track) => track.id !== item.id);
+        if (action === "queue") return [...withoutItem, item];
+        const playingIndex = withoutItem.findIndex(
+          (track) => track.id === currentTrack.id,
+        );
+        const insertAt = playingIndex < 0 ? 0 : playingIndex + 1;
+        return [
+          ...withoutItem.slice(0, insertAt),
+          item,
+          ...withoutItem.slice(insertAt),
+        ];
+      });
+      setMessage(action === "next" ? "Playing next." : "Added to the queue.");
+      return;
+    }
+    if (action === "radio") return startRadio(item);
+    if (action === "favorite") return toggleLike(getTrackVideoId(item));
+    if (action === "album" && item.album)
+      return navigate("albums", {
+        album: { id: item.album.id, title: item.album.name, ...item.album },
+      });
+    if (action === "artist" && item.artists?.[0])
+      return navigate("artists", {
+        artist: { ...item.artists[0], title: item.artists[0].name },
+      });
+    if (action === "playlist") {
+      try {
+        const result = await window.api.yt.addToPlaylist({
+          playlistId: payload.id,
+          videoIds: [item.videoId || item.id],
+        });
+        if (!result?.ok) throw new Error(result?.error);
+        setMessage(`Added to ${payload.title}.`);
+      } catch {
+        setMessage("This song couldn’t be added to the playlist.");
+      }
+      return;
+    }
+    if (action === "copy") {
+      const link =
+        item.homepage ||
+        item.streamUrl ||
+        `https://music.youtube.com/watch?v=${item.videoId || item.id}`;
+      await navigator.clipboard.writeText(link).catch(() => {});
+      setMessage("Link copied.");
+      return;
+    }
+    if (action === "download") {
+      setMessage(`Downloading “${item.title}”…`);
+      try {
+        const stream = await window.api.yt.getSongStream(
+          item.videoId || item.id,
+          preferences.downloadQuality,
+        );
