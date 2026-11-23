@@ -226,3 +226,41 @@ export default function PlaylistView({
   return (
     <div className="page">
       <header className="page-heading">
+        <div className="section-heading">
+          <h1>Playlists</h1>
+          {userProfile?.isLoggedIn && (
+            <button
+              className="primary-button"
+              onClick={() => setShowCreate(true)}
+            >
+              <Plus size={16} />
+              New Playlist
+            </button>
+          )}
+        </div>
+        <p>A collection for every mood.</p>
+      </header>
+      {!userProfile?.isLoggedIn ? (
+        <div className="empty-state">
+          <Library />
+          <h2>Bring your playlists along</h2>
+          <p>Sign in to access your YouTube Music playlists.</p>
+          <button className="primary-button" onClick={onLogin}>
+            Sign In
+          </button>
+        </div>
+      ) : loading ? (
+        <div className="empty-state">
+          <Loader2 className="animate-spin" />
+          <p>Loading playlists…</p>
+        </div>
+      ) : error ? (
+        <div className="empty-state">
+          <h2>Let’s try again</h2>
+          <p role="alert">{error}</p>
+          <button
+            className="primary-button"
+            onClick={() => setReload((value) => value + 1)}
+          >
+            Try again
+          </button>
