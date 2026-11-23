@@ -1294,3 +1294,67 @@ function registerIpcHandlers() {
     try {
       if (typeof tag !== "string" || typeof assetName !== "string") {
         throw new Error("Choose a file from a GitHub release.");
+      }
+      const { release, asset } = await githubUpdates.findReleaseAsset(tag, assetName);
+      const safeName = path.basename(asset.name);
+      if (safeName !== asset.name) throw new Error("The release file name is invalid.");
+      const destination = path.join(app.getPath("userData"), "updates", safeName);
+      await githubUpdates.downloadReleaseAsset(asset, destination, (progress) => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send("updates:downloadProgress", {
+            assetName: safeName,
+            ...progress,
+          });
+        }
+      });
+      return { ok: true, tag: release.tag, assetName: safeName };
+    } catch (error) {
+      return { ok: false, error: error.message };
+    }
+  });
+  ipcMain.handle("updates:install", async (_event, assetName) => {
+    if (typeof assetName !== "string" || path.basename(assetName) !== assetName) {
+      return { ok: false, error: "Choose a downloaded setup file." };
+    }
+    const installerPath = path.join(app.getPath("userData"), "updates", assetName);
+    try {
+      const installer = await fs.promises.stat(installerPath);
+      if (!installer.isFile() || installer.size === 0) {
+        throw new Error("Download the setup file before installing it.");
+      }
+      if (process.platform === "linux" && /\.appimage$/i.test(assetName)) {
+        await fs.promises.chmod(installerPath, 0o755);
+      }
+      const error = await shell.openPath(installerPath);
+      return error ? { ok: false, error } : { ok: true };
+    } catch (error) {
+      return { ok: false, error: error.message };
+    }
+  });
+  ipcMain.handle("updates:openReleases", async () => {
+    await shell.openExternal(githubUpdates.RELEASES_PAGE);
+  });
+  ipcMain.handle("updates:openRepository", async () => {
+    await shell.openExternal("https://github.com/d0x-dev/iTune-Desktop");
+  });
+  ipcMain.handle("updates:openLicense", async () => {
+    await shell.openExternal("https://www.gnu.org/licenses/gpl-3.0.html");
+  });
+  ipcMain.handle("festival:getConfig", async () => {
+    const { fetchFestivalConfig } = await import("../shared/festival.mjs");
+    return fetchFestivalConfig(app.getVersion());
+  });
+  ipcMain.handle("news:getItems", async () => {
+    const { fetchDeveloperNews } = await import("../shared/developerNews.mjs");
+    return fetchDeveloperNews();
+  });
+  ipcMain.handle("news:openLink", async (_event, value) => {
+    const { newsWebUrl } = await import("../shared/developerNews.mjs");
+    const url = newsWebUrl(value);
+    if (url) await shell.openExternal(url);
+  });
+  ipcMain.handle("ishare:create", async (_event, displayName, state) => {
+    try {
+      return { ok: true, session: await ishare.create(displayName, state) };
+    } catch (error) {
+      return { ok: false, error: error.message };
