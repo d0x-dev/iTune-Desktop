@@ -53,3 +53,31 @@ function createEngine(audio) {
   bass.connect(mid);
   mid.connect(treble);
   treble.connect(compressor);
+  compressor.connect(dry);
+  dry.connect(master);
+  compressor.connect(leftDelay);
+  compressor.connect(rightDelay);
+  leftDelay.connect(leftPan);
+  rightDelay.connect(rightPan);
+  leftPan.connect(spatial);
+  rightPan.connect(spatial);
+  spatial.connect(master);
+  compressor.connect(convolver);
+  convolver.connect(reverb);
+  reverb.connect(master);
+  master.connect(context.destination);
+
+  const engine = {
+    context,
+    bass,
+    mid,
+    treble,
+    compressor,
+    dry,
+    spatial,
+    reverb,
+    master,
+  };
+  engines.set(audio, engine);
+  return engine;
+}
