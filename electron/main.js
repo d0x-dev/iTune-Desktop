@@ -516,3 +516,68 @@ function initYouTube(cookie = "") {
         cache = new UniversalCache(false);
       }
 
+      yt = await Innertube.create({
+        cache: cache,
+        cookie: cleanCookie || undefined,
+        generate_session_locally: true,
+      });
+
+      if (cleanCookie) {
+        let parsedProfile = null;
+
+        // Method 1: YouTube Music account_menu (matches AirBeats InnerTube)
+        try {
+          const res = await yt.actions.execute("/account/account_menu", {
+            client: "YTMUSIC",
+          });
+          const header =
+            res?.data?.actions?.[0]?.openPopupAction?.popup
+              ?.multiPageMenuRenderer?.header?.activeAccountHeaderRenderer;
+          if (header) {
+            const name =
+              header.accountName?.runs?.[0]?.text ||
+              header.accountName?.simpleText ||
+              "";
+            const email =
+              header.channelHandle?.runs?.[0]?.text ||
+              header.email?.runs?.[0]?.text ||
+              header.email?.simpleText ||
+              "";
+            const thumbs = header.accountPhoto?.thumbnails || [];
+            const photo =
+              thumbs.length > 0 ? thumbs[thumbs.length - 1]?.url : null;
+
+            if (name) {
+              parsedProfile = {
+                name,
+                email,
+                photo,
+                isLoggedIn: true,
+              };
+              logToFile("Parsed profile via account_menu:", name, email);
+            }
+          }
+        } catch (e) {
+          logToFile("account_menu check error:", e.message);
+        }
+
+        // Method 2: yt.account.getInfo() fallback
+        if (!parsedProfile) {
+          try {
+            const info = await yt.account.getInfo();
+            const accountItem = info?.contents?.contents?.[0];
+            const name = accountItem?.account_name?.text || info?.name || "";
+            const email =
+              accountItem?.account_byline?.text || info?.email || "";
+            const photo =
+              accountItem?.account_photo?.[0]?.url ||
+              info?.photo?.[0]?.url ||
+              null;
+            if (name) {
+              parsedProfile = {
+                name,
+                email,
+                photo,
+                isLoggedIn: true,
+              };
+              logToFile("Parsed profile via getInfo:", name);
