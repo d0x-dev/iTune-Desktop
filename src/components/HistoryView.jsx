@@ -65,3 +65,37 @@ export default function HistoryView({
         </div>
       ) : error ? (
         <div className="empty-state">
+          <h2>Let’s try again</h2>
+          <p role="alert">{error}</p>
+          <button
+            className="primary-button"
+            onClick={() => setReload((value) => value + 1)}
+          >
+            Try again
+          </button>
+        </div>
+      ) : sections.length ? (
+        sections.map((section, index) => (
+          <section className="history-section" key={index}>
+            <h2>{section.title}</h2>
+            <TrackList
+              tracks={section.contents}
+              currentTrack={currentTrack}
+              isPlaying={isPlaying}
+              onSelectTrack={onSelectTrack}
+              likedSongIds={likedSongIds}
+              onToggleLike={onToggleLike}
+              onContextMenu={onContextMenu}
+            />
+          </section>
+        ))
+      ) : (
+        <div className="empty-state">
+          <History />
+          <h2>Start a new rotation</h2>
+          <p>The songs you listen to on YouTube Music will appear here.</p>
+        </div>
+      )}
+    </div>
+  );
+}
