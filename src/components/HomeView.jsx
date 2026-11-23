@@ -63,3 +63,35 @@ export default function HomeView({
           <div className="skeleton-title" />
           <div className="skeleton-row small">
             {[0, 1, 2, 3, 4].map((i) => (
+              <div key={i} className="skeleton-card" />
+            ))}
+          </div>
+        </div>
+      ) : sections.length ? (
+        <>
+          <MediaShelf
+            title={sections[0].title}
+            items={sections[0].contents}
+            onSelect={onSelectTrack}
+            editorial
+          />
+          <div className="home-discovery">
+            <div>
+              <Headphones size={26} />
+              <div>
+                <h3>A little more you.</h3>
+                <p>
+                  {userProfile?.isLoggedIn
+                    ? "Your favorites, all in one place."
+                    : "Bring your favorites along."}
+                </p>
+              </div>
+            </div>
+            <button
+              className="text-button"
+              onClick={() =>
+                userProfile?.isLoggedIn ? onNavigate("songs") : onLogin()
+              }
+            >
+              {userProfile?.isLoggedIn ? "Open your library" : "Sign in"}{" "}
+              <span aria-hidden="true">›</span>
