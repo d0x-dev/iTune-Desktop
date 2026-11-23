@@ -31,3 +31,36 @@ function formatRelease(release) {
     publishedAt: release.published_at || "",
     url: release.html_url || RELEASES_PAGE,
     prerelease: Boolean(release.prerelease),
+    assets: (release.assets || []).map((asset) => ({
+      name: asset.name,
+      size: Number(asset.size) || 0,
+      downloadUrl: asset.browser_download_url,
+      contentType: asset.content_type || "application/octet-stream",
+    })),
+  };
+}
+
+async function fetchReleases() {
+  const response = await fetch(RELEASES_API, {
+    headers: {
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
+      "User-Agent": "iTune-Desktop",
+    },
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!response.ok) {
+    throw new Error(`GitHub returned HTTP ${response.status}`);
+  }
+  const releases = await response.json();
+  return releases.filter((release) => !release.draft).map(formatRelease);
+}
+
+async function checkForUpdates(currentVersion) {
+  const releases = await fetchReleases();
+  const stableReleases = releases
+    .filter((release) => !release.prerelease && versionParts(release.tag).length)
+    .sort((left, right) => compareVersions(right.tag, left.tag));
+  const latestRelease = stableReleases[0] || null;
+  return {
+    repository: REPOSITORY,
