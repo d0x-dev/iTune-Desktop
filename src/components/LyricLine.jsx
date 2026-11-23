@@ -32,3 +32,38 @@ export default function LyricLine({ line, currentTime, active, isPlaying }) {
           0,
           Math.min(1, (time - start) / Math.max(0.05, end - start)),
         );
+        const lift = Math.sin(progress * Math.PI);
+        word.style.setProperty("--word-progress", `${progress * 100}%`);
+        word.style.setProperty("--word-float", `${-4 * lift}px`);
+        word.style.setProperty("--word-scale", String(1 + 0.015 * lift));
+        word.style.setProperty(
+          "--word-glow",
+          `${progress > 0 && progress < 1 ? Math.min(1, progress * 2) * 12 : 0}px`,
+        );
+      }
+      if (clock.current.playing) frame = requestAnimationFrame(update);
+    };
+    update();
+    return () => cancelAnimationFrame(frame);
+  }, [active, line.words, isPlaying]);
+  if (!line.words?.length) return line.text;
+  return (
+    <span ref={element}>
+      {line.words.map((word, index) =>
+        word.start == null ? (
+          <span key={index}>{word.text}</span>
+        ) : (
+          <span
+            key={index}
+            className="lyric-word"
+            data-text={word.text}
+            data-word-start={word.start}
+            data-word-end={word.end ?? line.end ?? word.start + 1}
+          >
+            {word.text}
+          </span>
+        ),
+      )}
+    </span>
+  );
+}
