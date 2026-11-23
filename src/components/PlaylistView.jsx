@@ -188,3 +188,41 @@ export default function PlaylistView({
                     disabled={deleting}
                     aria-label="Delete playlist"
                     onClick={deletePlaylist}
+                  >
+                    {deleting ? (
+                      <Loader2 size={17} className="animate-spin" />
+                    ) : (
+                      <Trash2 size={17} />
+                    )}
+                  </button>
+                )}
+            </div>
+          </div>
+        </header>
+        {error && (
+          <p className="error-text" role="alert">
+            {error}
+          </p>
+        )}
+        {loadingDetail ? (
+          <div className="empty-state">
+            <Loader2 className="animate-spin" />
+            <p>Loading playlist…</p>
+          </div>
+        ) : (
+          <TrackList
+            tracks={detail?.tracks || []}
+            currentTrack={currentTrack}
+            isPlaying={isPlaying}
+            onSelectTrack={onSelectTrack}
+            likedSongIds={likedSongIds}
+            onToggleLike={onToggleLike}
+            onContextMenu={onContextMenu}
+          />
+        )}
+      </div>
+    );
+
+  return (
+    <div className="page">
+      <header className="page-heading">
