@@ -237,3 +237,63 @@ export default function App() {
     },
     [showLyrics],
   );
+
+  const navigate = useCallback((tab, data = {}) => {
+    setNavigation((previous) => {
+      if (
+        previous.entries[previous.index].tab === tab &&
+        !Object.keys(data).length
+      )
+        return previous;
+      return {
+        entries: [
+          ...previous.entries.slice(0, previous.index + 1),
+          { tab, ...data },
+        ],
+        index: previous.index + 1,
+      };
+    });
+  }, []);
+
+  useEffect(() => {
+    content.current?.scrollTo({ top: 0 });
+  }, [view]);
+  useEffect(() => {
+    let mounted = true;
+    window.api.auth
+      .getStatus()
+      .then((profile) => {
+        if (mounted && profile) setUserProfile(profile);
+      })
+      .catch(() => {
+        if (mounted)
+          setMessage("Your account couldn’t connect. Try signing in again.");
+      })
+      .finally(() => {
+        if (mounted) setAuthLoading(false);
+      });
+    const unsubscribe = window.api.onAuthChanged((profile) => {
+      if (mounted && profile) {
+        setUserProfile(profile);
+        setAuthLoading(false);
+      }
+    });
+    return () => {
+      mounted = false;
+      unsubscribe?.();
+    };
+  }, []);
+  useEffect(() => {
+    if (!userProfile.isLoggedIn || !userProfile.name) return;
+    setPreferredName(userProfile.name);
+    localStorage.setItem("itune:display-name", userProfile.name);
+  }, [userProfile.isLoggedIn, userProfile.name]);
+  useEffect(() => {
+    let active = true;
+    setLikedSongIds(new Set());
+    if (!userProfile.isLoggedIn) return;
+    window.api.yt
+      .getLikedSongs()
+      .then((data) => {
+        if (active)
+          setLikedSongIds(
