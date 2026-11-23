@@ -25,3 +25,31 @@ export async function readAsset(key) {
   });
 }
 
+export async function saveAsset(key, value) {
+  const db = await openDatabase();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction("assets", "readwrite");
+    const store = transaction.objectStore("assets");
+    if (value == null) store.delete(key);
+    else store.put(value, key);
+    transaction.oncomplete = () => {
+      window.dispatchEvent(
+        new CustomEvent("itune-assets-changed", { detail: key }),
+      );
+      resolve();
+    };
+    transaction.onerror = () => reject(transaction.error);
+    transaction.onabort = () =>
+      reject(transaction.error || new Error("Couldn’t save this file."));
+  });
+}
+
+export function useMediaAsset(key) {
+  const [asset, setAsset] = useState({ key: null, url: null });
+  useEffect(() => {
+    if (!key) return;
+    let active = true;
+    let objectUrl;
+    let revision = 0;
+    const refresh = async () => {
+      const requestRevision = ++revision;
