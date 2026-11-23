@@ -36,3 +36,42 @@ function AmbientMesh() {
     </div>
   );
 }
+
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(() =>
+    matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+  useEffect(() => {
+    const media = matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduced(media.matches);
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  return reduced;
+}
+
+function TypingHeadline({ text, multiline = false }) {
+  const [visible, setVisible] = useState("");
+  const [cursor, setCursor] = useState(true);
+  useEffect(() => {
+    let active = true;
+    const run = async () => {
+      while (active) {
+        setVisible("");
+        setCursor(true);
+        await wait(700);
+        for (let index = 0; active && index < text.length; index += 1) {
+          const character = text[index];
+          const previous = text[index - 1];
+          const delay =
+            62 +
+            ((index * 23) % 32) +
+            (previous === " " ? 74 : character === " " ? 38 : 0) +
+            (character === character.toUpperCase() && /[A-Z]/.test(character) && index > 0 ? 48 : 0);
+          await wait(delay);
+          if (active) setVisible(text.slice(0, index + 1));
+        }
+        await wait(280);
+        if (!active) break;
+        setCursor(false);
+        await wait(5500);
