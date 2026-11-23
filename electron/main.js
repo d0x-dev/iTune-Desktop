@@ -970,3 +970,67 @@ function extractTracksFromSearch(searchRes) {
     if (!track.id || seen.has(track.id)) return false;
     seen.add(track.id);
     return true;
+  });
+}
+
+async function getLibraryItems(filter) {
+  const library = await yt.music.getLibrary();
+  let page = await library.applyFilter(filter);
+  const items = [];
+  const seen = new Set();
+  while (page) {
+    const previousCount = seen.size;
+    const shelves = Array.isArray(page.contents)
+      ? page.contents
+      : [page.contents];
+    for (const shelf of shelves) {
+      for (const item of shelf?.contents || shelf?.items || []) {
+        const normalized = normalizeSearchTrack(item);
+        if (normalized && !seen.has(normalized.id)) {
+          seen.add(normalized.id);
+          items.push(normalized);
+        }
+      }
+    }
+    if (!page.has_continuation || seen.size === previousCount) break;
+    page = await page.getContinuation();
+  }
+  return items;
+}
+
+function createMainWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1280,
+    height: 840,
+    minWidth: 960,
+    minHeight: 640,
+    transparent: true,
+    backgroundColor: "#00000000",
+    backgroundMaterial: "acrylic",
+    frame: false,
+    icon: path.join(__dirname, "../dist/app-icon.png"),
+    webPreferences: {
+      preload: path.join(__dirname, "preload.js"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false,
+      backgroundThrottling: false,
+    },
+  });
+
+  const isDev =
+    process.argv.includes("--dev") || process.env.NODE_ENV === "development";
+  if (isDev) {
+    mainWindow.loadURL("http://localhost:5173");
+  } else {
+    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
+  }
+
+  mainWindow.on("closed", () => {
+    mainWindow = null;
+  });
+}
+
+function registerWindowsMediaIdentity() {
+  if (process.platform !== "win32" || !app.isPackaged || !process.env.APPDATA)
+    return;
