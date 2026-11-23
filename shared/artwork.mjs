@@ -29,3 +29,19 @@ export function artworkCandidates(source, size = 1440) {
   }
   if (host.endsWith(".mzstatic.com")) {
     const resized = source
+      .replace(/\{w\}/g, String(size))
+      .replace(/\{h\}/g, String(size))
+      .replace(/\{c\}/g, "bb")
+      .replace(/\{f\}/g, "jpg")
+      .replace(
+        /\/\d+x\d+([a-z]*)\.(jpg|png|webp)(\?|$)/,
+        `/${size}x${size}$1.$2$3`,
+      );
+    return [...new Set([resized, source])];
+  }
+  return [source];
+}
+
+export function highQualityArtwork(source, size = 1440) {
+  return artworkCandidates(source, size)[0] || null;
+}
