@@ -303,3 +303,46 @@ export default function SettingsView({
           <div className="ai-settings-grid">
             <GlassSelect
               label="AI translation provider"
+              value={aiConfig.provider}
+              onChange={(value) =>
+                setAiConfig((current) => ({
+                  ...current,
+                  provider: value,
+                  model: "",
+                  baseUrl: "",
+                }))
+              }
+              options={[
+                { value: "builtin", label: "Built-in · No API Key" },
+                { value: "openrouter", label: "OpenRouter" },
+                { value: "gemini", label: "Google Gemini" },
+                { value: "openai", label: "OpenAI / ChatGPT" },
+                { value: "claude", label: "Claude / Anthropic" },
+                { value: "custom", label: "Custom OpenAI-Compatible" },
+              ]}
+            />
+            {aiConfig.provider !== "builtin" && (
+              <>
+                <input
+                  type="password"
+                  aria-label="AI API key"
+                  value={aiConfig.apiKey}
+                  onChange={(event) =>
+                    setAiConfig((current) => ({
+                      ...current,
+                      apiKey: event.target.value,
+                    }))
+                  }
+                  placeholder={
+                    aiConfig.hasKey ? "API key saved · enter to replace" : "API key"
+                  }
+                  autoComplete="off"
+                />
+                <input
+                  aria-label="AI model"
+                  value={aiConfig.model}
+                  onChange={(event) =>
+                    setAiConfig((current) => ({
+                      ...current,
+                      model: event.target.value,
+                    }))
