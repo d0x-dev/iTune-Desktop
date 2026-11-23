@@ -291,3 +291,40 @@ async function scan(port = 8765) {
   const found = new Map();
   const socket = dgram.createSocket("udp4");
   await new Promise((resolve, reject) => {
+    socket.once("error", reject);
+    socket.bind(0, "0.0.0.0", resolve);
+  });
+  socket.setBroadcast(true);
+  socket.on("message", (message, remote) => {
+    const parts = message.toString("utf8").trim().split(":");
+    if (!/^(AIRBEATS_HOST|ISHARE_HOST)$/.test(parts[0])) return;
+    const address = `${remote.address}:${Number(parts[1]) || port}`;
+    found.set(address, {
+      address,
+      hostName: parts[2] || "AirBeats / iShare Host",
+      sessionId: parts[3] || "",
+      participants: Number(parts[4]) || 1,
+    });
+  });
+  const packet = Buffer.from("AIRBEATS_DISCOVER");
+  const prefix = ip.split(".").slice(0, 3).join(".");
+  for (const target of ["255.255.255.255", `${prefix}.255`]) {
+    await new Promise((resolve) =>
+      socket.send(packet, port, target, () => resolve()),
+    );
+  }
+  await new Promise((resolve) => setTimeout(resolve, 900));
+  socket.close();
+  return { localIp: ip, hosts: [...found.values()] };
+}
+
+module.exports = {
+  localIpv4,
+  normalizeAddress,
+  async startHost(options) {
+    lanHost?.stop();
+    lanHost = new IShareLanHost(options);
+    return lanHost.start();
+  },
+  stopHost() {
+    lanHost?.stop();
