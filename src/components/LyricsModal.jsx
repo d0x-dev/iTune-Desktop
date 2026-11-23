@@ -42,3 +42,47 @@ import {
 } from "../utils/mediaAssets";
 import { highQualityArtwork } from "../../shared/artwork.mjs";
 import { usePreferences } from "../utils/preferences";
+import { animateLyricScroll, lyricScrollLead } from "../utils/lyricMotion";
+
+const MANUAL_SCROLL_TIMEOUT_MS = 3000;
+const HOLD_PAST_END = { holdPastEnd: true };
+const SCROLL_KEYS = new Set(["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End"]);
+
+export default function LyricsModal({
+  track,
+  onClose,
+  playback,
+  isPlaying,
+  onTogglePlay,
+  onNext,
+  onPrevious,
+  onSeek,
+  compact = false,
+  onToggleCompact,
+  canvasUrl,
+  isShuffle,
+  onToggleShuffle,
+  repeatMode,
+  onToggleRepeat,
+  onVolumeChange,
+}) {
+  const [lines, setLines] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [following, setFollowing] = useState(true);
+  const [reload, setReload] = useState(0);
+  const [source, setSource] = useState("");
+  const [rawLyrics, setRawLyrics] = useState("");
+  const [translations, setTranslations] = useState([]);
+  const [translating, setTranslating] = useState(false);
+  const [translationError, setTranslationError] = useState("");
+  const [toolsPage, setToolsPage] = useState(null);
+  const [searchTitle, setSearchTitle] = useState(track.title || "");
+  const [searchArtist, setSearchArtist] = useState(getArtistName(track));
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState("");
+  const [lyricsDraft, setLyricsDraft] = useState("");
+  const [lyricsOffsetMs, setLyricsOffsetMs] = useState(0);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const { preferences, updatePreference } = usePreferences();
