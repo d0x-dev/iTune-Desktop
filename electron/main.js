@@ -1812,3 +1812,68 @@ function registerIpcHandlers() {
           continuation = more.continuation;
         } catch {
           break;
+        }
+      }
+      return { sections, continuation };
+    } catch (err) {
+      logToFile("Get Home Feed error:", err);
+      return { sections: [], error: err.message };
+    }
+  });
+
+  ipcMain.handle("yt:getRadioQueue", async (_event, videoId, playlistId) => {
+    if (initPromise) await initPromise;
+    if (!yt) return { tracks: [] };
+    try {
+      const response = await yt.actions.execute("/next", {
+        videoId,
+        playlistId: playlistId || `RDAMVM${videoId}`,
+        client: "YTMUSIC",
+        enablePersistentPlaylistPanel: true,
+      });
+      return { tracks: parseRadioTracks(response.data, highQualityArtwork) };
+    } catch (error) {
+      return { tracks: [], error: error.message };
+    }
+  });
+
+  ipcMain.handle("yt:getPlaylists", async () => {
+    if (initPromise) await initPromise;
+    if (!yt) return { playlists: [] };
+    try {
+      logToFile("Fetching user playlists via FEmusic_liked_playlists");
+      try {
+        const res = await yt.actions.execute("/browse", {
+          browseId: "FEmusic_liked_playlists",
+          client: "YTMUSIC",
+        });
+        const gridItems =
+          res?.data?.contents?.singleColumnBrowseResultsRenderer?.tabs?.[0]
+            ?.tabRenderer?.content?.sectionListRenderer?.contents?.[0]
+            ?.gridRenderer?.items || [];
+
+        const playlists = [];
+        for (const item of gridItems) {
+          const r = item.musicTwoRowItemRenderer;
+          if (!r) continue;
+          const title = r.title?.runs?.[0]?.text || r.title?.text || "";
+          if (!title || title.toLowerCase() === "new playlist") continue; // Skip create button
+
+          const browseId = r.navigationEndpoint?.browseEndpoint?.browseId || "";
+          let playlistId = browseId;
+          if (playlistId.startsWith("VL")) playlistId = playlistId.substring(2);
+
+          const thumbs =
+            r.thumbnailRenderer?.musicThumbnailRenderer?.thumbnail?.thumbnails;
+          const thumbnail = getThumbnailUrl(
+            r.thumbnailRenderer?.musicThumbnailRenderer?.thumbnail,
+          );
+          const subtitle = r.subtitle?.runs?.map((s) => s.text).join("") || "";
+
+          playlists.push({
+            id: playlistId,
+            title,
+            thumbnail,
+            subtitle,
+            itemCount: null,
+            author: userProfile?.name || "You",
