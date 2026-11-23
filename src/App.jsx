@@ -717,3 +717,63 @@ export default function App() {
           "previous",
           {},
         )
+        .catch(() => {});
+      return;
+    }
+    if (playbackRef.current.currentTime > 3 || currentIndex <= 0) {
+      player.current?.restart();
+      return;
+    }
+    player.current?.preparePlayback(true);
+    setCurrentIndex(currentIndex - 1);
+    setCurrentTrack(queue[currentIndex - 1]);
+  }, [queue, currentIndex]);
+
+  const buildSharedState = useCallback(() => {
+    const track = currentTrackRef.current;
+    const snapshot = playbackRef.current;
+    const activeQueue = queueRef.current;
+    const queueStart = Math.max(0, currentIndexRef.current);
+    return {
+      songId: track?.videoId || track?.id || "",
+      title: track?.title || "",
+      artists: track ? [getArtistName(track)] : [],
+      thumbnailUrl: track?.thumbnail || "",
+      positionMs: Math.round((snapshot.currentTime || 0) * 1000),
+      isPlaying: Boolean(isPlayingRef.current),
+      durationMs: Math.round(
+        (snapshot.duration || track?.durationSeconds || 0) * 1000,
+      ),
+      updatedAt: Date.now(),
+      settings: ishareSettings,
+      queue: activeQueue.slice(queueStart, queueStart + 18).map((item) => ({
+        id: item.videoId || item.id,
+        title: item.title || "Unknown Song",
+        artist: getArtistName(item),
+        thumbnailUrl: item.thumbnail || "",
+        durationMs: Math.round((item.durationSeconds || 0) * 1000),
+      })),
+      totalQueueSize: Math.max(0, activeQueue.length - queueStart),
+    };
+  }, [ishareSettings]);
+
+  const applySharedSession = useCallback((sessionData) => {
+    const state = sessionData?.state;
+    if (!state?.songId) return;
+    const sessionQueue = state.queue?.length
+      ? state.queue
+      : sessionData.queue || [];
+    const importedQueue = mergeUniqueTracks(
+      sessionQueue.map(sharedQueueTrack).filter(Boolean),
+      [
+        sharedQueueTrack({
+          id: state.songId,
+          title: state.title,
+          artist: (state.artists || []).filter(
+            (artist) => !String(artist).startsWith("__AB_"),
+          )[0],
+          thumbnailUrl: String(state.thumbnailUrl || "").split("#")[0],
+          durationMs: state.durationMs,
+        }),
+      ].filter(Boolean),
+    );
