@@ -98,3 +98,37 @@ export default function DiscoveryView({
               onContextMenu={onContextMenu}
             />
           )}
+          {sections.map((section) => (
+            <MediaShelf
+              key={`${section.title}-${section.strapline || ""}`}
+              title={section.title}
+              strapline={section.strapline}
+              layout={section.layout}
+              items={section.contents}
+              onSelect={
+                kind === "radio" && section.layout === "songs"
+                  ? onStartRadio
+                  : onSelectTrack
+              }
+              currentTrack={currentTrack}
+              isPlaying={isPlaying}
+              onContextMenu={onContextMenu}
+            />
+          ))}
+          {kind === "radio" &&
+            !radioSections.length &&
+            allItems.filter((item) => ["song", "video"].includes(item.type))
+              .length > 0 && (
+              <MediaShelf
+                title="Start a Station"
+                layout="songs"
+                items={allItems.filter((item) =>
+                  ["song", "video"].includes(item.type),
+                )}
+                onSelect={onStartRadio}
+                onContextMenu={onContextMenu}
+              />
+            )}
+          {!feed.sections.length && (
+            <div className="empty-state">
+              <Radio />
