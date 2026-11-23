@@ -386,3 +386,42 @@ const Player = forwardRef(function Player(
     setVolume(value);
     setMuted(value === 0);
     settings.current = { volume: value, muted: value === 0 };
+    const audio = activeAudio();
+    if (audio) audio.volume = value;
+  };
+  const toggleMute = () => {
+    const nextMuted = !muted;
+    const nextVolume = volume || 0.8;
+    setMuted(nextMuted);
+    setVolume(nextVolume);
+    settings.current = { volume: nextVolume, muted: nextMuted };
+    decks.current.forEach((audio) => {
+      if (audio && !audio.paused)
+        audio.volume = nextMuted ? 0 : nextVolume;
+    });
+  };
+
+  const updateDeckTime = (index) => {
+    if (activeDeck.current !== index) return;
+    const audio = decks.current[index];
+    if (!audio) return;
+    setCurrentTime(audio.currentTime || 0);
+    const knownDuration =
+      Number.isFinite(audio.duration) && audio.duration > 0
+        ? audio.duration
+        : Number(audio.dataset.durationSeconds) ||
+          Number(currentTrack?.durationSeconds) ||
+          0;
+    if (knownDuration) setDuration(knownDuration);
+    const remaining = knownDuration - audio.currentTime;
+    if (
+      preferences.crossfadeEnabled &&
+      preferences.autoplay &&
+      repeatMode !== "one" &&
+      currentTrack?.type !== "radio" &&
+      Number.isFinite(remaining) &&
+      remaining > 0 &&
+      remaining <= preferences.crossfadeDuration &&
+      audio.dataset.trackId === currentTrack?.id &&
+      crossfadeRequested.current !== currentTrack.id
+    ) {
