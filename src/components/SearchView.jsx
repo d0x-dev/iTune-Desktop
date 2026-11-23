@@ -160,3 +160,43 @@ export default function SearchView({
         </button>
         <button
           className={scope === "library" ? "active" : ""}
+          onClick={() => {
+            setScope("library");
+            if (query.trim()) search(query, filter, "library");
+          }}
+        >
+          Your Library
+        </button>
+      </div>
+      <div className="search-form" ref={container}>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            search();
+          }}
+        >
+          <div className="search-input-wrap">
+            <Search size={19} />
+            <input
+              ref={input}
+              autoFocus
+              aria-label="Search music"
+              placeholder="Artists, songs, albums, and more"
+              value={query}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") setShowSuggestions(false);
+              }}
+              autoComplete="off"
+            />
+            {query && (
+              <button
+                className="icon-button"
+                type="button"
+                aria-label="Clear search"
+                onClick={() => {
+                  searchRevision.current++;
