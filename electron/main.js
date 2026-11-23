@@ -2071,3 +2071,68 @@ function registerIpcHandlers() {
       if (parsedTracks.length === 0) {
         logToFile("Falling back to yt.music.getPlaylist for:", playlistId);
         try {
+          const pl = await yt.music.getPlaylist(playlistId);
+          if (pl) {
+            playlistTitle =
+              pl.header?.title?.text ||
+              pl.header?.title?.toString() ||
+              playlistTitle;
+            const rawItems = pl.items || pl.contents || [];
+            parsedTracks = rawItems
+              .map((item) => ({
+                id: item.id || item.videoId,
+                title:
+                  typeof item.title === "string"
+                    ? item.title
+                    : item.title?.text || item.title?.toString() || "",
+                artists: parseArtistsFromItem(item),
+                album: item.album
+                  ? {
+                      name: item.album.name || item.album.toString(),
+                      id: item.album.id,
+                    }
+                  : null,
+                duration:
+                  typeof item.duration === "string"
+                    ? item.duration
+                    : item.duration?.text || "",
+                thumbnail: getThumbnailUrl(item) || null,
+              }))
+              .filter((t) => t.id && t.title);
+          }
+        } catch (e) {
+          logToFile("yt.music.getPlaylist error:", e.message);
+        }
+      }
+
+      return {
+        id: playlistId,
+        title: playlistTitle,
+        thumbnail: headerThumb || parsedTracks[0]?.thumbnail || null,
+        tracks: parsedTracks,
+      };
+    } catch (err) {
+      logToFile("Get Playlist tracks error:", err.message);
+      return { tracks: [], error: err.message };
+    }
+  });
+
+  ipcMain.handle("yt:getLikedSongs", async (_event) => {
+    if (initPromise) await initPromise;
+    if (!yt) return { tracks: [] };
+    try {
+      const browseIds = ["FEmusic_liked_videos", "VLLM", "LM"];
+      for (const browseId of browseIds) {
+        try {
+          const res = await yt.actions.execute("/browse", {
+            browseId,
+            client: "YTMUSIC",
+          });
+          if (res?.data) {
+            const tracks = extractTracksFromBrowseData(res.data);
+            if (tracks.length > 0) {
+              logToFile(`Fetched ${tracks.length} liked songs via ${browseId}`);
+              return { id: "LM", title: "Liked Music", tracks };
+            }
+          }
+        } catch (e) {
