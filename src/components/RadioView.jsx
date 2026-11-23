@@ -101,3 +101,38 @@ export default function RadioView({
     window.api.radio.recordClick(station.uuid).catch(() => {});
     onSelectTrack(station, visibleStations);
   };
+
+  return (
+    <div className="page online-radio-page">
+      <header className="page-heading radio-heading">
+        <div>
+          <h1>Radio</h1>
+          <p>Live stations from around the world.</p>
+        </div>
+        <button
+          className="icon-button"
+          aria-label="Refresh radio stations"
+          onClick={() => loadStations()}
+        >
+          <RefreshCw size={17} />
+        </button>
+      </header>
+
+      <div className="radio-toolbar">
+        <label className="radio-search">
+          <Search size={17} />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search live stations"
+            aria-label="Search live radio"
+          />
+        </label>
+        <label className="radio-country">
+          <MapPin size={16} />
+          <select
+            value={countryCode}
+            onChange={(event) => setCountryCode(event.target.value)}
+            aria-label="Radio country"
+          >
+            {countries.map((country) => (
