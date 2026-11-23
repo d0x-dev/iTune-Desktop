@@ -1747,3 +1747,68 @@ function registerIpcHandlers() {
       logToFile("Deleting playlist on YouTube Music:", playlistId);
       let targetId = playlistId;
       if (targetId.startsWith("VL")) targetId = targetId.substring(2);
+      const res = await yt.actions.execute("/playlist/delete", {
+        playlistId: targetId,
+        client: "YTMUSIC",
+      });
+      return { ok: true, status: res.status_code || 200 };
+    } catch (err) {
+      logToFile("Error deleting playlist:", err);
+      return { ok: false, error: err.message };
+    }
+  });
+
+  ipcMain.handle("yt:getHome", async (_event, options) => {
+    if (initPromise) await initPromise;
+    if (!yt) return { sections: [] };
+    try {
+      const browseId = options?.browseId || "FEmusic_home";
+      const group =
+        {
+          FEmusic_home: "feed",
+          FEmusic_explore: "trending",
+          FEmusic_charts: "charts",
+          FEmusic_non_music_audio: "podcasts",
+        }[browseId] || "feed";
+      let cache = homeRequests.get(yt);
+      if (!cache) {
+        cache = new Map();
+        homeRequests.set(yt, cache);
+      }
+      const load = async (continuation) => {
+        const key = `${browseId}:${continuation || "first"}`;
+        const cached = cache.get(key);
+        if (cached && Date.now() - cached.time < 120000) return cached.promise;
+        const promise = yt.actions
+          .execute("/browse", {
+            ...(continuation ? { continuation } : { browseId }),
+            client: "YTMUSIC",
+          })
+          .then((response) =>
+            parseHomePage(response.data, key, group, highQualityArtwork),
+          );
+        cache.set(key, { promise, time: Date.now() });
+        try {
+          return await promise;
+        } catch (error) {
+          cache.delete(key);
+          throw error;
+        }
+      };
+      const page = await load(options?.continuation);
+      if (options) return page;
+      const sections = [...page.sections];
+      const tokens = new Set();
+      let continuation = page.continuation;
+      for (
+        let index = 0;
+        continuation && index < 4 && !tokens.has(continuation);
+        index++
+      ) {
+        tokens.add(continuation);
+        try {
+          const more = await load(continuation);
+          sections.push(...more.sections);
+          continuation = more.continuation;
+        } catch {
+          break;
