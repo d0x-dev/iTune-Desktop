@@ -34,3 +34,40 @@ function metadata(runs = []) {
     .filter((run) =>
       run.navigationEndpoint?.browseEndpoint?.browseId?.startsWith("UC"),
     )
+    .map((run) => ({
+      name: run.text,
+      id: run.navigationEndpoint.browseEndpoint.browseId,
+    }));
+  const albumRun = runs.find((run) =>
+    run.navigationEndpoint?.browseEndpoint?.browseId?.startsWith("MPRE"),
+  );
+  const subtitle = text({ runs });
+  if (!artists.length) {
+    const parts = subtitle.split("•").map((part) => part.trim());
+    const credit = parts.find(
+      (part) =>
+        !/^(song|video|album|single|ep|playlist|artist|podcast|episode|show|\d{4}|[\d.,]+.*(views|plays|songs))$/i.test(
+          part,
+        ),
+    );
+    if (credit) artists.push({ name: credit });
+  }
+  return {
+    artists,
+    artistId: artists[0]?.id,
+    subtitle,
+    album: albumRun
+      ? {
+          name: albumRun.text,
+          id: albumRun.navigationEndpoint.browseEndpoint.browseId,
+        }
+      : null,
+  };
+}
+function parseItem(item, upgrade = (url) => url) {
+  const row =
+    item.musicTwoRowItemRenderer ||
+    item.musicResponsiveListItemRenderer ||
+    item.musicMultiRowListItemRenderer ||
+    item.playlistPanelVideoRenderer;
+  if (!row) return null;
