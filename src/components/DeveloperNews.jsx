@@ -36,3 +36,41 @@ function NewsLink({ href, className, children, onOpen, onError }) {
 }
 
 function NewsImage({ src, alt = "", className }) {
+  const [failed, setFailed] = useState(false);
+  const url = newsWebUrl(src);
+  if (!url || failed) return alt ? <span>{alt}</span> : null;
+  return (
+    <img
+      src={url}
+      alt={alt}
+      className={className}
+      loading="lazy"
+      decoding="async"
+      referrerPolicy="no-referrer"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
+function NewsMarkdown({ message, onLinkError }) {
+  const idPrefix = useId().replace(/[^\w-]/g, "");
+  if (!message.trim()) return null;
+  return (
+    <div className="news-markdown">
+      <Markdown
+        remarkPlugins={markdownPlugins}
+        remarkRehypeOptions={{ clobberPrefix: `${idPrefix}-` }}
+        skipHtml
+        urlTransform={(value, key) => (key === "href" && value.startsWith("#") ? value : newsWebUrl(value))}
+        components={{
+          a: ({ href, children }) => <NewsLink href={href} onError={onLinkError}>{children}</NewsLink>,
+          img: ({ src, alt }) => <NewsImage key={src} src={src} alt={alt} />,
+          table: ({ children }) => <div className="news-table"><table>{children}</table></div>,
+        }}
+      >
+        {message}
+      </Markdown>
+    </div>
+  );
+}
+
