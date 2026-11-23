@@ -503,3 +503,42 @@ const Player = forwardRef(function Player(
             }
           }}
           onEnded={() => handleDeckEnded(index)}
+        />
+      ))}
+      <div className="transport-controls">
+        <button
+          className={`icon-button ${isShuffle ? "selected" : ""}`}
+          onClick={onToggleShuffle}
+          aria-label="Shuffle"
+          aria-pressed={isShuffle}
+          title="Shuffle"
+        >
+          <AndroidIcon name="shuffle" size={16} />
+        </button>
+        <button
+          className={`icon-button ${endlessQueueEnabled ? "selected" : ""}`}
+          onClick={onToggleEndlessQueue}
+          aria-label={
+            endlessQueueEnabled
+              ? "Turn off endless queue"
+              : "Turn on endless queue"
+          }
+          title="Endless queue"
+          aria-pressed={endlessQueueEnabled}
+        >
+          <AndroidIcon name="ic_infinite_queue" size={17} />
+        </button>
+        <button
+          className="icon-button"
+          onClick={onPrevious}
+          disabled={!currentTrack}
+          aria-label="Previous song"
+        >
+          <AndroidIcon name="skip_previous" size={22} />
+        </button>
+        <button
+          className="transport-play icon-button"
+          onClick={togglePlay}
+          disabled={!currentTrack || loading}
+          aria-label={isPlaying ? "Pause" : "Play"}
+        >
