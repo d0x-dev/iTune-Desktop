@@ -53,3 +53,31 @@ export function useMediaAsset(key) {
     let revision = 0;
     const refresh = async () => {
       const requestRevision = ++revision;
+      try {
+        const blob = await readAsset(key);
+        if (!active || requestRevision !== revision) return;
+        if (objectUrl) URL.revokeObjectURL(objectUrl);
+        objectUrl = blob ? URL.createObjectURL(blob) : null;
+        setAsset({ key, url: objectUrl });
+      } catch {
+        if (active && requestRevision === revision)
+          setAsset({ key, url: null });
+      }
+    };
+    const onChange = (event) => {
+      if (event.detail === key) refresh();
+    };
+    refresh();
+    window.addEventListener("itune-assets-changed", onChange);
+    return () => {
+      active = false;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      window.removeEventListener("itune-assets-changed", onChange);
+    };
+  }, [key]);
+  return asset.key === key ? asset.url : null;
+}
+
+export function artistAssetId(track) {
+  return track?.artistId || track?.artists?.find((artist) => artist.id)?.id;
+}
