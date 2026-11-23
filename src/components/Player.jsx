@@ -348,3 +348,41 @@ const Player = forwardRef(function Player(
       title: currentTrack.title,
       artist: getArtistName(currentTrack),
       album: currentTrack.album?.name || "iTune Desktop",
+      artwork: [
+        ...(currentTrack.thumbnail ? [{ src: currentTrack.thumbnail }] : []),
+        { src: new URL("app-icon.png", document.baseURI).href, sizes: "512x512", type: "image/png" },
+      ],
+    });
+    const actions = {
+      play: () => {
+        if (!isPlaying) togglePlay();
+      },
+      pause: () => {
+        if (isPlaying) togglePlay();
+      },
+      previoustrack: onPrevious,
+      nexttrack: () => onNext(),
+      seekto: (event) => seek(event.seekTime),
+      seekbackward: (event) =>
+        seek((activeAudio()?.currentTime || 0) - (event.seekOffset || 10)),
+      seekforward: (event) =>
+        seek((activeAudio()?.currentTime || 0) + (event.seekOffset || 10)),
+    };
+    Object.entries(actions).forEach(([action, handler]) => {
+      try {
+        navigator.mediaSession.setActionHandler(action, handler);
+      } catch {}
+    });
+    return () =>
+      Object.keys(actions).forEach((action) => {
+        try {
+          navigator.mediaSession.setActionHandler(action, null);
+        } catch {}
+      });
+  }, [currentTrack, isPlaying, onPrevious, onNext]);
+
+  const changeVolume = (event) => {
+    const value = Number(event.target.value);
+    setVolume(value);
+    setMuted(value === 0);
+    settings.current = { volume: value, muted: value === 0 };
