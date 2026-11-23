@@ -1060,3 +1060,85 @@ input[type="range"]:disabled {
   border-radius: 50%;
   aspect-ratio: 1;
   max-width: 190px;
+  margin: auto;
+  box-shadow: 0 7px 20px #0003;
+}
+.artist-card img {
+  transition: transform 450ms var(--ease-out);
+}
+.artist-card:hover img {
+  transform: scale(1.04);
+}
+.artist-card h2 {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 14px 0 5px;
+}
+.artist-card p {
+  color: #95959c;
+  font-size: 10px;
+}
+.artist-hero {
+  height: 390px;
+  border-radius: 9px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 30px;
+  background: #252525;
+  isolation: isolate;
+}
+.artist-hero-image {
+  position: absolute;
+  inset: 0;
+}
+.artist-hero-image img {
+  object-position: center 30%;
+}
+.canvas-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.artist-hero-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, #0000 20%, #0002 45%, #000b 100%),
+    linear-gradient(90deg, #0002, #0000);
+}
+.artist-hero-content {
+  position: absolute;
+  bottom: 30px;
+  left: 30px;
+  right: 60px;
+}
+.artist-hero-content > p {
+  font-size: 11px;
+  color: #ffffffad;
+  margin-bottom: 6px;
+}
+.artist-hero h1 {
+  font-size: clamp(35px, 5vw, 65px);
+  letter-spacing: -2px;
+  font-weight: 750;
+  line-height: 1.1;
+  text-shadow: 0 2px 20px #0002;
+}
+.artist-signature {
+  max-width: 60%;
+  height: 92px;
+  object-fit: contain;
+  object-position: left;
+}
+.artist-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+.artist-actions .secondary-button {
+  background: #ffffff26;
+  color: white;
+  backdrop-filter: blur(12px);
