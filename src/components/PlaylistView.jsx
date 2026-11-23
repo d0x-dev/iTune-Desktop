@@ -340,3 +340,41 @@ export default function PlaylistView({
                 <X size={19} />
               </button>
             </div>
+            <p>Your playlist will be saved to YouTube Music.</p>
+            <form onSubmit={createPlaylist}>
+              <input
+                autoFocus
+                aria-label="Playlist name"
+                placeholder="Playlist name"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+              />
+              {createError && (
+                <p className="error-text" role="alert">
+                  {createError}
+                </p>
+              )}
+              <div className="dialog-actions">
+                <button
+                  type="button"
+                  className="secondary-button"
+                  disabled={creating}
+                  onClick={() => setShowCreate(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="primary-button"
+                  disabled={creating || !title.trim()}
+                >
+                  {creating && <Loader2 size={15} className="animate-spin" />}
+                  Create
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      </AnimatedPresence>
+    </div>
+  );
+}
