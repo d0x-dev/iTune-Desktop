@@ -1682,3 +1682,68 @@ function registerIpcHandlers() {
     } catch (err) {
       logToFile("Error unsubscribing from artist:", err);
       return { ok: false, error: err.message };
+    }
+  });
+
+  ipcMain.handle(
+    "yt:createPlaylist",
+    async (_event, { title, videoIds, description }) => {
+      if (initPromise) await initPromise;
+      if (!yt) return { ok: false, error: "InnerTube not ready" };
+      try {
+        logToFile("Creating playlist on YouTube Music:", title);
+        const res = await yt.playlist.create(title, videoIds || []);
+        return {
+          ok: true,
+          playlistId: res.playlist_id,
+          status: res.status_code || 200,
+        };
+      } catch (err) {
+        logToFile("Error creating playlist:", err);
+        return { ok: false, error: err.message };
+      }
+    },
+  );
+
+  ipcMain.handle(
+    "yt:addToPlaylist",
+    async (_event, { playlistId, videoIds }) => {
+      if (initPromise) await initPromise;
+      if (!yt) return { ok: false, error: "InnerTube not ready" };
+      try {
+        logToFile("Adding videos to playlist:", playlistId, videoIds);
+        let targetId = playlistId;
+        if (targetId.startsWith("VL")) targetId = targetId.substring(2);
+
+        const ids = Array.isArray(videoIds) ? videoIds : [videoIds];
+        const actions = ids.map((vId) => ({
+          addedVideoId: vId,
+          action: "ACTION_ADD_VIDEO",
+        }));
+
+        try {
+          const editRes = await yt.actions.execute("/browse/edit_playlist", {
+            playlistId: targetId,
+            actions,
+            client: "YTMUSIC",
+          });
+          return { ok: true, result: editRes.data };
+        } catch (innerErr) {
+          // Fallback to yt.playlist.addVideos
+          const res = await yt.playlist.addVideos(targetId, ids);
+          return { ok: true, result: res };
+        }
+      } catch (err) {
+        logToFile("Error adding to playlist:", err);
+        return { ok: false, error: err.message };
+      }
+    },
+  );
+
+  ipcMain.handle("yt:deletePlaylist", async (_event, playlistId) => {
+    if (initPromise) await initPromise;
+    if (!yt) return { ok: false, error: "InnerTube not ready" };
+    try {
+      logToFile("Deleting playlist on YouTube Music:", playlistId);
+      let targetId = playlistId;
+      if (targetId.startsWith("VL")) targetId = targetId.substring(2);
