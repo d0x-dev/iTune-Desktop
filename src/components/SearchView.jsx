@@ -79,3 +79,43 @@ export default function SearchView({
       document.removeEventListener("pointerdown", close);
     };
   }, []);
+  const search = async (value = query, type = filter, searchScope = scope) => {
+    if (!value.trim()) return;
+    const revision = ++searchRevision.current;
+    setSubmittedQuery(value.trim());
+    setShowSuggestions(false);
+    setLoading(true);
+    setSearched(true);
+    setError("");
+    try {
+      let data;
+      if (searchScope === "library") {
+        if (!userProfile?.isLoggedIn) {
+          onLogin?.();
+          setLoading(false);
+          return;
+        }
+        const responses = await Promise.all([
+          window.api.yt.getSongs(),
+          window.api.yt.getAlbums(),
+          window.api.yt.getPlaylists(),
+          window.api.yt.getSubscribedArtists(),
+        ]);
+        const library = [
+          ...(responses[0]?.tracks || []),
+          ...(responses[1]?.albums || []),
+          ...(responses[2]?.playlists || []).map((item) => ({
+            ...item,
+            type: "playlist",
+          })),
+          ...(responses[3]?.artists || []).map((item) => ({
+            ...item,
+            title: item.name,
+            type: "artist",
+          })),
+        ];
+        data = {
+          results: library.filter(
+            (item) =>
+              `${item.title} ${item.name || ""} ${item.artists?.map((artist) => artist.name).join(" ") || ""}`
+                .toLowerCase()
