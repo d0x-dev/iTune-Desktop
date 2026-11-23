@@ -127,3 +127,68 @@ function safeDownloadName(value) {
     .replace(/[<>:\"/\\|?*\x00-\x1F]/g, "")
     .replace(/\s+/g, " ")
     .trim()
+    .slice(0, 120) || "Song";
+}
+
+async function translateLyricsLines(lines, targetLanguage) {
+  const source = lines.map((line) => String(line || ""));
+  const translate = async (text) => {
+    if (!text.trim()) return "";
+    const params = new URLSearchParams({
+      client: "gtx",
+      sl: "auto",
+      tl: targetLanguage,
+      dt: "t",
+      q: text,
+    });
+    const response = await fetch(
+      `https://translate.googleapis.com/translate_a/single?${params}`,
+      { signal: AbortSignal.timeout(12000) },
+    );
+    if (!response.ok) throw new Error("Translation service did not respond.");
+    const data = await response.json();
+    return Array.isArray(data?.[0])
+      ? data[0].map((part) => part?.[0] || "").join("")
+      : text;
+  };
+  const translated = [];
+  for (let index = 0; index < source.length; index += 6) {
+    const group = source.slice(index, index + 6);
+    translated.push(...(await Promise.all(group.map(translate))));
+  }
+  return translated;
+}
+
+const AI_DEFAULTS = {
+  provider: "builtin",
+  model: "",
+  baseUrl: "",
+};
+
+function aiConfigPath() {
+  return path.join(app.getPath("userData"), "ai-translation.json");
+}
+
+function readAITranslationConfig() {
+  try {
+    const stored = JSON.parse(fs.readFileSync(aiConfigPath(), "utf8"));
+    let apiKey = "";
+    if (stored.encryptedKey && safeStorage.isEncryptionAvailable()) {
+      apiKey = safeStorage.decryptString(
+        Buffer.from(stored.encryptedKey, "base64"),
+      );
+    }
+    return { ...AI_DEFAULTS, ...stored, apiKey };
+  } catch {
+    return { ...AI_DEFAULTS, apiKey: "" };
+  }
+}
+
+function writeAITranslationConfig(config = {}) {
+  const previous = readAITranslationConfig();
+  const next = {
+    provider: config.provider || previous.provider || "builtin",
+    model: String(config.model ?? previous.model ?? "").trim(),
+    baseUrl: String(config.baseUrl ?? previous.baseUrl ?? "").trim(),
+  };
+  let apiKey = config.clearKey ? "" : String(config.apiKey || previous.apiKey || "");
