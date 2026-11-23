@@ -60,3 +60,34 @@ function lyricText(node) {
     .map((child) =>
       child.nodeType === 3
         ? child.textContent
+        : child.localName === "br"
+          ? "\n"
+          : lyricText(child),
+    )
+    .join("");
+}
+
+export function parseLyrics(source) {
+  if (typeof source !== "string" || !source.trim()) return [];
+  if (source.trim().startsWith("<")) {
+    const document = new DOMParser().parseFromString(source, "application/xml");
+    if (document.getElementsByTagName("parsererror").length)
+      throw new Error("This lyrics XML file couldn’t be read.");
+    const root = document.documentElement;
+    const parameter = (name) =>
+      Array.from(root.attributes).find(
+        (attribute) => attribute.localName === name,
+      )?.value;
+    const multiplier = (parameter("frameRateMultiplier") || "1 1")
+      .split(" ")
+      .map(Number);
+    const frameRate =
+      (Number(parameter("frameRate") || 30) * multiplier[0]) /
+      (multiplier[1] || 1);
+    const tickRate = Number(parameter("tickRate") || 1);
+    const time = (value) => parseTimestamp(value, frameRate, tickRate);
+    const paragraphs = Array.from(document.getElementsByTagNameNS("*", "p"));
+    if (!paragraphs.length)
+      throw new Error("This file needs TTML lyric paragraphs.");
+    return paragraphs
+      .map((paragraph) => {
