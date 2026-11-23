@@ -100,3 +100,38 @@ export default function ContextMenu({
                   ) : (
                     <span className="context-empty">Sign in or create a playlist first</span>
                   )}
+                </div>
+              </div>
+              <MenuItem icon={Download} label="Download Song" onClick={() => invoke("download")} />
+            </>
+          )}
+          <div className="context-divider" />
+          {song && item.album?.id && (
+            <MenuItem icon={Album} label="Open Album" onClick={() => invoke("album")} />
+          )}
+          {song && item.artists?.[0]?.id && (
+            <MenuItem icon={CircleUserRound} label="Open Artist" onClick={() => invoke("artist")} />
+          )}
+          <MenuItem icon={Copy} label="Copy Link" onClick={() => invoke("copy")} />
+        </>
+      ) : (
+        <>
+          <MenuItem icon={Clock3} label="Recently Played" onClick={() => invoke("history")} />
+          <MenuItem icon={Library} label="Your Library" onClick={() => invoke("library")} />
+          <div className="context-divider" />
+          <MenuItem icon={Settings} label="Settings" onClick={() => invoke("settings")} />
+        </>
+      )}
+    </div>
+  );
+}
+
+function MenuItem({ icon: Icon, label, onClick, trailing, selected }) {
+  return (
+    <button role="menuitem" onClick={onClick} className={selected ? "selected" : ""}>
+      <Icon size={15} fill={selected ? "currentColor" : "none"} />
+      <span>{label}</span>
+      {trailing}
+    </button>
+  );
+}
