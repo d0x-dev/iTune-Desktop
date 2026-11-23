@@ -2784,3 +2784,68 @@ function registerIpcHandlers() {
             .split(/\r?\n/)
             .map((line) => line.replace(/\[[^\]]+\]|<[^>]+>/g, "").trim())
             .filter(Boolean)
+            .slice(0, 2)
+            .join(" · "),
+        })),
+    };
+  });
+
+  ipcMain.handle(
+    "yt:translateLyrics",
+    async (
+      _event,
+      { lines = [], targetLanguage = "en", mode = "literal" } = {},
+    ) => {
+      try {
+        const cleanLines = Array.isArray(lines) ? lines.slice(0, 300) : [];
+        const config = readAITranslationConfig();
+        return {
+          ok: true,
+          translations:
+            config.provider === "builtin"
+              ? await translateLyricsLines(cleanLines, targetLanguage)
+              : await translateLyricsWithAI(
+                  cleanLines,
+                  targetLanguage,
+                  mode,
+                  config,
+                ),
+        };
+      } catch (err) {
+        logToFile("Lyrics translation failed:", err.message);
+        return { ok: false, translations: [], error: err.message };
+      }
+    },
+  );
+
+  ipcMain.handle("settings:getAITranslation", async () => {
+    const config = readAITranslationConfig();
+    return {
+      provider: config.provider,
+      model: config.model,
+      baseUrl: config.baseUrl,
+      hasKey: Boolean(config.apiKey),
+    };
+  });
+
+  ipcMain.handle("settings:saveAITranslation", async (_event, config) => {
+    try {
+      const saved = writeAITranslationConfig(config);
+      return {
+        ok: true,
+        provider: saved.provider,
+        model: saved.model,
+        baseUrl: saved.baseUrl,
+        hasKey: saved.hasKey,
+      };
+    } catch (err) {
+      return { ok: false, error: err.message };
+    }
+  });
+
+  // Window Controls
+  ipcMain.on("window:appearance", (_event, { theme, glass }) => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    const light = theme === "light";
+    mainWindow.setBackgroundColor(
+      glass ? "#00000000" : light ? "#f5f5f7" : "#252525",
