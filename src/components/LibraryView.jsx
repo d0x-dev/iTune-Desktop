@@ -224,3 +224,40 @@ export default function LibraryView({
           <button className="primary-button" onClick={onLogin}>
             Sign In
           </button>
+        </div>
+      ) : (
+        <>
+          <div className="library-toolbar">
+            <div className="collection-actions">
+              {mode !== "albums" && (
+                <>
+                  <button
+                    className="primary-button"
+                    disabled={!sorted.length}
+                    onClick={() => onSelectTrack(sorted[0], sorted)}
+                  >
+                    <Play size={14} fill="currentColor" />
+                    Play
+                  </button>
+                  <button
+                    className="secondary-button"
+                    disabled={!sorted.length}
+                    onClick={() => onShuffleTracks(sorted)}
+                  >
+                    <Shuffle size={15} />
+                    Shuffle
+                  </button>
+                </>
+              )}
+            </div>
+            <div className="library-filters">
+              <label className="library-search">
+                <Search size={15} />
+                <input
+                  aria-label={`Filter ${title}`}
+                  placeholder="Filter"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                />
+              </label>
+              <select
