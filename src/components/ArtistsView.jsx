@@ -253,3 +253,46 @@ export default function ArtistsView({
           <div className="artist-hero-content">
             {signatureUrl ? (
               <>
+                <h1 className="sr-only">{name}</h1>
+                <img
+                  className="artist-signature"
+                  src={signatureUrl}
+                  alt={`${name} signature artwork`}
+                />
+              </>
+            ) : (
+              <h1>{name}</h1>
+            )}
+            <div className="artist-actions">
+              <button
+                className="artist-info icon-button"
+                aria-label={`About ${name}`}
+                title={`About ${name}`}
+                onClick={() => document.querySelector(".artist-about")?.scrollIntoView({ behavior: "smooth" })}
+              ><Info size={22} /></button>
+              <button
+                className="artist-play icon-button"
+                aria-label={`Play ${name}`}
+                title={`Play ${name}`}
+                disabled={!songs.length}
+                onClick={() => selectArtistTrack(songs[0], songs)}
+              >
+                <Play size={27} fill="currentColor" />
+              </button>
+              <button
+                className="hero-follow icon-button"
+                aria-label={subscribed ? "Unfollow artist" : "Follow artist"}
+                title={subscribed ? "Unfollow artist" : "Follow artist"}
+                disabled={subscribing}
+                onClick={toggleSubscribe}
+              >
+                {subscribing ? (
+                  <Loader2 size={19} className="animate-spin" />
+                ) : subscribed ? (
+                  <Star size={21} fill="currentColor" />
+                ) : (
+                  <Star size={21} />
+                )}
+              </button>
+            </div>
+          </div>
