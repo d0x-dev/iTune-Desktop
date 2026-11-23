@@ -1618,3 +1618,67 @@ function registerIpcHandlers() {
       return { suggestions: [], error: err.message };
     }
   });
+
+  ipcMain.handle("yt:likeSong", async (_event, videoId) => {
+    if (initPromise) await initPromise;
+    if (!yt) return { ok: false, error: "InnerTube not ready" };
+    try {
+      logToFile("Liking song on YouTube:", videoId);
+      const res = await yt.actions.execute("/like/like", {
+        target: { videoId },
+        client: "YTMUSIC",
+      });
+      if (res?.status_code >= 400 || res?.data?.error) throw new Error(res?.data?.error?.message || `HTTP ${res.status_code}`);
+      return { ok: true, status: res?.status_code || 200 };
+    } catch (err) {
+      logToFile("Error liking song:", err);
+      return { ok: false, error: err.message };
+    }
+  });
+
+  ipcMain.handle("yt:unlikeSong", async (_event, videoId) => {
+    if (initPromise) await initPromise;
+    if (!yt) return { ok: false, error: "InnerTube not ready" };
+    try {
+      logToFile("Unliking song on YouTube:", videoId);
+      const res = await yt.actions.execute("/like/removelike", {
+        target: { videoId },
+        client: "YTMUSIC",
+      });
+      if (res?.status_code >= 400 || res?.data?.error) throw new Error(res?.data?.error?.message || `HTTP ${res.status_code}`);
+      return { ok: true, status: res?.status_code || 200 };
+    } catch (err) {
+      logToFile("Error unliking song:", err);
+      return { ok: false, error: err.message };
+    }
+  });
+
+  ipcMain.handle("yt:subscribeArtist", async (_event, channelId) => {
+    if (initPromise) await initPromise;
+    if (!yt) return { ok: false, error: "InnerTube not ready" };
+    try {
+      logToFile("Subscribing to artist channel:", channelId);
+      const res = await yt.actions.execute("/subscription/subscribe", {
+        channelIds: [channelId],
+        client: "YTMUSIC",
+      });
+      return { ok: true, status: res.status_code || 200 };
+    } catch (err) {
+      logToFile("Error subscribing to artist:", err);
+      return { ok: false, error: err.message };
+    }
+  });
+
+  ipcMain.handle("yt:unsubscribeArtist", async (_event, channelId) => {
+    if (initPromise) await initPromise;
+    if (!yt) return { ok: false, error: "InnerTube not ready" };
+    try {
+      logToFile("Unsubscribing from artist channel:", channelId);
+      const res = await yt.actions.execute("/subscription/unsubscribe", {
+        channelIds: [channelId],
+        client: "YTMUSIC",
+      });
+      return { ok: true, status: res.status_code || 200 };
+    } catch (err) {
+      logToFile("Error unsubscribing from artist:", err);
+      return { ok: false, error: err.message };
