@@ -2136,3 +2136,68 @@ function registerIpcHandlers() {
             }
           }
         } catch (e) {
+          logToFile(`Liked songs browse ${browseId} error:`, e.message);
+        }
+      }
+      return { id: "LM", title: "Liked Music", tracks: [] };
+    } catch (err) {
+      logToFile("Get Liked Songs error:", err.message);
+      return { tracks: [], error: err.message };
+    }
+  });
+
+  ipcMain.handle("yt:getHistory", async () => {
+    if (initPromise) await initPromise;
+    if (!yt) return { sections: [] };
+    try {
+      logToFile("Fetching real YouTube Music history via FEmusic_history");
+      const res = await yt.actions.execute("/browse", {
+        browseId: "FEmusic_history",
+        client: "YTMUSIC",
+      });
+
+      const sectionList =
+        res.data?.contents?.singleColumnBrowseResultsRenderer?.tabs?.[0]
+          ?.tabRenderer?.content?.sectionListRenderer?.contents || [];
+      const sections = [];
+
+      for (const s of sectionList) {
+        const shelf = s.musicShelfRenderer;
+        if (!shelf) continue;
+        const sectionTitle =
+          shelf.title?.runs?.map((r) => r.text).join("") || "Recently Played";
+        const contents = [];
+
+        for (const item of shelf.contents || []) {
+          const r = item.musicResponsiveListItemRenderer;
+          if (!r) continue;
+
+          const flexCols = r.flexColumns || [];
+          const col0Runs =
+            flexCols[0]?.musicResponsiveListItemFlexColumnRenderer?.text
+              ?.runs || [];
+          const col1Runs =
+            flexCols[1]?.musicResponsiveListItemFlexColumnRenderer?.text
+              ?.runs || [];
+          const col2Runs =
+            flexCols[2]?.musicResponsiveListItemFlexColumnRenderer?.text
+              ?.runs || [];
+
+          const title = col0Runs.map((x) => x.text).join("");
+          const videoId =
+            r.playlistItemData?.videoId ||
+            col0Runs[0]?.navigationEndpoint?.watchEndpoint?.videoId ||
+            r.overlay?.musicItemThumbnailOverlayRenderer?.content
+              ?.musicPlayButtonRenderer?.playNavigationEndpoint?.watchEndpoint
+              ?.videoId;
+
+          if (!videoId || !title) continue;
+
+          const artistName = col1Runs[0]?.text || "";
+          const artistId = col1Runs.find((run) =>
+            run.navigationEndpoint?.browseEndpoint?.browseId?.startsWith("UC"),
+          )?.navigationEndpoint.browseEndpoint.browseId;
+          const albumName = col2Runs[0]?.text || "";
+
+          const thumbs =
+            r.thumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails || [];
