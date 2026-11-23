@@ -145,3 +145,40 @@ function parseItem(item, upgrade = (url) => url) {
       "MUSIC_EXPLICIT_BADGE",
     ),
   };
+}
+function parseHomePage(
+  data,
+  key = "home",
+  group = "feed",
+  upgrade = (url) => url,
+) {
+  const list =
+    findFirst(data, "sectionListRenderer") ||
+    findFirst(data, "sectionListContinuation");
+  const sections = (list?.contents || [])
+    .map((entry, index) => {
+      const carousel =
+        entry.musicCarouselShelfRenderer ||
+        entry.musicImmersiveCarouselShelfRenderer;
+      const shelf = carousel || entry.musicShelfRenderer;
+      if (!shelf) return null;
+      const header =
+        carousel?.header?.musicCarouselShelfBasicHeaderRenderer ||
+        carousel?.header?.musicImmersiveCarouselShelfBasicHeaderRenderer;
+      const title = text(header?.title || shelf.title);
+      const contents = (shelf.contents || [])
+        .map((item) => parseItem(item, upgrade))
+        .filter(Boolean);
+      const seen = new Set();
+      const unique = contents.filter((item) => {
+        const key = `${item.type}:${item.id}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      if (!title || !unique.length) return null;
+      const types = new Set(unique.map((item) => item.type));
+      const layout =
+        types.size === 1 && types.has("song")
+          ? "songs"
+          : types.size === 1 && types.has("artist")
