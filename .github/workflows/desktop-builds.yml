@@ -64,3 +64,25 @@ jobs:
     name: Publish the first cross-platform release
     if: startsWith(github.ref, 'refs/tags/')
     needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all platform packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: iTune-Desktop-*
+          path: release-assets
+          merge-multiple: true
+
+      - name: Attach packages and publish release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          shopt -s nullglob
+          files=(release-assets/*)
+          if [ "${#files[@]}" -lt 6 ]; then
+            printf 'Expected six Windows, macOS, and Linux packages, found %s.\n' "${#files[@]}" >&2
+            exit 1
+          fi
+          notes=$(cat <<'EOF'
+          <img width="1672" height="941" alt="iTune Desktop screenshot" src="https://github.com/user-attachments/assets/faad570e-b0c8-4234-b106-049e9ab6a354" />
