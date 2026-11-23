@@ -71,3 +71,40 @@ function parseItem(item, upgrade = (url) => url) {
     item.musicMultiRowListItemRenderer ||
     item.playlistPanelVideoRenderer;
   if (!row) return null;
+  const titleRuns =
+    row.flexColumns?.[0]?.musicResponsiveListItemFlexColumnRenderer?.text?.runs;
+  const title = text(row.title || { runs: titleRuns });
+  const subRuns =
+    row.subtitle?.runs ||
+    row.flexColumns?.[1]?.musicResponsiveListItemFlexColumnRenderer?.text
+      ?.runs ||
+    row.longBylineText?.runs ||
+    [];
+  const meta = metadata(subRuns);
+  const nav =
+    row.navigationEndpoint ||
+    titleRuns?.[0]?.navigationEndpoint ||
+    row.onTap ||
+    {};
+  const browse = nav.browseEndpoint;
+  const watch =
+    nav.watchEndpoint ||
+    findFirst(row.overlay, "watchEndpoint") ||
+    findFirst(row.onTap, "watchEndpoint");
+  const playlist = nav.watchPlaylistEndpoint;
+  let videoId = row.videoId || row.playlistItemData?.videoId || watch?.videoId;
+  const browseId = browse?.browseId;
+  const playlistId = playlist?.playlistId || watch?.playlistId;
+  const pageType =
+    browse?.browseEndpointContextSupportedConfigs
+      ?.browseEndpointContextMusicConfig?.pageType || "";
+  let type = "song";
+  if (/ALBUM/.test(pageType) || /^MPRE|^OLAK/.test(browseId || ""))
+    type = "album";
+  else if (/ARTIST|USER_CHANNEL/.test(pageType) || browseId?.startsWith("UC"))
+    type = "artist";
+  else if (/PODCAST/.test(pageType) || browseId?.startsWith("MPSP"))
+    type = "podcast";
+  else if (
+    /PLAYLIST/.test(pageType) ||
+    /^(VL|PL|RD)/.test(browseId || "") ||
