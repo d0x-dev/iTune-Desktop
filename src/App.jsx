@@ -177,3 +177,63 @@ export default function App() {
   const [scanningLan, setScanningLan] = useState(false);
   const [localLanIp, setLocalLanIp] = useState("");
   const [ishareSettings, setIshareSettings] = useState({
+    allowGuestsToControlPlayback: false,
+    allowGuestsToAddTracks: true,
+  });
+  const [playback, setPlayback] = useState({
+    currentTime: 0,
+    duration: 0,
+    volume: 0.8,
+  });
+  const [likedSongIds, setLikedSongIds] = useState(new Set());
+  const [message, setMessage] = useState("");
+  const [contextMenu, setContextMenu] = useState(null);
+  const [contextPlaylists, setContextPlaylists] = useState([]);
+  const player = useRef(null);
+  const content = useRef(null);
+  const playbackRef = useRef(playback);
+  const queueRef = useRef(queue);
+  const currentIndexRef = useRef(currentIndex);
+  const currentTrackRef = useRef(currentTrack);
+  const isPlayingRef = useRef(isPlaying);
+  const listenTogetherRef = useRef(listenTogether);
+  const likeRequests = useRef(new Set());
+  const originalQueue = useRef([]);
+  const queueGeneration = useRef(0);
+  const queueRequests = useRef(new Set());
+  const fetchedQueueSeeds = useRef(new Set());
+  const view = navigation.entries[navigation.index];
+  const activeTab = view.tab;
+  useEffect(() => {
+    queueRef.current = queue;
+  }, [queue]);
+  useEffect(() => {
+    currentIndexRef.current = currentIndex;
+  }, [currentIndex]);
+  useEffect(() => {
+    currentTrackRef.current = currentTrack;
+  }, [currentTrack]);
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+  useEffect(() => {
+    listenTogetherRef.current = listenTogether;
+  }, [listenTogether]);
+  useEffect(() => {
+    localStorage.setItem(
+      "itune:endless-queue",
+      String(endlessQueueEnabled),
+    );
+  }, [endlessQueueEnabled]);
+  useEffect(() => {
+    if (!["artists", "albums", "playlists"].includes(activeTab)) {
+      setSceneArtwork(null);
+    }
+  }, [activeTab]);
+  const updatePlayback = useCallback(
+    (snapshot) => {
+      playbackRef.current = snapshot;
+      if (showLyrics) setPlayback(snapshot);
+    },
+    [showLyrics],
+  );
