@@ -1,0 +1,28 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+import { findNewsPopup } from "../../shared/developerNews.mjs";
+import { newsInstanceKey } from "../../shared/developerNews.mjs";
+
+const cacheKey = "itune:developer-news";
+const dismissalKey = "itune:developer-news-dismissals";
+
+function read(key, fallback) {
+  try {
+    return JSON.parse(localStorage.getItem(key)) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function write(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // The live feed still works when storage is unavailable.
+  }
+}
+
+function readDismissals() {
+  const saved = read(dismissalKey, {});
+  return {
+    lastTimestamp: Number(saved.lastTimestamp) || 0,
+    keys: Array.isArray(saved.keys) ? saved.keys : [],
