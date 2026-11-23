@@ -657,3 +657,63 @@ export default function App() {
       if (
         !ended &&
         shared?.mode === "lan" &&
+        shared.role === "guest"
+      ) {
+        window.api.ishare
+          .lanAction(
+            shared.hostAddress,
+            shared.session.participantId,
+            "next",
+            {},
+          )
+          .catch(() => {});
+        return false;
+      }
+      let activeQueue = queueRef.current;
+      let activeIndex = currentIndexRef.current;
+      if (!activeQueue.length) return false;
+      if (ended && !preferences.autoplay && repeatMode === "off") {
+        setIsPlaying(false);
+        return false;
+      }
+      let index = activeIndex + 1;
+      if (index >= activeQueue.length && endlessQueueEnabled) {
+        activeQueue = await extendRelatedQueue(
+          currentTrackRef.current,
+          queueGeneration.current,
+        );
+      }
+      if (index >= activeQueue.length) {
+        if (repeatMode === "all") index = 0;
+        else {
+          if (ended) setIsPlaying(false);
+          return false;
+        }
+      }
+      const previousTrackId = currentTrackRef.current?.id;
+      player.current?.preparePlayback(true);
+      currentIndexRef.current = index;
+      currentTrackRef.current = activeQueue[index];
+      setCurrentIndex(index);
+      if (activeQueue[index]?.id === previousTrackId)
+        player.current?.restart();
+      else setCurrentTrack(activeQueue[index]);
+      return true;
+    },
+    [
+      endlessQueueEnabled,
+      extendRelatedQueue,
+      repeatMode,
+      preferences.autoplay,
+    ],
+  );
+  const previous = useCallback(() => {
+    const shared = listenTogetherRef.current;
+    if (shared?.mode === "lan" && shared.role === "guest") {
+      window.api.ishare
+        .lanAction(
+          shared.hostAddress,
+          shared.session.participantId,
+          "previous",
+          {},
+        )
