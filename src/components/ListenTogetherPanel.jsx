@@ -106,3 +106,39 @@ export default function ListenTogetherPanel({
               <button className="listen-primary" disabled={busy || !name.trim()} onClick={() => onHostLan(name.trim())}>
                 {busy ? <Loader2 size={16} className="animate-spin" /> : <Wifi size={16} />}
                 Host on Local Wi-Fi
+              </button>
+              {localIp && <p className="listen-lan-hint">This PC · {localIp}:8765</p>}
+              <div className="listen-divider"><span>nearby AirBeats / iShare hosts</span></div>
+              <button className="listen-scan" disabled={scanningLan} onClick={onScanLan}>
+                <RefreshCw size={15} className={scanningLan ? "animate-spin" : ""} />
+                {scanningLan ? "Scanning Wi-Fi…" : "Scan Nearby Devices"}
+              </button>
+              {lanHosts?.length > 0 && (
+                <div className="listen-lan-hosts">
+                  {lanHosts.map((host) => (
+                    <button key={host.address} onClick={() => onJoinLan(host.address, name.trim())}>
+                      <Wifi size={16} />
+                      <span><strong>{host.hostName}</strong><small>{host.address} · {host.participants} connected</small></span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="listen-code-entry">
+                <input
+                  aria-label="LAN host address"
+                  value={lanAddress}
+                  placeholder="192.168.1.10:8765"
+                  onChange={(event) => setLanAddress(event.target.value)}
+                />
+                <button disabled={busy || !name.trim() || !lanAddress.trim()} onClick={() => onJoinLan(lanAddress, name.trim())}>
+                  Join
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      ) : (
+        <div className="listen-together-session">
+          <div className="listen-session-code">
+            <small>{connectionMode === "lan" ? "LAN Host Address" : "Pairing Code"}</small>
+            <strong className={connectionMode === "lan" ? "lan-address" : ""}>{session.code}</strong>
