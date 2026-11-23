@@ -218,3 +218,47 @@ export default function LyricsModal({
     lines,
     preferences.lyricsTranslation,
     preferences.translationLanguage,
+    preferences.translationMode,
+  ]);
+
+  useEffect(() => {
+    const previousFocus = document.activeElement;
+    dialog.current?.focus();
+    const onKey = (event) => {
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        closeRef.current();
+      }
+      if (event.key !== "Tab" || compact) return;
+      const elements = [
+        ...dialog.current.querySelectorAll(
+          'button:not([disabled]), input:not([disabled]):not([type="file"]), .lyrics-scroll',
+        ),
+      ];
+      const first = elements[0];
+      const last = elements[elements.length - 1];
+      if (
+        event.shiftKey &&
+        (document.activeElement === first ||
+          document.activeElement === dialog.current)
+      ) {
+        event.preventDefault();
+        last?.focus();
+      } else if (
+        !event.shiftKey &&
+        (document.activeElement === last ||
+          document.activeElement === dialog.current)
+      ) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
+    const element = dialog.current;
+    element?.addEventListener("keydown", onKey);
+    return () => {
+      element?.removeEventListener("keydown", onKey);
+      previousFocus?.focus();
+    };
+  }, [compact]);
+  useLayoutEffect(() => {
+    if (!following || loading || focusIndex < 0) return;
