@@ -74,3 +74,41 @@ export default function PlaylistView({
     };
   }, [userProfile?.isLoggedIn, reload]);
   useEffect(() => {
+    let active = true;
+    setDetail(null);
+    setError("");
+    if (!selected?.id) return;
+    setLoadingDetail(true);
+    window.api.yt
+      .getPlaylist(selected.id.replace(/^VL/, ""))
+      .then((data) => {
+        if (!active) return;
+        if (data?.error) throw new Error(data.error);
+        setDetail(data);
+      })
+      .catch(() => {
+        if (active) setError("This playlist couldn’t load.");
+      })
+      .finally(() => {
+        if (active) setLoadingDetail(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [selected?.id]);
+  useEffect(() => {
+    if (initialPlaylist) setSelected(initialPlaylist);
+  }, [initialPlaylist]);
+
+  const createPlaylist = async (event) => {
+    event.preventDefault();
+    if (!title.trim() || creating) return;
+    setCreating(true);
+    setCreateError("");
+    try {
+      const result = await window.api.yt.createPlaylist({
+        title: title.trim(),
+      });
+      if (!result?.ok)
+        throw new Error(result?.error || "This playlist couldn’t be created.");
+      setShowCreate(false);
