@@ -57,3 +57,63 @@ function playableTracks(tracks = []) {
   return tracks.filter(
     (item) =>
       item?.id &&
+      !/album|playlist|artist/i.test(item.type || "") &&
+      !/^(MPRE|VL|PL|RD|UC|OLAK)/.test(item.id),
+  );
+}
+
+function mergeUniqueTracks(...groups) {
+  const seen = new Set();
+  return groups.flat().filter((track) => {
+    const id = track?.videoId || track?.id;
+    if (!id || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
+
+function sharedQueueTrack(item) {
+  const id = item?.id || item?.songId;
+  if (!id) return null;
+  return {
+    id,
+    videoId: id,
+    title: item.title || "Unknown Song",
+    artists: [{ name: item.artist || "iShare" }],
+    thumbnail:
+      item.thumbnailUrl || `https://i.ytimg.com/vi/${id}/mqdefault.jpg`,
+    durationSeconds: item.durationMs ? item.durationMs / 1000 : 0,
+    type: "track",
+  };
+}
+
+export default function App() {
+  const [navigation, setNavigation] = useState({
+    entries: [{ tab: "home" }],
+    index: 0,
+  });
+  const [authLoading, setAuthLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState({ isLoggedIn: false });
+  const developerNews = useDeveloperNews();
+  const [currentTrack, setCurrentTrack] = useState(null);
+  const [queue, setQueue] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(-1);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showLyrics, setShowLyrics] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
+  const [updateResult, setUpdateResult] = useState(null);
+  const [downloadProgress, setDownloadProgress] = useState(null);
+  const [lyricsCompact, setLyricsCompact] = useState(true);
+  const [sceneArtwork, setSceneArtwork] = useState(null);
+  const [homeArtwork, setHomeArtwork] = useState(null);
+  const { preferences } = usePreferences();
+  const updatesStarted = useRef(false);
+  const refreshUpdates = useCallback(async () => {
+    const result = await window.api.updates.check();
+    setUpdateResult(result);
+    setDownloadProgress(null);
+    return result;
+  }, []);
+  useEffect(() => {
+    const unsubscribe = window.api.updates.onDownloadProgress(setDownloadProgress);
+    return unsubscribe;
