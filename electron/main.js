@@ -905,3 +905,68 @@ function extractTracksFromSearch(searchRes) {
       const topTitle = section.title?.text || section.title?.toString() || "";
       const topSubtitle =
         section.subtitle?.text || section.subtitle?.toString() || "";
+      const artists = parseArtistsFromItem(section);
+      const videoId =
+        section.id ||
+        section.endpoint?.payload?.videoId ||
+        section.on_tap?.payload?.videoId ||
+        section.buttons?.find((b) => b.endpoint?.payload?.videoId)?.endpoint
+          ?.payload?.videoId;
+      const albumId =
+        section.endpoint?.payload?.playlistId ||
+        section.buttons?.find((b) => b.endpoint?.payload?.playlistId)?.endpoint
+          ?.payload?.playlistId;
+
+      if (videoId && topTitle) {
+        items.push({
+          id: videoId,
+          title: topTitle,
+          artists:
+            artists.length > 0
+              ? artists
+              : [
+                  {
+                    name: topSubtitle.split("•")[0]?.trim() || "YouTube Music",
+                  },
+                ],
+          album: albumId ? { name: topTitle, id: albumId } : null,
+          duration: "",
+          durationSeconds: null,
+          thumbnail: getThumbnailUrl(section) || null,
+          type: "top_result",
+        });
+      }
+
+      if (Array.isArray(section.contents)) {
+        for (const subItem of section.contents) {
+          const track = normalizeSearchTrack(subItem);
+          if (track) items.push(track);
+        }
+      }
+    }
+
+    // Case 2: ItemSection or MusicShelf
+    const sectionItems = section.contents || section.items || [];
+    if (Array.isArray(sectionItems) && sectionItems.length > 0) {
+      for (const item of sectionItems) {
+        const track = normalizeSearchTrack(item);
+        if (track) items.push(track);
+      }
+    }
+
+    // Case 3: Direct item
+    if (
+      section.type === "MusicResponsiveListItem" ||
+      section.id ||
+      section.videoId
+    ) {
+      const track = normalizeSearchTrack(section);
+      if (track) items.push(track);
+    }
+  }
+
+  const seen = new Set();
+  return items.filter((track) => {
+    if (!track.id || seen.has(track.id)) return false;
+    seen.add(track.id);
+    return true;
