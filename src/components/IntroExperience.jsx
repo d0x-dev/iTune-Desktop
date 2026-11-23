@@ -306,3 +306,42 @@ export function WelcomeExperience({
             />
           </label>
           {nameError && <p>Enter your name to personalize iTune</p>}
+          <button className="welcome-primary" onClick={submitName}>
+            <span>Continue</span><ArrowRight size={20} />
+          </button>
+        </div>
+      )}
+
+      {step === "google" && (
+        <div className="welcome-panel google-step">
+          <span className="welcome-google-mark"><img src={GOOGLE_LOGO} alt="Google" /></span>
+          <TypingHeadline
+            text="Continue with your Google account to get your personalised feed."
+            multiline
+          />
+          <div className="welcome-google-actions">
+            <button className="welcome-primary google" onClick={continueWithGoogle} disabled={loginBusy || authLoading}>
+              <span className="google-button-logo"><img src={GOOGLE_LOGO} alt="" /></span>
+              <span>{loginBusy || authLoading ? "Connecting…" : "Continue with Google"}</span>
+              {(loginBusy || authLoading) && <Loader2 size={17} className="animate-spin" />}
+            </button>
+            <button className="welcome-skip" onClick={() => startOutro(name)}>Skip Sign In</button>
+          </div>
+        </div>
+      )}
+
+      {step === "outro" && !travel && (
+        <div className="welcome-outro-message">
+          <strong>{outroText}<span className="typing-caret active" /></strong>
+          {showLoader && <Loader2 size={26} className="animate-spin" />}
+        </div>
+      )}
+      {step === "outro" && (
+        <>
+          <div className="welcome-travel-wave"><ITuneWaveIcon size={96} /></div>
+          <div className="welcome-travel-word">{outroText}<span className="typing-caret active" /></div>
+        </>
+      )}
+    </section>
+  );
+}
