@@ -466,3 +466,46 @@ export default function ArtistsView({
   return (
     <div className="page">
       <header className="page-heading">
+        <h1>Artists</h1>
+        <p>Your favorite voices, all together.</p>
+      </header>
+      {!userProfile?.isLoggedIn ? (
+        <div className="empty-state">
+          <Users />
+          <h2>Your artists live here</h2>
+          <p>Sign in to see the artists you follow.</p>
+          <button className="primary-button" onClick={onLogin}>
+            Sign In
+          </button>
+        </div>
+      ) : loading ? (
+        <div className="empty-state">
+          <Loader2 className="animate-spin" />
+          <p>Loading artists…</p>
+        </div>
+      ) : artists.length ? (
+        <div className="artist-grid">
+          {artists.map((artist, index) => (
+            <button
+              className="artist-card"
+              key={artist.id || index}
+              onClick={() => setSelectedArtist(artist)}
+            >
+              <Artwork src={artist.thumbnail} title={artist.name} />
+              <h2>{artist.name}</h2>
+              <p>{artist.subscribers || "Artist"}</p>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="empty-state">
+          <Users />
+          <h2>{error ? "Artists couldn’t load" : "Follow your favorites"}</h2>
+          <p>
+            {error || "Artists you follow on YouTube Music will appear here."}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
