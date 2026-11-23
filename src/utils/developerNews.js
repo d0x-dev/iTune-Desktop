@@ -26,3 +26,31 @@ function readDismissals() {
   return {
     lastTimestamp: Number(saved.lastTimestamp) || 0,
     keys: Array.isArray(saved.keys) ? saved.keys : [],
+  };
+}
+
+export function useDeveloperNews() {
+  const [initialItems] = useState(() => {
+    const cached = read(cacheKey, []);
+    return Array.isArray(cached) ? cached : [];
+  });
+  const [items, setItems] = useState(initialItems);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [popup, setPopup] = useState(null);
+  const pending = useRef(null);
+
+  const refresh = useCallback(() => {
+    if (pending.current) return pending.current;
+    setLoading(true);
+    setError(false);
+    pending.current = Promise.resolve()
+      .then(() => window.api.news.getItems())
+      .then((freshItems) => {
+        setItems(freshItems);
+        write(cacheKey, freshItems);
+        return freshItems;
+      })
+      .catch(() => {
+        setError(true);
+        return null;
