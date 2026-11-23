@@ -237,3 +237,43 @@ async function paxsenix(metadata, route = null, label = "Paxsenix") {
 }
 
 async function unison(metadata) {
+  const query = [metadata.title, metadata.artist].filter(Boolean).join(" ");
+  const urls = [];
+  if (query) {
+    const params = new URLSearchParams({ q: query });
+    if (metadata.duration > 0)
+      params.set("d", Math.round(metadata.duration));
+    urls.push(`https://unison.boidu.dev/search?${params}`);
+  }
+  if (metadata.videoId)
+    urls.push(
+      `https://unison.boidu.dev/lyrics?v=${encodeURIComponent(metadata.videoId)}`,
+    );
+  for (const url of urls) {
+    try {
+      const data = await request(url, { json: true });
+      const found = result(findLyrics(data), "Unison");
+      if (found) return found;
+    } catch {}
+  }
+  return null;
+}
+
+async function portato(metadata) {
+  if (!metadata.title || !metadata.artist) return null;
+  const data = await request(
+    `https://lyrics.portato.app/api/v1/lyrics?${paramsFor(metadata)}`,
+    { json: true },
+  );
+  return result(findLyrics(data), "Portato");
+}
+
+async function youLy(metadata) {
+  if (!metadata.title || !metadata.artist) return null;
+  const mirrors = [
+    "https://lyricsplus.binimum.org/",
+    "https://lyricsplus.prjktla.my.id/",
+    "https://lyricsplus.atomix.one/",
+    "https://lyricsplus-seven.vercel.app/",
+  ];
+  const query = paramsFor(metadata);
