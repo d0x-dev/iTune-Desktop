@@ -66,3 +66,38 @@ export default function QueuePanel({
             current
             onClick={() => onSelect(queue[currentIndex], queue)}
           />
+        </>
+      )}
+      <h3>Playing Next</h3>
+      <div className="queue-tracks">
+        {queue.slice(currentIndex + 1).map((track, index) => (
+          <QueueTrack
+            key={`${track.id}-${index}`}
+            track={track}
+            onClick={() => onSelect(track, queue)}
+          />
+        ))}
+        {currentIndex >= queue.length - 1 && (
+          <div className="empty-state compact">
+            <ListMusic size={28} />
+            <p>Your next songs will appear here.</p>
+          </div>
+        )}
+      </div>
+    </aside>
+  );
+}
+function QueueTrack({ track, onClick, current }) {
+  return (
+    <button
+      className={`queue-track ${current ? "current" : ""}`}
+      onClick={onClick}
+    >
+      <Artwork src={track.thumbnail} title="" />
+      <span>
+        <strong><ExplicitTitle item={track} /></strong>
+        <small>{getArtistName(track)}</small>
+      </span>
+    </button>
+  );
+}
