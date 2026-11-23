@@ -153,3 +153,42 @@ const Player = forwardRef(function Player(
         if (deck && index !== incomingIndex) resetDeck(deck);
       });
       outgoing.pause();
+    }
+    incoming.removeAttribute("src");
+    incoming.load();
+    incoming.dataset.trackId = trackId;
+    setCurrentTime(0);
+    setDuration(Number(currentTrack.durationSeconds) || 0);
+    setError("");
+    setLoading(true);
+    try {
+      const result = currentTrack.streamUrl
+        ? { streamUrl: currentTrack.streamUrl }
+        : await window.api.yt.getSongStream(trackId);
+      if (revision !== requestId.current) return;
+      if (!result?.streamUrl)
+        throw new Error("This song couldn’t play. Press play to try again.");
+      const resolvedDuration = Math.max(
+        0,
+        Number(result.metadata?.duration || currentTrack.durationSeconds) || 0,
+      );
+      incoming.dataset.durationSeconds = String(resolvedDuration);
+      if (resolvedDuration) setDuration(resolvedDuration);
+      incoming.src = result.streamUrl;
+      const targetVolume = settings.current.muted ? 0 : settings.current.volume;
+      incoming.volume = canCrossfade ? 0 : targetVolume;
+      if (currentTrack.type !== "radio") {
+        applyAudioEffects(incoming, preferences);
+        await resumeAudioEffects(incoming);
+      }
+      if (desiredPlaying.current) {
+        await incoming.play();
+        if (revision !== requestId.current) {
+          incoming.pause();
+          return;
+        }
+        activeDeck.current = incomingIndex;
+        setIsPlaying(true);
+        if (canCrossfade) {
+          fadeDecks(
+            outgoing,
