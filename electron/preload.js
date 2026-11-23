@@ -96,3 +96,36 @@ contextBridge.exposeInMainWorld("api", {
     leave: (code, participantId) =>
       ipcRenderer.invoke("ishare:leave", code, participantId),
     lanStart: (options) => ipcRenderer.invoke("ishare:lanStart", options),
+    lanStop: () => ipcRenderer.invoke("ishare:lanStop"),
+    lanUpdate: (state, settings) =>
+      ipcRenderer.invoke("ishare:lanUpdate", state, settings),
+    lanScan: () => ipcRenderer.invoke("ishare:lanScan"),
+    lanJoin: (address, displayName) =>
+      ipcRenderer.invoke("ishare:lanJoin", address, displayName),
+    lanGet: (address, participantId) =>
+      ipcRenderer.invoke("ishare:lanGet", address, participantId),
+    lanAction: (address, participantId, action, payload) =>
+      ipcRenderer.invoke(
+        "ishare:lanAction",
+        address,
+        participantId,
+        action,
+        payload,
+      ),
+    lanLeave: (address, participantId) =>
+      ipcRenderer.invoke("ishare:lanLeave", address, participantId),
+  },
+  radio: {
+    getCountries: () => ipcRenderer.invoke("radio:getCountries"),
+    getStations: (options) =>
+      ipcRenderer.invoke("radio:getStations", options),
+    recordClick: (stationUuid) =>
+      ipcRenderer.invoke("radio:recordClick", stationUuid),
+  },
+  player: {
+    loadTrack: (videoId) => ipcRenderer.invoke("player:loadTrack", videoId),
+    play: () => ipcRenderer.invoke("player:play"),
+    pause: () => ipcRenderer.invoke("player:pause"),
+    next: () => ipcRenderer.invoke("player:next"),
+    previous: () => ipcRenderer.invoke("player:previous"),
+    seek: (seconds) => ipcRenderer.invoke("player:seek", seconds),
