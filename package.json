@@ -29,3 +29,34 @@
       "shared/**/*",
       "node_modules/**/*",
       "package.json"
+    ],
+    "nsis": {
+      "artifactName": "iTune-Desktop-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "iTune-Desktop-Portable-${version}.${ext}"
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false,
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "mac": {
+      "icon": "public/app-icon.png",
+      "category": "public.app-category.music",
+      "target": ["dmg", "zip"]
+    },
+    "linux": {
+      "icon": "public/app-icon.png",
+      "category": "AudioVideo",
+      "maintainer": "iTune Project",
+      "synopsis": "iTune music player",
+      "target": ["AppImage", "deb"]
+    }
+  },
+  "keywords": [
+    "youtube-music",
+    "music-player",
