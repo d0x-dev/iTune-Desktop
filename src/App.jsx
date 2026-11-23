@@ -957,3 +957,63 @@ export default function App() {
         .leave(active.session.code, active.session.participantId)
         .catch(() => {});
     }
+    setListenTogether(null);
+    setListenBusy(false);
+    setListenError("");
+  };
+
+  const applyLanHostActions = useCallback(
+    (actions = []) => {
+      actions.forEach(({ action, positionMs, extraData }) => {
+        if (action === "play" || action === "resume") player.current?.play();
+        else if (action === "pause") player.current?.pause();
+        else if (action === "toggle_play_pause") player.current?.togglePlay();
+        else if (action === "seek" && Number.isFinite(Number(positionMs)))
+          player.current?.seek(Number(positionMs) / 1000);
+        else if (action === "next") next();
+        else if (action === "previous") previous();
+        else if (
+          (action === "add_to_queue" || action === "play_next") &&
+          extraData?.track
+        ) {
+          const added = sharedQueueTrack(extraData.track);
+          if (!added) return;
+          setQueue((previousQueue) => {
+            const without = previousQueue.filter((item) => item.id !== added.id);
+            if (action === "add_to_queue") return [...without, added];
+            const insertAt = Math.max(0, currentIndexRef.current + 1);
+            return [
+              ...without.slice(0, insertAt),
+              added,
+              ...without.slice(insertAt),
+            ];
+          });
+        }
+      });
+    },
+    [next, previous],
+  );
+
+  const handleSharedPlaybackAction = useCallback(
+    (action, payload = {}) => {
+      const active = listenTogetherRef.current;
+      if (active?.mode !== "lan" || active.role !== "guest") return;
+      window.api.ishare
+        .lanAction(
+          active.hostAddress,
+          active.session.participantId,
+          action,
+          payload,
+        )
+        .then((result) => {
+          if (result?.ok === false)
+            setListenError(result.error || "The host blocked that control.");
+        })
+        .catch(() => {});
+    },
+    [],
+  );
+
+  useEffect(() => {
+    const active = listenTogether;
+    if (!active?.session?.code) return;
