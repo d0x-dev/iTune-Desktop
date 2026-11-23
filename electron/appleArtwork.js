@@ -222,3 +222,40 @@ async function albumArtwork(title, artist) {
           String(album.collectionId) &&
         (item.attributes || item.editorialVideo || item.videoArtwork),
     );
+    const attributes = item?.attributes || item;
+    const videoUrl =
+      motionUrl(
+        attributes?.editorialVideo ||
+          attributes?.videoArtwork ||
+          find(root, (item) => !!item.editorialVideo)?.editorialVideo,
+      ) || (await catalogMotion("albums", album.collectionId));
+    return {
+      heroUrl: album.artworkUrl100?.replace(/100x100[^/.]*\./, "1440x1440bb."),
+      videoUrl,
+      title: album.collectionName,
+      artist: album.artistName,
+    };
+  });
+}
+async function trackCanvas(track) {
+  if (!track?.title || !track?.artist) return null;
+  if (track.album) {
+    const artwork = await albumArtwork(track.album, track.artist);
+    if (artwork?.videoUrl) return artwork;
+  }
+  return cached(
+    `canvas:${titleKey(track.title)}:${matchKey(track.artist)}`,
+    async () => {
+      const manifest = await get(
+        "https://vivimusicanvas.mkmdevilmi.workers.dev/canvas.json",
+        true,
+      );
+      const match = manifest?.items?.find(
+        (item) =>
+          titleKey(item.song) === titleKey(track.title) &&
+          matchKey(item.artist) === matchKey(track.artist),
+      );
+      return match?.url?.startsWith("http")
+        ? { videoUrl: match.url, title: match.song, artist: match.artist }
+        : null;
+    },
