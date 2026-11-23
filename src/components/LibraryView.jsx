@@ -73,3 +73,41 @@ export default function LibraryView({
     }
     setLoading(true);
     const request =
+      mode === "albums"
+        ? window.api.yt.getAlbums()
+        : mode === "favorites"
+          ? window.api.yt.getLikedSongs()
+          : window.api.yt.getSongs();
+    request
+      .then((data) => {
+        if (!active) return;
+        if (data?.error) throw new Error(data.error);
+        setItems(mode === "albums" ? data?.albums || [] : data?.tracks || []);
+      })
+      .catch(() => {
+        if (active) setError("Your library couldn’t load. Try again.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [mode, userProfile?.isLoggedIn, retry]);
+
+  useEffect(() => {
+    if (initialAlbum) setAlbum(initialAlbum);
+  }, [initialAlbum]);
+  useEffect(() => {
+    let active = true;
+    setDetail(null);
+    if (!album) return;
+    setLoadingAlbum(true);
+    setError("");
+    window.api.yt
+      .getAlbum(album.id)
+      .then((data) => {
+        if (!active) return;
+        if (data?.error) throw new Error(data.error);
+        setDetail(data);
+      })
