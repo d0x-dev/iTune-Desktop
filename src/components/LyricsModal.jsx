@@ -130,3 +130,47 @@ export default function LyricsModal({
   }, [scheduleControlsHide, track.id]);
 
   useEffect(() => {
+    if (toolsPage || !compact) {
+      clearTimeout(idleTimer.current);
+      setControlsVisible(true);
+    }
+  }, [compact, toolsPage]);
+
+  useEffect(() => {
+    const saved = Number(localStorage.getItem(`itune:lyrics-offset:${track.id}`));
+    setLyricsOffsetMs(Number.isFinite(saved) ? Math.max(-5000, Math.min(5000, saved)) : 0);
+    setSearchTitle(track.title || "");
+    setSearchArtist(getArtistName(track));
+    setSearchResults([]);
+    setToolsPage(null);
+  }, [track.id]);
+
+  useEffect(() => {
+    let active = true;
+    const requestRevision = ++revision.current;
+    setLines([]);
+    setLoading(true);
+    setError("");
+    setSource("");
+    setFollowing(true);
+    async function load() {
+      try {
+        const imported = await readAsset(`lyrics:${track.id}`);
+        const result = imported
+          ? {
+              lyrics: await imported.text(),
+              source:
+                localStorage.getItem(`itune:lyrics-source:${track.id}`) ||
+                "Custom lyrics",
+            }
+          : await window.api.yt.getLyrics(track.id, {
+              title: track.title,
+              artist: getArtistName(track),
+              // Prefer the decoded audio duration. YouTube music videos often
+              // include long visual intros/outros that make lyric matching late.
+              duration: lyricsDuration,
+              provider: preferences.lyricsProvider,
+            });
+        if (!active || revision.current !== requestRevision) return;
+        setRawLyrics(result?.lyrics || "");
+        setLines(parseLyrics(result?.lyrics));
