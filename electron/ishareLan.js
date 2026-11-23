@@ -108,3 +108,39 @@ class IShareLanHost {
       state: this.state ? { ...this.state, settings: this.settings, queue } : null,
       settings: this.settings,
       queue,
+    };
+  }
+
+  async route(request, response) {
+    if (request.method === "OPTIONS") {
+      sendJson(response, 200, {});
+      return;
+    }
+    const url = new URL(request.url, `http://${this.ip}:${this.port}`);
+    const pathname = url.pathname;
+    if (pathname === "/together/status" || pathname === "/together/ping") {
+      sendJson(response, 200, {
+        status: "ok",
+        app: "AirBeats",
+        client: "iShare",
+        sessionId: this.sessionId,
+        hostName: this.displayName,
+        participants: this.participants.size,
+      });
+      return;
+    }
+    if (pathname === "/together/join" && request.method === "POST") {
+      const body = await readBody(request);
+      const id = crypto.randomBytes(4).toString("hex");
+      this.participants.set(id, participant(id, body.name));
+      this.stateVersion++;
+      sendJson(response, 200, this.snapshot(id));
+      return;
+    }
+    if (pathname === "/together/state" && request.method === "GET") {
+      sendJson(
+        response,
+        200,
+        this.snapshot(url.searchParams.get("participantId") || "guest"),
+      );
+      return;
