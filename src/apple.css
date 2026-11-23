@@ -2163,3 +2163,86 @@ body {
   padding: 12px;
   border: 1px solid var(--border-color);
   border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.listen-session-code small { grid-column: 1 / -1; }
+.listen-session-code strong { font-size: 22px; letter-spacing: 3px; }
+.listen-session-code strong.lan-address { font-size: 15px; letter-spacing: .3px; }
+.listen-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--secondary-text);
+  font-size: 11px;
+}
+.listen-status > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #40d979;
+  box-shadow: 0 0 10px #40d979;
+}
+.listen-participants { display: grid; gap: 6px; }
+.listen-participants > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 9px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.045);
+}
+.listen-participants > div > span {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  color: white;
+  background: var(--accent-color);
+  font-size: 11px;
+  font-weight: 700;
+}
+.listen-participants p { display: grid; gap: 1px; }
+.listen-participants strong { font-size: 11px; }
+.listen-permissions { display: grid; gap: 2px; }
+.listen-permissions label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 5px;
+  border-top: 1px solid var(--border-color);
+}
+.listen-permissions label > span { display: grid; gap: 2px; }
+.listen-permissions strong { font-size: 11px; }
+.listen-permissions input { accent-color: var(--accent-color); }
+.listen-leave { color: #ff8795; background: rgba(255, 72, 91, 0.1); }
+.listen-error {
+  margin-top: 10px;
+  padding: 9px 10px;
+  color: #ff9aa5;
+  border-radius: 10px;
+  background: rgba(255, 72, 91, 0.1);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* Compact lyrics become a distraction-free lyric surface after two idle seconds. */
+.compact-lyrics .lyrics-topline,
+.compact-lyrics .lyrics-track-panel,
+.compact-lyrics .lyrics-player,
+.compact-lyrics .follow-lyrics,
+.compact-lyrics .lyrics-layout {
+  transition:
+    opacity 420ms ease,
+    transform 500ms var(--ease-out),
+    padding 520ms var(--ease-out),
+    gap 420ms var(--ease-out);
+}
+.compact-lyrics .lyrics-topline {
+  transition:
+    opacity 420ms ease,
+    transform 500ms var(--ease-out),
+    height 520ms var(--ease-out),
+    padding 520ms var(--ease-out);
+}
