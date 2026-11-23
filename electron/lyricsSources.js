@@ -197,3 +197,43 @@ async function simpMusic(metadata) {
   const best = rows.find(
     (row) =>
       (row.syncedLyrics || row.plainLyrics) &&
+      (!target || !row.duration || Math.abs(row.duration - target) <= 12),
+  );
+  return result(
+    best?.syncedLyrics || best?.plainLyrics,
+    "SimpMusic",
+    Boolean(best?.syncedLyrics),
+    {
+      trackName: best?.trackName || metadata.title,
+      artistName: best?.artistName || metadata.artist,
+      duration: Number(best?.duration) || 0,
+    },
+  );
+}
+
+async function paxsenix(metadata, route = null, label = "Paxsenix") {
+  const base = "https://lyrics.paxsenix.org/";
+  const routes = [];
+  if (!route && metadata.videoId)
+    routes.push(`youtube/lyrics?id=${encodeURIComponent(metadata.videoId)}`);
+  if (metadata.title && metadata.artist) {
+    const query = `title=${encodeURIComponent(metadata.title)}&artist=${encodeURIComponent(metadata.artist)}`;
+    for (const source of route
+      ? [route]
+      : ["spotify", "musixmatch", "apple-music", "netease"])
+      routes.push(`${source}/lyrics?${query}`);
+  }
+  for (const path of routes) {
+    try {
+      const body = await request(base + path);
+      const lyrics = /^[{[]/.test(body.trim())
+        ? findLyrics(JSON.parse(body))
+        : body;
+      const found = result(lyrics, label);
+      if (found) return found;
+    } catch {}
+  }
+  return null;
+}
+
+async function unison(metadata) {
