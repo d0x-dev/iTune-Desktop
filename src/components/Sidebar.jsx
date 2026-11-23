@@ -134,3 +134,37 @@ export default function Sidebar({
                       name={
                         id === "favorites" && activeTab === id
                           ? "ic_star_filled"
+                          : iconNames[id]
+                      }
+                      size={19}
+                    />
+                  ) : (
+                    <Icon size={19} strokeWidth={1.7} />
+                  )}
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+          ))}
+        </nav>
+        {playlists.length > 0 && (
+          <div className="sidebar-playlists no-scrollbar">
+            {playlists.map((playlist) => (
+              <button
+                key={playlist.id}
+                className="sidebar-playlist"
+                onClick={() => setActiveTab("playlists", { playlist })}
+              >
+                <Artwork src={playlist.thumbnail} />
+                <span>{playlist.title}</span>
+              </button>
+            ))}
+          </div>
+        )}
+        <button
+          className={`nav-item sidebar-settings ${activeTab === "settings" ? "active" : ""}`}
+          onClick={() => setActiveTab("settings")}
+        >
+          <AndroidIcon name="ic_player_tools" size={18} />
+          <span>Settings</span>
+        </button>
