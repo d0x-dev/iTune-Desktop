@@ -46,3 +46,27 @@ export function PreferencesProvider({ children }) {
         loaded.glass = false;
         loaded.backgroundArtwork = false;
       }
+      return loaded;
+    } catch {
+      return defaults;
+    }
+  });
+  useEffect(() => {
+    const media = matchMedia("(prefers-color-scheme: dark)");
+    const apply = () => {
+      const theme =
+        preferences.theme === "system"
+          ? media.matches
+            ? "dark"
+            : "light"
+          : preferences.theme;
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.dataset.acrylic = String(
+        preferences.desktopTransparency,
+      );
+      document.documentElement.dataset.glass = String(
+        preferences.desktopTransparency || preferences.glass,
+      );
+      document.documentElement.dataset.motion = String(preferences.motion);
+      document.documentElement.dataset.playerPlacement =
+        preferences.playerPlacement;
