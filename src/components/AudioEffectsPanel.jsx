@@ -30,3 +30,35 @@ export default function AudioEffectsPanel({ onClose, radioMode = false }) {
           type="checkbox"
           checked={preferences.audioEffectsEnabled}
           disabled={radioMode}
+          onChange={(event) => set("audioEffectsEnabled", event.target.checked)}
+        />
+      </label>
+      <label className="audio-effect-toggle">
+        <span>
+          <strong>Virtual Atmos</strong>
+          <small>Stereo spatial stage and reflections</small>
+        </span>
+        <input
+          type="checkbox"
+          checked={preferences.virtualAtmos}
+          disabled={!preferences.audioEffectsEnabled || radioMode}
+          onChange={(event) => set("virtualAtmos", event.target.checked)}
+        />
+      </label>
+      <div className="audio-preset-row">
+        {["balanced", "bass", "vocal", "bright", "night"].map((preset) => (
+          <button
+            key={preset}
+            className={preferences.audioPreset === preset ? "selected" : ""}
+            disabled={!preferences.audioEffectsEnabled || radioMode}
+            onClick={() => set("audioPreset", preset)}
+          >
+            {preset[0].toUpperCase() + preset.slice(1)}
+          </button>
+        ))}
+      </div>
+      <EffectRange
+        label="Spatial Width"
+        value={preferences.spatialWidth}
+        min={0}
+        max={1}
