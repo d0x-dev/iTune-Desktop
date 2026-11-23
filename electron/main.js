@@ -2395,3 +2395,68 @@ function registerIpcHandlers() {
           if (res.data?.playabilityStatus?.status !== "OK") {
             logToFile(
               `Client ${client} playabilityStatus not OK:`,
+              res.data?.playabilityStatus?.status,
+              res.data?.playabilityStatus?.reason,
+            );
+            continue;
+          }
+          const formats =
+            res.data?.streamingData?.adaptiveFormats ||
+            res.data?.streamingData?.formats ||
+            [];
+          const audioFormats = formats.filter(
+            (f) => f.mimeType && f.mimeType.includes("audio"),
+          );
+          if (audioFormats.length > 0) {
+            audioFormats.sort((a, b) => (b.bitrate || 0) - (a.bitrate || 0));
+            const best =
+              requestedQuality === "data-saver"
+                ? audioFormats[audioFormats.length - 1]
+                : audioFormats[0];
+            if (best.url) {
+              logToFile(
+                `Resolved stream via ${client}:`,
+                best.mimeType,
+                "bitrate:",
+                best.bitrate,
+              );
+              return {
+                streamUrl: best.url,
+                format: {
+                  container: best.mimeType.split(";")[0],
+                  codec: best.mimeType,
+                  bitrate: best.bitrate,
+                  audioQuality: best.audioQuality,
+                  contentLength: best.contentLength,
+                },
+                metadata: {
+                  title: res.data?.videoDetails?.title || "",
+                  author: res.data?.videoDetails?.author || "",
+                  duration: parseInt(
+                    res.data?.videoDetails?.lengthSeconds || "0",
+                    10,
+                  ),
+                },
+              };
+            }
+          }
+        } catch (clientErr) {
+          logToFile(`Client ${client} error:`, clientErr.message);
+        }
+      }
+
+      // Fallback: sc.getInfo() with decipher
+      try {
+        const info = await sc.getInfo(videoId);
+        const format = info.chooseFormat({ type: "audio", quality: "best" });
+        if (format) {
+          let streamUrl = null;
+          try {
+            streamUrl = await format.decipher(sc.session.player);
+          } catch (e) {
+            streamUrl = format.url;
+          }
+          if (streamUrl) {
+            logToFile(
+              "Resolved stream via getInfo decipher:",
+              format.mime_type,
