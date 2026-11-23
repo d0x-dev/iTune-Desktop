@@ -1,0 +1,29 @@
+/* Scroll handover from iTune Android LyricsV2Screen, DxV Studio / Dark, GPL-3.0. */
+const MIN_LEAD_MS = 350;
+const MAX_LEAD_MS = 500;
+const STAGGER_FRACTION = 0.06;
+const STAGGER_STEPS = 3;
+
+export function lyricScrollLead(lines, activeIndex) {
+  const current = lines[activeIndex];
+  const next = lines[activeIndex + 1];
+  if (!current || next?.start == null) return MIN_LEAD_MS;
+  const lastWord = current.words?.findLast((word) => word.end != null);
+  const end = lastWord?.end ?? current.end ?? current.start;
+  const gap = next.start - end;
+  const lead = gap > 0 ? gap : (next.start - current.start) * 0.14;
+  return Math.max(MIN_LEAD_MS, Math.min(MAX_LEAD_MS, lead * 1000));
+}
+
+function lyricEase(progress) {
+  if (progress <= 0) return 0;
+  if (progress >= 1) return 1;
+  let low = 0;
+  let high = 1;
+  let parameter = progress;
+  for (let index = 0; index < 12; index++) {
+    const inverse = 1 - parameter;
+    const x =
+      3 * inverse * inverse * parameter * 0.41 +
+      3 * inverse * parameter * parameter * 0.12 +
+      parameter ** 3;
