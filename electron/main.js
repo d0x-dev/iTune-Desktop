@@ -2525,3 +2525,68 @@ function registerIpcHandlers() {
     let partialPath = "";
     try {
       const declaredType = String(data.container || data.contentType || "");
+      const extension = /mp4|m4a|aac/i.test(declaredType) ? ".m4a" : ".webm";
+      const baseName = safeDownloadName(
+        `${data.artist ? `${data.artist} - ` : ""}${data.title || "Song"}`,
+      );
+      const directory = path.join(app.getPath("music"), "iTune");
+      await fs.promises.mkdir(directory, { recursive: true });
+      let target = path.join(directory, `${baseName}${extension}`);
+      let suffix = 2;
+      while (fs.existsSync(target)) {
+        target = path.join(directory, `${baseName} ${suffix}${extension}`);
+        suffix += 1;
+      }
+      partialPath = `${target}.itune-part`;
+      await fs.promises.rm(partialPath, { force: true });
+
+      let expectedLength = Math.max(0, Number(data.contentLength) || 0);
+      let completed = false;
+      let lastError = null;
+      for (let attempt = 0; attempt < 3 && !completed; attempt += 1) {
+        let existingLength = 0;
+        try {
+          existingLength = (await fs.promises.stat(partialPath)).size;
+        } catch {}
+
+        const controller = new AbortController();
+        let inactivityTimer;
+        const resetInactivityTimer = () => {
+          clearTimeout(inactivityTimer);
+          inactivityTimer = setTimeout(
+            () => controller.abort(new Error("The download stopped receiving data.")),
+            60000,
+          );
+        };
+
+        try {
+          resetInactivityTimer();
+          const headers = {
+            "User-Agent": app.userAgentFallback || "iTune Desktop/1.0",
+          };
+          if (existingLength > 0) headers.Range = `bytes=${existingLength}-`;
+          const response = await fetch(sourceUrl, {
+            headers,
+            signal: controller.signal,
+          });
+          if (!response.ok || !response.body)
+            throw new Error(`Download failed (${response.status}).`);
+
+          const isResume = existingLength > 0 && response.status === 206;
+          if (!isResume && existingLength > 0) {
+            await fs.promises.rm(partialPath, { force: true });
+            existingLength = 0;
+          }
+          if (!expectedLength) {
+            const contentRange = response.headers.get("content-range") || "";
+            const rangeTotal = Number(contentRange.match(/\/(\d+)$/)?.[1]);
+            const responseLength = Number(response.headers.get("content-length"));
+            expectedLength =
+              rangeTotal ||
+              (Number.isFinite(responseLength)
+                ? existingLength + responseLength
+                : 0);
+          }
+
+          const input = Readable.fromWeb(response.body);
+          input.on("data", resetInactivityTimer);
