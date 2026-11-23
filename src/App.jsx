@@ -477,3 +477,63 @@ export default function App() {
     if (track.type !== "radio") extendRelatedQueue(track, generation);
   };
   const shuffleTracks = (tracks) => {
+    if (!tracks?.length) return;
+    const shuffled = shuffledCopy(tracks);
+    originalQueue.current = tracks;
+    setIsShuffle(true);
+    setQueue(shuffled);
+    queueRef.current = shuffled;
+    currentIndexRef.current = 0;
+    currentTrackRef.current = shuffled[0];
+    player.current?.preparePlayback(true);
+    setCurrentIndex(0);
+    if (currentTrack?.id === shuffled[0].id) player.current?.restart();
+    else setCurrentTrack(shuffled[0]);
+  };
+  const startRadio = async (track) => {
+    if (!track?.id) return;
+    try {
+      const result = await window.api.yt.getRadioQueue(
+        track.videoId || track.id,
+        track.playlistId,
+      );
+      if (!result?.tracks?.length)
+        throw new Error("This station couldn’t start.");
+      selectTrack(result.tracks[0], result.tracks);
+    } catch {
+      setMessage("This station couldn’t start. Try another song.");
+    }
+  };
+  const openContextMenu = useCallback(
+    (event, item = null, list = []) => {
+      event.preventDefault();
+      event.stopPropagation();
+      setContextMenu({
+        x: Math.max(8, Math.min(event.clientX, window.innerWidth - 270)),
+        y: Math.max(8, Math.min(event.clientY, window.innerHeight - 440)),
+        item,
+        list,
+      });
+      setContextPlaylists([]);
+      if (item && userProfile.isLoggedIn) {
+        window.api.yt
+          .getPlaylists()
+          .then((result) => setContextPlaylists(result?.playlists || []))
+          .catch(() => {});
+      }
+    },
+    [userProfile.isLoggedIn],
+  );
+  const handleContextAction = async (action, payload) => {
+    const item = contextMenu?.item;
+    if (["history", "library", "settings"].includes(action)) {
+      navigate(
+        action === "history" ? "history" : action === "library" ? "songs" : "settings",
+      );
+      return;
+    }
+    if (!item) return;
+    if (action === "play") {
+      selectTrack(item, contextMenu.list || []);
+      return;
+    }
