@@ -1830,3 +1830,86 @@ body {
   transform: translateZ(0);
 }
 [data-player-placement="floating"] .workspace {
+  padding-bottom: 85px;
+}
+[data-player-placement="floating"] .player-bar {
+  position: absolute;
+  bottom: 17px;
+  left: 4%;
+  right: 4%;
+  height: 65px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 35px;
+  z-index: 40;
+  box-shadow: 0 7px 28px #0003;
+  padding: 0 22px;
+}
+[data-player-placement="floating"] .now-playing {
+  height: 42px;
+  background: transparent;
+  border: 0;
+}
+[data-player-placement="floating"] .player-art {
+  width: 36px;
+  height: 36px;
+  border-radius: 5px;
+}
+[data-player-placement="floating"] .compact-lyrics {
+  inset: 86px 18px 92px auto;
+}
+@media (max-width: 1150px) {
+  .artist-hero { margin: -26px -27px 0; }
+  .songs-shelf {
+    grid-auto-columns: calc((100% - 18px) / 2);
+  }
+  .search-categories {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .artists-shelf {
+    grid-auto-columns: calc((100% - 60px) / 4);
+  }
+  .artist-overview {
+    grid-template-columns: 1fr;
+  }
+  .latest-release .artwork {
+    width: 150px;
+  }
+}
+@media (max-width: 900px) {
+  .artist-hero { height: clamp(560px, 74vh, 760px); }
+  .artist-hero-content { bottom: 42px; }
+  .artist-hero h1 { font-size: 46px; }
+  .artist-overview { gap: 22px; }
+}
+@media (max-width: 600px) {
+  .artist-hero { height: clamp(510px, 72vh, 680px); margin: -22px -19px 0; }
+  .artist-hero h1 { font-size: 37px; }
+  .artist-signature { max-width: 82%; height: 84px; }
+  .artist-actions { gap: 16px; }
+  .artist-play { width: 62px; height: 62px; }
+  .artist-info, .artist-actions .hero-follow { width: 44px; height: 44px; }
+}
+@media (max-width: 900px) {
+  .songs-shelf {
+    grid-auto-columns: 70%;
+  }
+  .videos-shelf {
+    grid-auto-columns: calc((100% - 18px) / 2);
+  }
+  .search-categories {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .compact-lyrics {
+    width: 280px;
+    right: 10px;
+  }
+}
+@media (max-width: 650px) {
+  .sidebar-playlists {
+    display: none;
+  }
+  .brand-app-icon {
+    width: 28px;
+    height: 28px;
+  }
+  .sidebar-brand {
