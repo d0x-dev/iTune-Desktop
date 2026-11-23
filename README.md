@@ -28,3 +28,33 @@ To start the app with live reload:
 npm run electron:dev
 ```
 
+### Build Windows `.exe`
+To build both the Windows installer and portable executable:
+```bash
+npm run electron:windows
+```
+
+Build macOS DMG and ZIP packages with `npm run electron:mac`. Build Linux AppImage and DEB packages with `npm run electron:linux`. All packages are written to `release/`.
+
+GitHub release tags build and publish the Windows, macOS, and Linux packages together. iTune checks GitHub releases when it starts, downloads the matching package inside the app, and shows release notes and available downloads in Settings → General & About.
+
+The update checker selects a Windows setup executable, macOS disk image, or Linux AppImage automatically. The About panel also lists every release file so users can choose the portable Windows executable, macOS ZIP, Linux DEB, or another available package. Package installation and available audio or system integrations can vary by operating system; all app screens remain part of each build.
+
+## Project policies
+
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security](SECURITY.md)
+- [Copyright and third-party notices](COPYRIGHT.md)
+- [Licensing guide](LICENSING.md)
+- [GNU GPL v3 License](LICENSE)
+
+---
+
+## 🛠️ Architecture Overview
+
+- **Frontend:** React 19 + Tailwind CSS + Lucide Icons (bundled with Vite).
+- **Desktop Runtime:** Electron 33 (main process with native IPC handlers).
+- **Core Engine:** `youtubei.js` (InnerTube client handling YouTube Music catalog, search, and cipher deciphering).
+- **Session Management:** Local cookie persistence in Electron's per-user application data directory.
+
