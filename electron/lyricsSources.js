@@ -77,3 +77,43 @@ function findLyrics(value, depth = 0) {
       if (key in value) {
         const found = findLyrics(value[key], depth + 1);
         if (found) return found;
+      }
+    }
+    for (const child of Object.values(value)) {
+      const found = findLyrics(child, depth + 1);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+function paramsFor(metadata) {
+  const params = new URLSearchParams({
+    title: metadata.title || "",
+    artist: metadata.artist || "",
+  });
+  if (metadata.duration > 0)
+    params.set("duration", Math.round(metadata.duration));
+  return params;
+}
+
+async function betterLyrics(metadata) {
+  if (!metadata.title || !metadata.artist) return null;
+  const params = new URLSearchParams({ s: metadata.title, a: metadata.artist });
+  if (metadata.duration > 0) params.set("d", Math.round(metadata.duration));
+  for (const route of ["getLyrics", "kugou/getLyrics"]) {
+    try {
+      const body = (
+        await request(`https://lyrics-api.boidu.dev/${route}?${params}`, {
+          timeout: 6500,
+        })
+      ).trim();
+      const lyrics = body.startsWith("{") ? findLyrics(JSON.parse(body)) : body;
+      const found = result(lyrics, "BetterLyrics");
+      if (found) return found;
+    } catch {}
+  }
+  return null;
+}
+
+async function lrcLib(metadata) {
