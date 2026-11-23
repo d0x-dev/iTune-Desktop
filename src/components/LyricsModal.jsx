@@ -659,3 +659,47 @@ export default function LyricsModal({
                 </div>
               )}
             </div>
+          </div>
+        </AnimatedPresence>
+        <div className="lyrics-layout">
+          <div className="lyrics-track-panel">
+            <div className={`lyrics-cover ${isPlaying ? "playing" : ""}`}>
+              <Artwork src={track.thumbnail} title={track.title} eager />
+              <Canvas src={video} paused={!isPlaying} />
+            </div>
+            <div className="lyrics-track-info">
+              <h2>{track.title}</h2>
+              <p>{getArtistName(track)}</p>
+              {signature && (
+                <img
+                  className="lyrics-signature"
+                  src={signature}
+                  alt={`${getArtistName(track)} signature artwork`}
+                />
+              )}
+            </div>
+            <div className="lyrics-player">
+              <div className="lyrics-timeline">
+                <input
+                  className="apple-seekbar"
+                  aria-label="Lyrics playback position"
+                  type="range"
+                  min="0"
+                  max={playback.duration || 1}
+                  step="0.1"
+                  value={Math.min(playback.currentTime, playback.duration || 1)}
+                  disabled={!playback.duration}
+                  onChange={(event) => onSeek(Number(event.target.value))}
+                  style={{
+                    "--progress": `${playback.duration ? (playback.currentTime / playback.duration) * 100 : 0}%`,
+                  }}
+                />
+                <div>
+                  <span>{formatTime(playback.currentTime)}</span>
+                  <span>
+                    −
+                    {formatTime(
+                      Math.max(0, playback.duration - playback.currentTime),
+                    )}
+                  </span>
+                </div>
