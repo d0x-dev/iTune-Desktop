@@ -145,3 +145,40 @@ async function request(baseUrl, pathname, options = {}) {
       "User-Agent": "iTune Desktop/1.0.0",
       ...options.headers,
     },
+    signal: AbortSignal.timeout(6000),
+  });
+  const text = await response.text();
+  let data = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    data = {};
+  }
+  if (!response.ok) {
+    throw new Error(data.error || `Listen Together request failed (${response.status})`);
+  }
+  return data;
+}
+
+async function withFallback(pathname, options) {
+  const first = activeBaseUrl;
+  const second =
+    first === PRIMARY_BACKEND_URL ? FALLBACK_BACKEND_URL : PRIMARY_BACKEND_URL;
+  try {
+    return await request(first, pathname, options);
+  } catch (firstError) {
+    try {
+      const result = await request(second, pathname, options);
+      activeBaseUrl = second;
+      return result;
+    } catch (secondError) {
+      throw new Error(secondError.message || firstError.message);
+    }
+  }
+}
+
+function post(pathname, body) {
+  return withFallback(pathname, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
