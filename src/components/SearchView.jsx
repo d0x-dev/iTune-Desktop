@@ -281,3 +281,44 @@ export default function SearchView({
                 tracks={songs}
                 currentTrack={currentTrack}
                 isPlaying={isPlaying}
+                onSelectTrack={(track) => onSelectTrack(track, [track])}
+                likedSongIds={likedSongIds}
+                onToggleLike={onToggleLike}
+                onContextMenu={onContextMenu}
+              />
+            </section>
+          )}
+        </>
+      ) : searched ? (
+        <div className="empty-state">
+          <Search />
+          <h2>No results for “{submittedQuery}”</h2>
+          <p>Try another artist, album, or song.</p>
+        </div>
+      ) : (
+        <section>
+          <h2 className="search-browse-title">Browse Categories</h2>
+          <div className="search-categories">
+            {categories.map(([title, image, term]) => (
+              <button
+                className="search-category"
+                key={image}
+                onClick={() => {
+                  setQuery(term);
+                  search(term);
+                }}
+              >
+                <img
+                  src={`${import.meta.env.BASE_URL}categories/${image}.png`}
+                  alt=""
+                  loading="lazy"
+                />
+                <span>{title}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
