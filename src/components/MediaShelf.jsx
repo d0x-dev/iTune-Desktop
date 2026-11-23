@@ -64,3 +64,36 @@ export default function MediaShelf({
         {items.map((item, index) =>
           shelfLayout === "songs" && !editorial ? (
             <button
+              key={`${item.id}-${index}`}
+              className={`shelf-song ${currentTrack?.id === item.id ? "current" : ""}`}
+              onClick={() => onSelect(item, items)}
+              onContextMenu={(event) => onContextMenu?.(event, item, items)}
+            >
+              <div className="shelf-song-art">
+                <Artwork src={item.thumbnail} title="" />
+                {currentTrack?.id === item.id && isPlaying && (
+                  <span className="equalizer">
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                )}
+              </div>
+              <span className="shelf-song-text">
+                <strong><ExplicitTitle item={item} /></strong>
+                <small>{getArtistName(item)}</small>
+              </span>
+              <AndroidIcon name="play" size={14} className="song-hover-play" />
+            </button>
+          ) : editorial ? (
+            <button
+              className={`media-card hero-media-card hero-${heroStyle}-card`}
+              key={`${item.id}-${index}`}
+              onClick={() => onSelect(item, items)}
+              onContextMenu={(event) => onContextMenu?.(event, item, items)}
+            >
+              {heroStyle === "landscape" && (
+                <div className="editorial-caption">
+                  <span>{heroCategory(item)}</span>
+                  <h3><ExplicitTitle item={item} /></h3>
+                  <p>{getArtistName(item)}</p>
