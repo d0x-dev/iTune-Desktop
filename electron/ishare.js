@@ -34,3 +34,40 @@ function encodeStateForOnline(state = {}) {
       return chunks;
     }, [])
     .slice(0, 6)
+    .forEach((items, index) => {
+      const payload = items
+        .map((item) => `${item.id || item.songId}:${cleanQueueTitle(item.title, 20)}`)
+        .join(";");
+      artists.push(`${QUEUE_PREFIX}${index}:${payload}`.slice(0, 115));
+    });
+  const rawThumbnail = String(state.thumbnailUrl || "").split("#")[0];
+  const thumbnailQueue = queue
+    .slice(0, 15)
+    .map(
+      (item) =>
+        `${item.id || item.songId}:${cleanQueueTitle(item.title, 15)}`,
+    )
+    .join(";");
+  return {
+    ...state,
+    artists,
+    thumbnailUrl:
+      rawThumbnail && thumbnailQueue
+        ? `${rawThumbnail}#Q=${thumbnailQueue}`.slice(0, 580)
+        : rawThumbnail,
+    settings,
+    queue,
+  };
+}
+
+function decodeSession(session = {}) {
+  const state = session.state;
+  if (!state) return session;
+  const artists = Array.isArray(state.artists) ? state.artists : [];
+  const cleanArtists = [];
+  const queue = [
+    ...(Array.isArray(state.queue) ? state.queue : []),
+    ...(Array.isArray(session.queue) ? session.queue : []),
+  ];
+  const settings = {
+    allowGuestsToControlPlayback: false,
