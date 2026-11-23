@@ -181,3 +181,40 @@ class IShareLanHost {
         sender !== "host" &&
         controlActions.has(body.action) &&
         !this.settings.allowGuestsToControlPlayback
+      ) {
+        sendJson(response, 403, { error: "Playback controls are disabled by the host" });
+        return;
+      }
+      if (
+        sender !== "host" &&
+        queueActions.has(body.action) &&
+        !this.settings.allowGuestsToAddTracks &&
+        !this.settings.allowGuestsToControlPlayback
+      ) {
+        sendJson(response, 403, { error: "Queue modification is disabled by the host" });
+        return;
+      }
+      if (body.action) {
+        this.pendingActions.push({
+          action: body.action,
+          positionMs: body.positionMs,
+          extraData: body.extraData || null,
+          participantId: sender,
+        });
+        this.stateVersion++;
+      }
+      sendJson(response, 200, this.snapshot(sender));
+      return;
+    }
+    if (pathname === "/together/settings" && request.method === "POST") {
+      const body = await readBody(request);
+      if ((body.participantId || "guest") === "host") {
+        this.settings = {
+          allowGuestsToControlPlayback: Boolean(body.allowGuestsToControlPlayback),
+          allowGuestsToAddTracks: body.allowGuestsToAddTracks !== false,
+        };
+        this.stateVersion++;
+      }
+      sendJson(response, 200, this.snapshot(body.participantId));
+      return;
+    }
