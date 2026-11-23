@@ -241,3 +241,43 @@ export default function SearchView({
             className={filter === item.id ? "active" : ""}
             aria-pressed={filter === item.id}
             onClick={() => {
+              setFilter(item.id);
+              if (query.trim()) search(query, item.id);
+            }}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+      {loading ? (
+        <div className="empty-state">
+          <Loader2 className="animate-spin" />
+          <p>Searching…</p>
+        </div>
+      ) : error ? (
+        <div className="empty-state">
+          <h2>Search couldn’t load</h2>
+          <p role="alert">{error}</p>
+          <button className="primary-button" onClick={() => search()}>
+            Try again
+          </button>
+        </div>
+      ) : searched && results.length ? (
+        <>
+          {collections.length > 0 && (
+            <MediaShelf
+              title="Artists & Collections"
+              items={collections}
+              onSelect={onSelectTrack}
+              onContextMenu={onContextMenu}
+            />
+          )}
+          {songs.length > 0 && (
+            <section className="media-section">
+              <div className="section-heading">
+                <h2>Songs</h2>
+              </div>
+              <TrackList
+                tracks={songs}
+                currentTrack={currentTrack}
+                isPlaying={isPlaying}
