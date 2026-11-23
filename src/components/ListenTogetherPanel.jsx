@@ -142,3 +142,39 @@ export default function ListenTogetherPanel({
           <div className="listen-session-code">
             <small>{connectionMode === "lan" ? "LAN Host Address" : "Pairing Code"}</small>
             <strong className={connectionMode === "lan" ? "lan-address" : ""}>{session.code}</strong>
+            <button className="icon-button" aria-label="Copy pairing code" onClick={copyCode}>
+              {copied ? <Check size={16} /> : <Copy size={16} />}
+            </button>
+          </div>
+          <p className="listen-status">
+            <span /> {role === "host" ? "Hosting" : "Listening"} on {connectionMode === "lan" ? "local Wi-Fi" : "online"} · {session.participants || session.participantList?.length || 1} connected
+          </p>
+          <div className="listen-participants">
+            {(session.participantList || []).map((participant) => (
+              <div key={participant.id || participant.name}>
+                <span>{String(participant.name || "L").slice(0, 1).toUpperCase()}</span>
+                <p><strong>{participant.name || "iShare Listener"}</strong><small>{participant.isHost ? "Host" : "Listener"}</small></p>
+              </div>
+            ))}
+          </div>
+          {role === "host" && (
+            <div className="listen-permissions">
+              <label>
+                <span><strong>Guest playback controls</strong><small>Allow play, pause, and seeking</small></span>
+                <input type="checkbox" checked={settings.allowGuestsToControlPlayback} onChange={(event) => onSettingsChange({ ...settings, allowGuestsToControlPlayback: event.target.checked })} />
+              </label>
+              <label>
+                <span><strong>Guest queue additions</strong><small>Allow listeners to add songs</small></span>
+                <input type="checkbox" checked={settings.allowGuestsToAddTracks} onChange={(event) => onSettingsChange({ ...settings, allowGuestsToAddTracks: event.target.checked })} />
+              </label>
+            </div>
+          )}
+          <button className="listen-leave" disabled={busy} onClick={onLeave}>
+            <LogOut size={15} /> Leave Session
+          </button>
+        </div>
+      )}
+      {error && <p className="listen-error">{error}</p>}
+    </aside>
+  );
+}
