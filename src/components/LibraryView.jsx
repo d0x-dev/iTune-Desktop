@@ -186,3 +186,41 @@ export default function LibraryView({
         </header>
         {error && (
           <p role="alert" className="error-text">
+            {error}
+          </p>
+        )}
+        {loadingAlbum ? (
+          <div className="empty-state">
+            <Loader2 className="animate-spin" />
+          </div>
+        ) : (
+          <TrackList
+            tracks={detail?.tracks || []}
+            currentTrack={currentTrack}
+            isPlaying={isPlaying}
+            onSelectTrack={onSelectTrack}
+            likedSongIds={likedSongIds}
+            onToggleLike={onToggleLike}
+            onContextMenu={onContextMenu}
+          />
+        )}
+      </div>
+    );
+  return (
+    <div className="page library-page">
+      <header className="page-heading">
+        <h1>{title}</h1>
+        <p>
+          {mode === "albums"
+            ? "The records you keep coming back to."
+            : "Your saved songs from YouTube Music."}
+        </p>
+      </header>
+      {!userProfile?.isLoggedIn ? (
+        <div className="empty-state">
+          <Music2 />
+          <h2>Your music, together</h2>
+          <p>Sign in to bring your music library here.</p>
+          <button className="primary-button" onClick={onLogin}>
+            Sign In
+          </button>
