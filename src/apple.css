@@ -1164,3 +1164,86 @@ body {
 .search-scope {
   display: inline-flex;
   border-radius: 20px;
+  background: var(--plate);
+  padding: 3px;
+  margin-bottom: 22px;
+}
+.search-scope button {
+  padding: 5px 15px;
+  font-size: 12px;
+  color: var(--muted);
+  border-radius: 20px;
+}
+.search-scope button.active {
+  background: var(--plate-hover);
+  color: var(--foreground);
+}
+.empty-state {
+  color: var(--muted);
+}
+.empty-state h2 {
+  color: var(--foreground);
+}
+.settings-page {
+  max-width: 1000px;
+}
+.settings-section {
+  margin-bottom: 32px;
+}
+.settings-section:has(.glass-select.open) { z-index: 100; }
+.settings-section > h2 {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+  padding: 17px 18px;
+  background: var(--plate);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.setting-row:nth-child(2) {
+  border-radius: 9px 9px 0 0;
+}
+.setting-row:last-child {
+  border-radius: 0 0 9px 9px;
+  border-bottom: 0;
+}
+.setting-row h3 {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--foreground);
+}
+.setting-row p {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 5px;
+  line-height: 1.4;
+}
+.setting-row select {
+  background: var(--surface);
+  color: var(--foreground);
+  border: 1px solid var(--border-subtle);
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  max-width: 230px;
+}
+.setting-toggle {
+  width: 40px;
+  height: 24px;
+  border-radius: 25px;
+  background: #88888865;
+  padding: 3px;
+  flex-shrink: 0;
+  transition: background 200ms ease;
+}
+.setting-toggle span {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
