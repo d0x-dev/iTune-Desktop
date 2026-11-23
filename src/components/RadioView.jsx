@@ -136,3 +136,37 @@ export default function RadioView({
             aria-label="Radio country"
           >
             {countries.map((country) => (
+              <option value={country.code} key={country.code}>
+                {country.name} · {country.stationCount.toLocaleString()}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          className={`secondary-button ${favoritesOnly ? "selected" : ""}`}
+          onClick={() => setFavoritesOnly((value) => !value)}
+        >
+          <FavoriteIcon filled={favoritesOnly} size={17} />
+          Favorites
+        </button>
+      </div>
+
+      {loading && !stations.length ? (
+        <div className="empty-state">
+          <Loader2 className="animate-spin" />
+          <p>Tuning live stations…</p>
+        </div>
+      ) : error ? (
+        <div className="empty-state">
+          <Radio />
+          <h2>Radio couldn’t connect</h2>
+          <p>{error}</p>
+          <button className="primary-button" onClick={() => loadStations()}>
+            Try Again
+          </button>
+        </div>
+      ) : visibleStations.length ? (
+        <>
+          <div className="radio-grid">
+            {visibleStations.map((station) => {
+              const selected = currentTrack?.id === station.id;
