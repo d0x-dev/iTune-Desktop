@@ -31,3 +31,36 @@ export default function MediaShelf({
           <h2>{title}</h2>
         </div>
         <div className="shelf-controls">
+          <button
+            className="icon-button"
+            aria-label={`Scroll ${title} left`}
+            onClick={() =>
+              shelf.current?.scrollBy({
+                left: -shelf.current.clientWidth,
+                behavior: "smooth",
+              })
+            }
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <button
+            className="icon-button"
+            aria-label={`Scroll ${title} right`}
+            onClick={() =>
+              shelf.current?.scrollBy({
+                left: shelf.current.clientWidth,
+                behavior: "smooth",
+              })
+            }
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
+      </div>
+      <div
+        className={`media-shelf no-scrollbar ${shelfLayout}-shelf`}
+        ref={shelf}
+      >
+        {items.map((item, index) =>
+          shelfLayout === "songs" && !editorial ? (
+            <button
