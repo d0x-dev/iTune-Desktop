@@ -63,3 +63,36 @@ contextBridge.exposeInMainWorld("api", {
       ipcRenderer.invoke("yt:unsubscribeArtist", channelId),
     getLikedSongs: () => ipcRenderer.invoke("yt:getLikedSongs"),
     likeSong: (videoId) => ipcRenderer.invoke("yt:likeSong", videoId),
+    unlikeSong: (videoId) => ipcRenderer.invoke("yt:unlikeSong", videoId),
+    getSongStream: (videoId, quality) =>
+      ipcRenderer.invoke("yt:getSongStream", { videoId, quality }),
+    reportPlayback: (videoId, seconds) =>
+      ipcRenderer.invoke("yt:reportPlayback", { videoId, seconds }),
+    downloadSong: (data) => ipcRenderer.invoke("download:song", data),
+    getLyrics: (videoId, metadata) =>
+      ipcRenderer.invoke("yt:getLyrics", videoId, metadata),
+    searchLyrics: (videoId, metadata) =>
+      ipcRenderer.invoke("yt:searchLyrics", videoId, metadata),
+    translateLyrics: (lines, targetLanguage, mode) =>
+      ipcRenderer.invoke("yt:translateLyrics", {
+        lines,
+        targetLanguage,
+        mode,
+      }),
+  },
+  settings: {
+    getAITranslation: () => ipcRenderer.invoke("settings:getAITranslation"),
+    saveAITranslation: (config) =>
+      ipcRenderer.invoke("settings:saveAITranslation", config),
+  },
+  ishare: {
+    create: (displayName, state) =>
+      ipcRenderer.invoke("ishare:create", displayName, state),
+    join: (code, displayName) =>
+      ipcRenderer.invoke("ishare:join", code, displayName),
+    get: (code) => ipcRenderer.invoke("ishare:get", code),
+    update: (code, participantId, state) =>
+      ipcRenderer.invoke("ishare:update", code, participantId, state),
+    leave: (code, participantId) =>
+      ipcRenderer.invoke("ishare:leave", code, participantId),
+    lanStart: (options) => ipcRenderer.invoke("ishare:lanStart", options),
