@@ -147,3 +147,40 @@ function parseArtistArtwork(html) {
   return {
     heroUrl: fillArtwork(hero, 1440),
     logoUrl: fillArtwork(logo, 1000, "png"),
+    logoAspect: logo?.width && logo?.height ? logo.width / logo.height : 2.5,
+    videoUrl: motionUrl(clip),
+    background: hero?.bgColor ? `#${hero.bgColor.replace(/^#/, "")}` : null,
+    accent: hero?.textColor1 ? `#${hero.textColor1.replace(/^#/, "")}` : null,
+  };
+}
+async function artistArtwork(name, titles = []) {
+  return cached(`artist:${matchKey(name)}`, async () => {
+    const catalogue = new Set(
+      titles.map(titleKey).filter((key) => key.length >= 4),
+    );
+    const search = await get(
+      `https://itunes.apple.com/search?${new URLSearchParams({ term: name, entity: "musicArtist", limit: "5" })}`,
+      true,
+    );
+    for (const artist of search?.results || []) {
+      if (matchKey(artist.artistName) !== matchKey(name)) continue;
+      if (catalogue.size) {
+        const lookup = await get(
+          `https://itunes.apple.com/lookup?id=${artist.artistId}&entity=song&limit=200`,
+          true,
+        );
+        if (
+          !lookup?.results?.some(
+            (item) =>
+              catalogue.has(titleKey(item.trackName)) ||
+              catalogue.has(titleKey(item.collectionName)),
+          )
+        )
+          continue;
+      }
+      const html = await get(
+        (
+          artist.artistLinkUrl ||
+          `https://music.apple.com/us/artist/${artist.artistId}`
+        )
+          .split("?")[0]
