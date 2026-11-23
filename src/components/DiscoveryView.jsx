@@ -65,3 +65,36 @@ export default function DiscoveryView({
       {feed.loading && !feed.sections.length ? (
         <div
           className="home-skeleton"
+          aria-label="Loading recommendations"
+          aria-busy="true"
+        >
+          <div className="skeleton-title" />
+          <div className="skeleton-row">
+            {[0, 1, 2].map((index) => (
+              <div key={index} className="skeleton-card" />
+            ))}
+          </div>
+          <div className="skeleton-row small">
+            {[0, 1, 2, 3, 4].map((index) => (
+              <div key={index} className="skeleton-card" />
+            ))}
+          </div>
+        </div>
+      ) : (
+        <>
+          {featured.length > 0 && (
+            <MediaShelf
+              title={
+                kind === "new"
+                  ? "Featured Releases"
+                  : kind === "radio"
+                    ? "Stations for You"
+                    : "Top Picks for You"
+              }
+              items={featured}
+              onSelect={onSelectTrack}
+              editorial
+              heroStyle={preferences.homeHeroStyle}
+              onContextMenu={onContextMenu}
+            />
+          )}
