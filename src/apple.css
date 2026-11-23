@@ -2829,3 +2829,87 @@ button:not(:disabled):active {
   width: 96px;
   height: 96px;
   opacity: 1;
+}
+.welcome-screen.to-center .welcome-travel-word {
+  right: 50%;
+  top: calc(50% + 38px);
+  font-size: 46px;
+  line-height: 54px;
+  letter-spacing: -.8px;
+  opacity: 1;
+  transform: translateX(50%);
+}
+.welcome-screen.to-home .welcome-travel-wave {
+  left: 18px;
+  top: 65px;
+  width: 32px;
+  height: 32px;
+  opacity: 1;
+}
+.welcome-screen.to-home .welcome-travel-word {
+  right: calc(100% - 119px);
+  top: 67px;
+  font-size: 24px;
+  line-height: 30px;
+  opacity: 1;
+  transform: translateX(50%);
+}
+.settings-profile-card {
+  min-height: 88px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: -6px 0 28px;
+  padding: 14px 18px;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--panel-color) 72%, transparent);
+}
+.settings-profile-card > img,
+.settings-profile-avatar {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 5px 16px #0003;
+}
+.settings-profile-avatar {
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(145deg, #fa2446, #9c1028);
+  font-size: 22px;
+  font-weight: 700;
+}
+.settings-profile-card > div { min-width: 0; flex: 1; }
+.settings-profile-card strong { display: block; font-size: 17px; }
+.settings-profile-card p { margin-top: 4px; color: var(--muted); font-size: 12px; }
+
+@media (max-width: 650px) {
+  .welcome-panel {
+    width: calc(100% - 32px);
+    padding: 28px 24px;
+    border-radius: 22px;
+  }
+  .settings-profile-card { align-items: flex-start; flex-wrap: wrap; }
+  .settings-profile-card .secondary-button { width: 100%; }
+}
+
+@media (max-width: 700px) {
+  .listen-together-panel { right: 10px; top: 70px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lyric-line {
+    filter: none !important;
+    transform: none !important;
+    translate: none !important;
+  }
+  .lyric-word {
+    transform: none !important;
+  }
+}
+
+/* Android iTune online radio, adapted to the Apple desktop surface. */
+.radio-heading {
+  display: flex;
