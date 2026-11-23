@@ -122,3 +122,34 @@ export function parseLyrics(source) {
   for (const text of source.split(/\r?\n/)) {
     const timestamps = [...text.matchAll(/\[(\d+:\d+(?:\.\d+)?)\]/g)];
     const content = text
+      .replace(/\[[^\]]*\]/g, "")
+      .replace(/<\d+:\d+(?:\.\d+)?>/g, "")
+      .trim();
+    if (!content) continue;
+    if (timestamps.length)
+      for (const timestamp of timestamps)
+        lines.push({
+          text: content,
+          start: parseTimestamp(timestamp[1]),
+          end: null,
+        });
+    else lines.push({ text: content, start: null, end: null });
+  }
+  return lines.sort((a, b) => (a.start ?? Infinity) - (b.start ?? Infinity));
+}
+
+export function activeLyricIndex(lines, currentTime, { holdPastEnd = false } = {}) {
+  let active = -1;
+  for (let index = 0; index < lines.length; index++) {
+    if (lines[index].start != null && lines[index].start <= currentTime)
+      active = index;
+  }
+  if (
+    !holdPastEnd &&
+    active >= 0 &&
+    lines[active].end != null &&
+    currentTime >= lines[active].end
+  )
+    return -1;
+  return active;
+}
