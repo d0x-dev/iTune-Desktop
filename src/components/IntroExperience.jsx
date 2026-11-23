@@ -190,3 +190,42 @@ export function WelcomeExperience({
   const [showLoader, setShowLoader] = useState(false);
   const [travel, setTravel] = useState("");
   const [revealing, setRevealing] = useState(false);
+  const finalName = useRef("");
+  const completeRef = useRef(onComplete);
+  completeRef.current = onComplete;
+  const reducedMotion = useReducedMotion();
+
+  const submitName = () => {
+    const cleaned = name.trim();
+    if (!cleaned) {
+      setNameError(true);
+      return;
+    }
+    setName(cleaned);
+    setStep("google");
+  };
+  const startOutro = (nextName) => {
+    finalName.current = String(nextName || name || "Listener").trim() || "Listener";
+    setStep("outro");
+  };
+  const continueWithGoogle = async () => {
+    if (loginBusy || authLoading) return;
+    if (userProfile?.isLoggedIn) {
+      startOutro(userProfile.name || name);
+      return;
+    }
+    setLoginBusy(true);
+    const profile = await onLogin();
+    setLoginBusy(false);
+    if (profile?.isLoggedIn) startOutro(profile.name || name);
+  };
+
+  useEffect(() => {
+    if (step !== "outro") return;
+    let active = true;
+    const type = async (value) => {
+      setOutroText("");
+      await wait(reducedMotion ? 20 : 360);
+      for (let index = 0; active && index < value.length; index += 1) {
+        await wait(reducedMotion ? 4 : 62 + ((index * 23) % 32));
+        if (active) setOutroText(value.slice(0, index + 1));
