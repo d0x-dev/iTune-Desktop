@@ -1358,3 +1358,68 @@ function registerIpcHandlers() {
       return { ok: true, session: await ishare.create(displayName, state) };
     } catch (error) {
       return { ok: false, error: error.message };
+    }
+  });
+  ipcMain.handle("ishare:join", async (_event, code, displayName) => {
+    try {
+      return { ok: true, session: await ishare.join(code, displayName) };
+    } catch (error) {
+      return { ok: false, error: error.message };
+    }
+  });
+  ipcMain.handle("ishare:get", async (_event, code) => {
+    try {
+      return { ok: true, session: await ishare.get(code) };
+    } catch (error) {
+      return { ok: false, error: error.message };
+    }
+  });
+  ipcMain.handle(
+    "ishare:update",
+    async (_event, code, participantId, state) => {
+      try {
+        return {
+          ok: true,
+          session: await ishare.update(code, participantId, state),
+        };
+      } catch (error) {
+        return { ok: false, error: error.message };
+      }
+    },
+  );
+  ipcMain.handle("ishare:leave", async (_event, code, participantId) => {
+    await ishare.leave(code, participantId);
+    return { ok: true };
+  });
+  ipcMain.handle("ishare:lanStart", async (_event, options) => {
+    try {
+      return { ok: true, session: await ishareLan.startHost(options) };
+    } catch (error) {
+      return { ok: false, error: error.message };
+    }
+  });
+  ipcMain.handle("ishare:lanStop", async () => {
+    ishareLan.stopHost();
+    return { ok: true };
+  });
+  ipcMain.handle("ishare:lanUpdate", async (_event, state, settings) => {
+    try {
+      return { ok: true, ...ishareLan.updateHost(state, settings) };
+    } catch (error) {
+      return { ok: false, error: error.message };
+    }
+  });
+  ipcMain.handle("ishare:lanScan", async () => {
+    try {
+      return { ok: true, ...(await ishareLan.scan()) };
+    } catch (error) {
+      return { ok: false, hosts: [], error: error.message };
+    }
+  });
+  ipcMain.handle("ishare:lanJoin", async (_event, address, displayName) => {
+    try {
+      return {
+        ok: true,
+        session: await ishareLan.join(address, displayName),
+        address: ishareLan.normalizeAddress(address),
+      };
