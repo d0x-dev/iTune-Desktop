@@ -1423,3 +1423,68 @@ function registerIpcHandlers() {
         session: await ishareLan.join(address, displayName),
         address: ishareLan.normalizeAddress(address),
       };
+    } catch (error) {
+      return { ok: false, error: error.message };
+    }
+  });
+  ipcMain.handle("ishare:lanGet", async (_event, address, participantId) => {
+    try {
+      return { ok: true, session: await ishareLan.get(address, participantId) };
+    } catch (error) {
+      return { ok: false, error: error.message };
+    }
+  });
+  ipcMain.handle(
+    "ishare:lanAction",
+    async (_event, address, participantId, action, payload) => {
+      try {
+        return {
+          ok: true,
+          session: await ishareLan.action(
+            address,
+            participantId,
+            action,
+            payload,
+          ),
+        };
+      } catch (error) {
+        return { ok: false, error: error.message };
+      }
+    },
+  );
+  ipcMain.handle("ishare:lanLeave", async (_event, address, participantId) => {
+    await ishareLan.leave(address, participantId);
+    return { ok: true };
+  });
+  ipcMain.handle("artwork:artist", async (_event, metadata) =>
+    appleArtwork.artistArtwork(metadata.name, metadata.titles),
+  );
+  ipcMain.handle("artwork:album", async (_event, metadata) =>
+    appleArtwork.albumArtwork(metadata.title, metadata.artist),
+  );
+  ipcMain.handle("artwork:canvas", async (_event, metadata) =>
+    appleArtwork.trackCanvas(metadata),
+  );
+  ipcMain.handle("artwork:signature", async (_event, metadata) =>
+    appleArtwork.signatureArtwork(metadata.name, metadata.baseUrl),
+  );
+  ipcMain.handle("auth:login", async () => {
+    const profile = await openGoogleLogin();
+    return { ok: true, userProfile: profile };
+  });
+
+  ipcMain.handle("auth:importCookie", async (_event, cookieStr) => {
+    if (!cookieStr || !cookieStr.trim())
+      return { ok: false, error: "Empty cookie string" };
+    saveCookie(cookieStr.trim());
+    const profile = await initYouTube(cookieStr.trim());
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("auth:changed", profile);
+    }
+    return { ok: true, userProfile: profile };
+  });
+
+  ipcMain.handle("auth:logout", async () => {
+    clearSavedCookie();
+    await session.fromPartition("persist:google_auth").clearStorageData();
+    const profile = await initYouTube("");
