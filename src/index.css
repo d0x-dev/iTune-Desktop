@@ -488,3 +488,85 @@ input[type="range"]:disabled {
   cursor: default;
 }
 .content-toolbar {
+  height: 43px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 0 26px;
+  border-bottom: 1px solid #ffffff04;
+}
+.content-toolbar > div {
+  display: flex;
+  gap: 2px;
+}
+.content-toolbar > span {
+  font-size: 11px;
+  color: #8f8f95;
+}
+.content-with-queue {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+.content-area {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  transform: translateZ(0);
+}
+.view-transition {
+  animation: view-in 220ms var(--ease-out) both;
+  will-change: opacity, transform;
+}
+.page {
+  padding: 29px 36px 60px;
+  max-width: 1680px;
+  margin: 0 auto;
+}
+.page-heading {
+  padding-bottom: 25px;
+  margin-bottom: 27px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.page-heading h1 {
+  font-size: 33px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -1px;
+}
+.page-heading p {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-top: 8px;
+}
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+.section-heading h2,
+.artist-about h2 {
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.45px;
+}
+.shelf-controls {
+  display: flex;
+  gap: 2px;
+}
+.shelf-controls .icon-button {
+  width: 24px;
+  height: 25px;
+}
+.media-section {
+  margin-bottom: 30px;
+}
+.media-shelf {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 64px) / 5);
