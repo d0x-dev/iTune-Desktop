@@ -66,3 +66,37 @@ export default function Sidebar({
       label: "",
       items: [
         { id: "home", label: "Home", icon: Home },
+        { id: "new", label: "New", icon: Home },
+        { id: "radio", label: "Radio", icon: Home },
+        { id: "news", label: "News from dev", icon: Newspaper },
+        { id: "search", label: "Search", icon: Search },
+      ],
+    },
+    {
+      label: "Library",
+      items: [
+        { id: "history", label: "Recently Played", icon: Clock3 },
+        { id: "artists", label: "Artists", icon: Users },
+        { id: "albums", label: "Albums", icon: Disc3 },
+        { id: "songs", label: "Songs", icon: Music2 },
+      ],
+    },
+    {
+      label: "Playlists",
+      items: [
+        { id: "playlists", label: "All Playlists", icon: Library },
+        { id: "favorites", label: "Favorite Songs", icon: Music2 },
+      ],
+    },
+  ];
+  const importSession = async (event) => {
+    event.preventDefault();
+    if (importing || !cookieInput.trim()) return;
+    setImporting(true);
+    setImportStatus("");
+    try {
+      const result = await window.api.auth.importCookie(cookieInput.trim());
+      if (!result?.ok)
+        throw new Error(result?.error || "Couldn’t connect this session.");
+      setShowCookieModal(false);
+      setCookieInput("");
