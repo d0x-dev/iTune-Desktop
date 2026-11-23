@@ -86,3 +86,25 @@ jobs:
           fi
           notes=$(cat <<'EOF'
           <img width="1672" height="941" alt="iTune Desktop screenshot" src="https://github.com/user-attachments/assets/faad570e-b0c8-4234-b106-049e9ab6a354" />
+
+          # iTune Desktop 1.0.0
+
+          The first cross-platform iTune Desktop release brings your YouTube Music library, playback, lyrics, playlists, radio, and desktop audio controls to Windows, macOS, and Linux.
+
+          ## What’s new
+
+          - Added an Android-style About panel with installed build details, GitHub release notes, update downloads, and every available platform package.
+          - Added automatic release checks and in-app downloads for Windows, macOS, and Linux.
+          - Added Windows setup and portable apps, macOS DMG and ZIP packages, and Linux AppImage and DEB packages.
+          - Improved playback when the app is minimized and brought the desktop Settings and About details in line with iTune for Android.
+
+          ## Downloads
+
+          Choose the package for your operating system. Windows offers an installer and a portable executable, macOS includes DMG and ZIP builds, and Linux includes AppImage and DEB builds.
+          EOF
+          )
+          gh release create "$GITHUB_REF_NAME" "${files[@]}" \
+            --title "iTune Desktop $GITHUB_REF_NAME" \
+            --notes "$notes"
+
+
