@@ -1137,3 +1137,63 @@ export default function App() {
     <div
       className={`app-container ${collectionAtmosphere ? "collection-atmosphere-active" : ""}`}
       onContextMenu={(event) => {
+        if (!event.defaultPrevented) openContextMenu(event);
+      }}
+    >
+      <ArtworkBackdrop
+        src={
+          collectionAtmosphere
+            ? sceneArtwork.heroUrl
+            : !preferences.desktopTransparency && preferences.backgroundArtwork
+              ? currentTrack?.thumbnail || homeArtwork
+              : null
+        }
+        canvas={
+          collectionAtmosphere
+            ? sceneArtwork?.videoUrl
+            : trackArtwork?.videoUrl
+        }
+        className={collectionAtmosphere ? "collection-atmosphere" : ""}
+      />
+      <div
+        className="desktop-titlebar"
+        onDoubleClick={() => window.api.window?.maximize?.()}
+      >
+        <div className="mac-window-controls" aria-label="Window controls">
+          <button
+            className="mac-window-button close"
+            aria-label="Close"
+            onClick={() => window.api.window?.close?.()}
+          />
+          <button
+            className="mac-window-button minimize"
+            aria-label="Minimize"
+            onClick={() => window.api.window?.minimize?.()}
+          />
+          <button
+            className="mac-window-button fullscreen"
+            aria-label="Enter or exit full screen"
+            onClick={() => window.api.window?.fullscreen?.()}
+          />
+        </div>
+        <span className="desktop-title">iTune</span>
+        <div className="titlebar-balance" aria-hidden="true" />
+      </div>
+      <div className="app-shell">
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={navigate}
+          userProfile={appUserProfile}
+          authLoading={authLoading}
+          onLogin={login}
+          onLogout={logout}
+        />
+        <div className="workspace">
+          <Player
+            ref={player}
+            currentTrack={currentTrack}
+            isPlaying={isPlaying}
+            setIsPlaying={setIsPlaying}
+            onNext={next}
+            onPrevious={previous}
+            onOpenLyrics={() => {
