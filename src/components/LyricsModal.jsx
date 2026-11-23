@@ -571,3 +571,47 @@ export default function LyricsModal({
                       value={searchArtist}
                       onChange={(event) => setSearchArtist(event.target.value)}
                     />
+                  </label>
+                  <button className="lyrics-primary-action" disabled={searching}>
+                    {searching ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+                    {searching ? "Searching all providers…" : "Search"}
+                  </button>
+                  <div className="lyrics-search-results no-scrollbar">
+                    {searchError && <p className="lyrics-tools-message">{searchError}</p>}
+                    {searchResults.map((item) => (
+                      <button
+                        type="button"
+                        className="lyrics-search-result"
+                        key={`${item.provider}-${item.source}`}
+                        onClick={async () => {
+                          try {
+                            await applyLyrics(item.lyrics, `${item.source} · Selected`);
+                          } catch (failure) {
+                            setSearchError(failure.message);
+                          }
+                        }}
+                      >
+                        <span>
+                          <strong>{item.trackName || track.title}</strong>
+                          <small>{item.artistName || getArtistName(track)} · {item.source}</small>
+                          {item.preview && <small>{item.preview}</small>}
+                        </span>
+                        <em className={item.synced ? "synced" : ""}>
+                          {item.synced ? "SYNCED" : "PLAIN"}
+                        </em>
+                      </button>
+                    ))}
+                  </div>
+                </form>
+              )}
+
+              {toolsPage === "edit" && (
+                <div className="lyrics-edit-tools">
+                  <textarea
+                    value={lyricsDraft}
+                    onChange={(event) => setLyricsDraft(event.target.value)}
+                    placeholder="Write or paste lyrics here. Supports plain text, [mm:ss.xx] LRC, and TTML."
+                    spellCheck="false"
+                  />
+                  <div>
+                    <button onClick={() => setLyricsDraft("")}>
