@@ -497,3 +497,87 @@ body {
   opacity: 0.72;
 }
 .app-container > .artwork-backdrop.collection-atmosphere .artwork img {
+  filter: blur(82px) saturate(1.9) contrast(1.05);
+  opacity: 1;
+}
+.app-container > .artwork-backdrop.collection-atmosphere .artwork-backdrop-shade {
+  background: linear-gradient(90deg, #1111199c 0%, #1111195d 42%, #11111982 100%);
+}
+.collection-atmosphere-active .sidebar,
+.collection-atmosphere-active .player-bar,
+.collection-atmosphere-active .content-toolbar {
+  background: #15141c8a;
+  backdrop-filter: blur(32px) saturate(1.45);
+}
+[data-collection-effects="true"] .collection-page > .artwork-backdrop,
+[data-collection-effects="true"] .artist-page > .artwork-backdrop {
+  display: none;
+}
+.icon-button {
+  color: var(--muted-strong);
+}
+.icon-button:hover:not(:disabled) {
+  color: var(--foreground);
+  background: var(--plate-hover);
+}
+.now-playing {
+  border-color: var(--border-subtle);
+  background: var(--plate);
+}
+.now-playing-title {
+  color: var(--foreground);
+  font-size: 12px;
+}
+.now-playing-details > p,
+.player-timeline {
+  color: var(--muted);
+}
+.content-toolbar {
+  border-color: var(--border-subtle);
+  background: #ffffff01;
+}
+.content-toolbar > span {
+  color: var(--muted);
+}
+.page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-color: var(--border-subtle);
+  padding-bottom: 22px;
+  margin-bottom: 26px;
+}
+.page-heading h1 {
+  color: var(--foreground);
+  font-size: 35px;
+  font-weight: 700;
+  letter-spacing: -0.8px;
+}
+.page-heading:has(> p) {
+  display: block;
+}
+.page-heading p {
+  color: var(--muted);
+}
+.page {
+  min-height: 100%;
+  position: relative;
+  isolation: isolate;
+}
+.media-section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 300px;
+  margin-bottom: 31px;
+}
+.section-heading h2 {
+  color: var(--foreground);
+  font-size: 22px;
+  letter-spacing: -0.35px;
+}
+.shelf-strapline {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.7px;
+  margin-bottom: 5px;
+}
