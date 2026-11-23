@@ -85,3 +85,46 @@ export default function SettingsView({
             {userProfile?.isLoggedIn
               ? "Google and YouTube Music connected"
               : "Your local iTune profile"}
+          </p>
+        </div>
+        <button
+          className="secondary-button"
+          onClick={userProfile?.isLoggedIn ? onLogout : onLogin}
+        >
+          {!userProfile?.isLoggedIn && (
+            <img className="inline-google-logo" src={GOOGLE_LOGO} alt="" />
+          )}
+          {userProfile?.isLoggedIn ? "Sign Out" : "Continue with Google"}
+        </button>
+      </section>
+      <section className="settings-section">
+        <h2>Updates</h2>
+        <Setting title="News from dev" description="Announcements, releases and changelog.">
+          <button className="secondary-button" onClick={onOpenNews}>Open News</button>
+        </Setting>
+      </section>
+      <section className="settings-section">
+        <h2>Appearance</h2>
+        <Setting title="Appearance" description="Choose how iTune looks.">
+          <GlassSelect
+            label="Appearance"
+            value={preferences.theme}
+            onChange={(value) => updatePreference("theme", value)}
+            options={[
+              { value: "system", label: "System" },
+              { value: "light", label: "Light" },
+              { value: "dark", label: "Dark" },
+            ]}
+          />
+        </Setting>
+        <Setting
+          title="Desktop Transparency"
+          description="Use translucent app panels where your desktop compositor supports transparency."
+        >
+          <Toggle
+            label="Desktop Transparency"
+            value={preferences.desktopTransparency}
+            onChange={setDesktopTransparency}
+          />
+        </Setting>
+        <Setting
