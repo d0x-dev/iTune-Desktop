@@ -74,3 +74,42 @@ function NewsMarkdown({ message, onLinkError }) {
   );
 }
 
+function NewsMetadata({ item, fallbackTag = "" }) {
+  const date = newsDate(item.timestamp);
+  return (
+    <div className="news-metadata">
+      {(item.tag || fallbackTag) && <span className="news-tag">{item.tag || fallbackTag}</span>}
+      {item.author && <span>{item.author}</span>}
+      {date && <span>{date}</span>}
+    </div>
+  );
+}
+
+function NewsArticle({ item }) {
+  const [linkError, setLinkError] = useState(false);
+  const onLinkError = () => setLinkError(true);
+  return (
+    <article className="news-article">
+      <header className="news-article-heading">
+        <NewsMetadata item={item} />
+        <h2>{item.title || "iTune News"}</h2>
+      </header>
+      <NewsImage key={item.imageUrl} src={item.imageUrl} className="news-banner" />
+      <NewsMarkdown message={item.message} onLinkError={onLinkError} />
+      {item.actionUrl && (
+        <NewsLink href={item.actionUrl} className="news-article-action" onError={onLinkError}>
+          {item.actionText || "Learn More"} <ArrowUpRight size={16} aria-hidden="true" />
+        </NewsLink>
+      )}
+      {linkError && <p className="error-text" role="status">Couldn’t open the link.</p>}
+    </article>
+  );
+}
+
+export function DeveloperNewsView({ feed, initialItemKey }) {
+  const [selectedKey, setSelectedKey] = useState(initialItemKey);
+  const selected = feed.items.find((item) => newsInstanceKey(item) === selectedKey) ?? feed.items[0];
+  return (
+    <div className="page news-page" aria-busy={feed.loading}>
+      <header className="page-heading">
+        <h1>News from dev</h1>
