@@ -184,3 +184,41 @@ async function artistArtwork(name, titles = []) {
           `https://music.apple.com/us/artist/${artist.artistId}`
         )
           .split("?")[0]
+          .replace("itunes.apple.com", "music.apple.com"),
+      );
+      const artwork = parseArtistArtwork(html);
+      if (artwork?.heroUrl) {
+        if (!artwork.videoUrl)
+          artwork.videoUrl = await catalogMotion("artists", artist.artistId);
+        return artwork;
+      }
+    }
+    return null;
+  });
+}
+async function albumArtwork(title, artist) {
+  return cached(`album:${titleKey(title)}:${matchKey(artist)}`, async () => {
+    const data = await get(
+      `https://itunes.apple.com/search?${new URLSearchParams({ term: `${artist} ${title}`, entity: "album", limit: "10" })}`,
+      true,
+    );
+    const album = (data?.results || []).find(
+      (item) =>
+        titleKey(item.collectionName) === titleKey(title) &&
+        (matchKey(item.artistName) === matchKey(artist) ||
+          matchKey(artist).includes(matchKey(item.artistName))),
+    );
+    if (!album) return null;
+    const html = await get(
+      album.collectionViewUrl
+        .split("?")[0]
+        .replace("itunes.apple.com", "music.apple.com"),
+    );
+    const root = serverData(html);
+    const item = find(
+      root,
+      (item) =>
+        String(item.id || item.resourceId || "") ===
+          String(album.collectionId) &&
+        (item.attributes || item.editorialVideo || item.videoArtwork),
+    );
