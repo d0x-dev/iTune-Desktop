@@ -835,3 +835,48 @@ export default function LyricsModal({
               ) : (
                 <div className="empty-state">
                   <Music2 />
+                  <h2>Lyrics unavailable</h2>
+                  <p>{error || "Add a lyrics file for this song."}</p>
+                  <button
+                    className="secondary-button"
+                    onClick={() => fileInput.current?.click()}
+                  >
+                    <Upload size={16} />
+                    Import lyrics
+                  </button>
+                </div>
+              )}
+            </div>
+            {error && lines.length > 0 && (
+              <p className="lyrics-error" role="alert">
+                {error}
+              </p>
+            )}
+            {translationError && (
+              <p className="lyrics-error" role="alert">
+                {translationError}
+              </p>
+            )}
+            {timed && !following && (
+              <button
+                className="follow-lyrics"
+                onClick={resumeFollowing}
+              >
+                <LocateFixed size={16} />
+                Follow along
+              </button>
+            )}
+            {!loading && !lines.length && error && (
+              <button
+                className="text-button retry-lyrics"
+                onClick={() => setReload(reload + 1)}
+              >
+                Try again
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
