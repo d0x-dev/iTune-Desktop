@@ -157,3 +157,43 @@ async function lrcLib(metadata) {
 async function kuGou(metadata) {
   const keyword = [metadata.title, metadata.artist].filter(Boolean).join(" - ");
   if (!keyword) return null;
+  const search = await request(
+    `https://mobileservice.kugou.com/api/v3/search/song?version=9108&plat=0&pagesize=5&showtype=0&keyword=${encodeURIComponent(keyword)}`,
+    { json: true },
+  );
+  for (const song of search?.data?.info || []) {
+    if (!song.hash) continue;
+    const lyricsSearch = await request(
+      `https://lyrics.kugou.com/search?ver=1&man=yes&client=pc&hash=${encodeURIComponent(song.hash)}`,
+      { json: true },
+    ).catch(() => null);
+    for (const candidate of lyricsSearch?.candidates || []) {
+      const downloaded = await request(
+        `https://lyrics.kugou.com/download?ver=1&client=pc&fmt=lrc&id=${encodeURIComponent(candidate.id)}&accesskey=${encodeURIComponent(candidate.accesskey)}`,
+        { json: true },
+      ).catch(() => null);
+      if (!downloaded?.content) continue;
+      const lyrics = Buffer.from(downloaded.content, "base64").toString("utf8");
+      if (!lyrics.startsWith("krc1")) return result(lyrics, "KuGou", true);
+    }
+  }
+  return null;
+}
+
+async function simpMusic(metadata) {
+  if (!metadata.videoId) return null;
+  const response = await request(
+    `https://api-lyrics.simpmusic.org/v1/${encodeURIComponent(metadata.videoId)}`,
+    { json: true },
+  );
+  if (!response?.success) return null;
+  const rows = response.data || [];
+  const target = Number(metadata.duration) || 0;
+  rows.sort(
+    (a, b) =>
+      Math.abs((a.duration || target) - target) -
+      Math.abs((b.duration || target) - target),
+  );
+  const best = rows.find(
+    (row) =>
+      (row.syncedLyrics || row.plainLyrics) &&
