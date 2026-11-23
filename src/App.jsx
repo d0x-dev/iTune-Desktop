@@ -1017,3 +1017,63 @@ export default function App() {
   useEffect(() => {
     const active = listenTogether;
     if (!active?.session?.code) return;
+    let mounted = true;
+    let timer;
+    const sync = async () => {
+      try {
+        let result;
+        if (active.mode === "lan") {
+          result =
+            active.role === "host"
+              ? await window.api.ishare.lanUpdate(
+                  buildSharedState(),
+                  ishareSettings,
+                )
+              : await window.api.ishare.lanGet(
+                  active.hostAddress,
+                  active.session.participantId,
+                );
+        } else {
+          result =
+            active.role === "host"
+              ? await window.api.ishare.update(
+                  active.session.code,
+                  active.session.participantId,
+                  buildSharedState(),
+                )
+              : await window.api.ishare.get(active.session.code);
+        }
+        if (!mounted) return;
+        if (!result?.ok || !result.session)
+          throw new Error(result?.error || "Session update failed.");
+        setListenError("");
+        setListenTogether((previous) =>
+          previous ? { ...previous, session: result.session } : previous,
+        );
+        if (active.mode === "lan" && active.role === "host")
+          applyLanHostActions(result.actions || []);
+        if (active.role === "guest") {
+          const nextSettings =
+            result.session.state?.settings || result.session.settings;
+          if (nextSettings)
+            setIshareSettings((previous) =>
+              previous.allowGuestsToControlPlayback ===
+                  nextSettings.allowGuestsToControlPlayback &&
+                previous.allowGuestsToAddTracks ===
+                  nextSettings.allowGuestsToAddTracks
+                ? previous
+                : nextSettings,
+            );
+          applySharedSession(result.session);
+        }
+      } catch (failure) {
+        if (mounted)
+          setListenError(
+            failure.message || "Listen Together is reconnecting…",
+          );
+      } finally {
+        if (mounted)
+          timer = setTimeout(sync, active.role === "host" ? 1400 : 1100);
+      }
+    };
+    timer = setTimeout(sync, 350);
