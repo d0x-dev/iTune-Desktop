@@ -2579,3 +2579,87 @@ button:not(:disabled):active {
   height: .78em;
   margin-left: 4px;
   border-radius: 99px;
+  vertical-align: -.02em;
+  background: currentColor;
+  animation: welcome-caret-blink 880ms var(--ease-out) infinite alternate;
+  transition: opacity 220ms ease;
+}
+.typing-caret.hidden { opacity: 0; }
+.typing-caret.active { animation: none; opacity: 1; }
+@keyframes welcome-caret-blink { from { opacity: 1; } to { opacity: .08; } }
+.splash-screen.to-welcome .splash-wave {
+  transform: translate(calc(-50% - 50vw + 41px), calc(-50% - 50vh + 51px)) scale(.369565);
+}
+.splash-screen.to-welcome .splash-word {
+  transform: translate(calc(-50% + 50vw - 47px), calc(-50% - 50vh + 51px)) scale(.47619);
+}
+.splash-screen.to-home .splash-wave {
+  left: 26px;
+  top: 65px;
+  width: 35px;
+  height: 31px;
+  transform: none;
+}
+.splash-screen.to-home .splash-word {
+  left: 69px;
+  top: 65px;
+  min-height: 31px;
+  font-size: 26px;
+  line-height: 31px;
+  letter-spacing: -1px;
+  transform: none;
+}
+.welcome-corner-brand {
+  top: 34px;
+  left: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation:
+    welcome-adaptive-ink 35s linear infinite,
+    welcome-header-in 650ms var(--ease-out) both;
+}
+.welcome-screen.from-splash .welcome-corner-brand {
+  animation: none;
+}
+.welcome-corner-brand svg { width: 34px; height: 34px; }
+.welcome-corner-brand strong {
+  color: #f21e3e;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -.4px;
+}
+@keyframes welcome-header-in {
+  from { opacity: 0; transform: translateY(-18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.welcome-panel {
+  width: min(620px, calc(100% - 80px));
+  left: 50%;
+  top: 50%;
+  padding: clamp(32px, 4vw, 52px);
+  color: #fff;
+  border: 1px solid #ffffff20;
+  border-radius: 28px;
+  background: linear-gradient(145deg, #120c1bd9, #1c101bc7);
+  box-shadow: 0 32px 100px #0008, inset 0 1px #ffffff16;
+  backdrop-filter: blur(32px) saturate(1.25);
+  animation: welcome-panel-in 650ms var(--ease-out) both;
+}
+@keyframes welcome-panel-in {
+  from { opacity: 0; transform: translate(-50%, -44%) scale(.96); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.welcome-panel.name-step { bottom: auto; }
+.welcome-typing {
+  min-height: 46px;
+  margin: 0 0 26px;
+  color: inherit;
+  font-size: 31px;
+  line-height: 38px;
+  font-weight: 800;
+  letter-spacing: -.6px;
+}
+.welcome-typing.multiline {
+  min-height: 148px;
