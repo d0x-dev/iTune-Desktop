@@ -1317,3 +1317,63 @@ export default function App() {
                 )}
                 {activeTab === "settings" && (
                   <SettingsView
+                    {...accountProps}
+                    onLogout={logout}
+                    onOpenNews={() => navigate("news")}
+                    onShowAbout={() => setShowAbout(true)}
+                  />
+                )}
+              </div>
+            </main>
+            <AnimatedPresence show={showQueue} className="presence-queue">
+              <QueuePanel
+                queue={queue}
+                currentIndex={currentIndex}
+                onSelect={selectTrack}
+                onClose={() => setShowQueue(false)}
+                isShuffle={isShuffle}
+                onToggleShuffle={toggleShuffle}
+                endlessQueueEnabled={endlessQueueEnabled}
+                onToggleEndlessQueue={toggleEndlessQueue}
+                repeatMode={repeatMode}
+                onToggleRepeat={() =>
+                  setRepeatMode((value) =>
+                    value === "off"
+                      ? "all"
+                      : value === "all"
+                        ? "one"
+                        : "off",
+                  )
+                }
+              />
+            </AnimatedPresence>
+          </div>
+        </div>
+      </div>
+      <AnimatedPresence
+        show={Boolean(showLyrics && currentTrack)}
+        duration={320}
+        className="presence-lyrics"
+      >
+        <LyricsModal
+          track={currentTrack}
+          onClose={() => setShowLyrics(false)}
+          playback={playback}
+          isPlaying={isPlaying}
+          onTogglePlay={() => player.current?.togglePlay()}
+          onNext={next}
+          onPrevious={previous}
+          onSeek={(time) => player.current?.seek(time)}
+          compact={lyricsCompact}
+          onToggleCompact={() => setLyricsCompact((value) => !value)}
+          canvasUrl={trackArtwork?.videoUrl}
+          isShuffle={isShuffle}
+          onToggleShuffle={toggleShuffle}
+          repeatMode={repeatMode}
+          onToggleRepeat={() =>
+            setRepeatMode((value) =>
+              value === "off" ? "all" : value === "all" ? "one" : "off",
+            )
+          }
+          onVolumeChange={(value) => player.current?.setVolume(value)}
+        />
