@@ -113,3 +113,41 @@ export function DeveloperNewsView({ feed, initialItemKey }) {
     <div className="page news-page" aria-busy={feed.loading}>
       <header className="page-heading">
         <h1>News from dev</h1>
+        <button className="icon-button" aria-label="Refresh news" title="Refresh news" onClick={feed.refresh} disabled={feed.loading}>
+          <RefreshCw size={17} className={feed.loading ? "news-refreshing" : undefined} />
+        </button>
+      </header>
+      {feed.error && selected && <p className="news-feed-status" role="status">Couldn’t refresh news. Showing saved posts.</p>}
+      {selected ? (
+        <div className="news-layout">
+          <nav className="news-posts" aria-label="News posts">
+            {feed.items.map((item) => (
+              <button
+                key={newsInstanceKey(item)}
+                type="button"
+                className="news-post"
+                aria-current={selected === item ? "true" : undefined}
+                onClick={() => setSelectedKey(newsInstanceKey(item))}
+              >
+                <NewsMetadata item={item} />
+                <span className="news-post-title">{item.title || "iTune News"}</span>
+              </button>
+            ))}
+          </nav>
+          <NewsArticle key={newsInstanceKey(selected)} item={selected} />
+        </div>
+      ) : (
+        <div className="empty-state" role="status">
+          <Newspaper aria-hidden="true" />
+          <h2>{feed.loading ? "Checking for news…" : feed.error ? "News couldn’t load" : "No news yet"}</h2>
+          {feed.error && <button className="primary-button" onClick={feed.refresh}>Try again</button>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function DeveloperNewsPopup({ item, onDismiss, onOpenNews }) {
+  const dialog = useRef(null);
+  const [linkError, setLinkError] = useState(false);
+  const onLinkError = () => setLinkError(true);
