@@ -54,3 +54,31 @@ export function useDeveloperNews() {
       .catch(() => {
         setError(true);
         return null;
+      })
+      .finally(() => {
+        pending.current = null;
+        setLoading(false);
+      });
+    return pending.current;
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    refresh().then((freshItems) => {
+      if (active) setPopup(findNewsPopup(freshItems ?? initialItems, readDismissals()));
+    });
+    return () => { active = false; };
+  }, [refresh, initialItems]);
+
+  function dismissPopup() {
+    if (!popup) return;
+    const { lastTimestamp, keys } = readDismissals();
+    write(dismissalKey, {
+      lastTimestamp: Math.max(lastTimestamp, popup.timestamp),
+      keys: [...new Set([...keys, newsInstanceKey(popup)])],
+    });
+    setPopup(null);
+  }
+
+  return { items, loading, error, popup, refresh, dismissPopup };
+}
