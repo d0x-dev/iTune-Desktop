@@ -259,3 +259,41 @@ async function trackCanvas(track) {
         ? { videoUrl: match.url, title: match.song, artist: match.artist }
         : null;
     },
+  );
+}
+async function signatureArtwork(name, baseUrl) {
+  if (!/^https?:\/\//.test(baseUrl || "")) return null;
+  return cached(`signature:${baseUrl}:${matchKey(name)}`, async () => {
+    const data = await get(
+      `${baseUrl.replace(/\/$/, "")}/v1/signatures?${new URLSearchParams({ artist: name })}`,
+      true,
+    );
+    const signatures = (data?.signatures || [])
+      .map((item) => ({
+        url:
+          item.asset?.url ||
+          (typeof item.asset === "string" ? item.asset : null) ||
+          item.url ||
+          item.original_url,
+        width: item.width || item.asset?.width || 0,
+        height: item.height || item.asset?.height || 0,
+      }))
+      .filter((item) => item.url?.startsWith("http"));
+    signatures.sort((a, b) => b.width * b.height - a.width * a.height);
+    return signatures[0]
+      ? {
+          logoUrl: signatures[0].url,
+          logoAspect: signatures[0].height
+            ? signatures[0].width / signatures[0].height
+            : 2.5,
+        }
+      : null;
+  });
+}
+module.exports = {
+  artistArtwork,
+  albumArtwork,
+  trackCanvas,
+  signatureArtwork,
+  parseArtistArtwork,
+};
