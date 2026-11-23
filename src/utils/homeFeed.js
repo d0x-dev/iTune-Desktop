@@ -99,3 +99,37 @@ export function useHomeFeed(kind, userProfile) {
         if (active) setError("Some music couldn’t load. Try refreshing.");
       } finally {
         if (active) {
+          loadingNext.current = false;
+          setLoading(false);
+          setLoadingMore(false);
+        }
+      }
+    };
+    initial();
+    if (kind === "home") {
+      const feeds = ["FEmusic_explore", "FEmusic_non_music_audio"];
+      if (!userProfile?.isLoggedIn) feeds.push("FEmusic_charts");
+      for (const feed of feeds)
+        window.api.yt
+          .getHome({ browseId: feed, page: "initial" })
+          .then((data) => {
+            if (active) append(data);
+          })
+          .catch(() => {});
+      if (userProfile?.isLoggedIn) {
+        window.api.yt
+          .getHistory()
+          .then((data) => {
+            if (!active) return;
+            const seen = new Set();
+            const recent = (data?.sections || [])
+              .flatMap((section) => section.contents || [])
+              .filter((item) => {
+                if (seen.has(item.id)) return false;
+                seen.add(item.id);
+                return true;
+              })
+              .slice(0, 20);
+            append({
+              sections: [
+                {
