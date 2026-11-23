@@ -262,3 +262,47 @@ export default function LyricsModal({
   }, [compact]);
   useLayoutEffect(() => {
     if (!following || loading || focusIndex < 0) return;
+    const element = scroll.current;
+    const line = element?.querySelector(`[data-line="${focusIndex}"]`);
+    if (!line) return;
+    const previous = placedLyrics.current;
+    const initial = previous?.lines !== lines || previous?.trackId !== track.id;
+    const modeChanged = previous?.compact !== compact;
+    const layoutChanged = modeChanged ||
+      (compact && previous?.controlsVisible !== controlsVisible);
+    placedLyrics.current = { lines, trackId: track.id, compact, controlsVisible };
+    const cancel = animateLyricScroll(element, line, {
+      duration: layoutChanged ? 560 : scrollLead.current,
+      immediate: initial || modeChanged,
+      stagger: !layoutChanged,
+    });
+    scrollMotion.current = cancel;
+    return () => {
+      cancel();
+      if (scrollMotion.current === cancel) scrollMotion.current = null;
+    };
+  }, [focusIndex, following, loading, lines, track.id, compact, controlsVisible, translations]);
+
+  useEffect(() => () => clearTimeout(manualScrollTimer.current), [lines, track.id]);
+
+  const resumeFollowing = () => {
+    clearTimeout(manualScrollTimer.current);
+    setFollowing(true);
+  };
+
+  const browseLyrics = () => {
+    if (!timed) return;
+    scrollMotion.current?.();
+    setFollowing(false);
+    clearTimeout(manualScrollTimer.current);
+    manualScrollTimer.current = setTimeout(resumeFollowing, MANUAL_SCROLL_TIMEOUT_MS);
+  };
+
+  const importLyrics = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    const requestRevision = ++revision.current;
+    const id = track.id;
+    try {
+      const text = await file.text();
