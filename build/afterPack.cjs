@@ -7,3 +7,13 @@ module.exports = async (context) => {
   const executable = path.join(context.appOutDir, "iTune Desktop.exe");
   await rcedit(executable, {
     "version-string": {
+      FileDescription: "iTune Desktop",
+      ProductName: "iTune Desktop",
+      InternalName: "iTune Desktop",
+      CompanyName: "iTune",
+    },
+    "file-version": context.packager.appInfo.version,
+    "product-version": context.packager.appInfo.version,
+    icon: path.join(context.packager.projectDir, "build", "icon.ico"),
+  });
+};
