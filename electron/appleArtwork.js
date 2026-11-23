@@ -110,3 +110,40 @@ function motionUrl(node) {
   for (const key of [
     "motionArtistSquare1x1",
     "motionDetailSquare",
+    "motionSquareVideo1x1",
+    "motionDetailTall",
+    "motionTallVideo3x4",
+    "motionDetailRaw",
+  ]) {
+    const clip = find(node, (item) => !!item[key])?.[key];
+    const url = clip?.video || clip?.videoUrl || clip?.hlsUrl || clip?.url;
+    if (url?.startsWith("http")) return url;
+  }
+  return null;
+}
+function serverData(html) {
+  const serialized = html?.match(
+    /<script[^>]*id=["']serialized-server-data["'][^>]*>([\s\S]*?)<\/script>/,
+  )?.[1];
+  if (!serialized) return null;
+  try {
+    return JSON.parse(serialized);
+  } catch {
+    return null;
+  }
+}
+function parseArtistArtwork(html) {
+  const header = find(serverData(html), (node) =>
+    Object.prototype.hasOwnProperty.call(node, "artistLogo"),
+  );
+  if (!header) return null;
+  const hero = (
+    header.wideArtwork ||
+    header.artwork ||
+    header.colorBackdropArtwork
+  )?.dictionary;
+  const logo = header.artistLogo?.dictionary;
+  const clip = header.videoArtwork?.dictionary;
+  return {
+    heroUrl: fillArtwork(hero, 1440),
+    logoUrl: fillArtwork(logo, 1000, "png"),
