@@ -57,3 +57,33 @@ export default function Canvas({ src, className = "", paused = false }) {
   }, [src, preferences.motion]);
   useEffect(() => {
     const media = video.current;
+    if (!media) return;
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => {
+      if (paused || !preferences.motion || motion.matches || document.hidden)
+        media.pause();
+      else media.play().catch(() => {});
+    };
+    update();
+    motion.addEventListener("change", update);
+    document.addEventListener("visibilitychange", update);
+    return () => {
+      media.pause();
+      motion.removeEventListener("change", update);
+      document.removeEventListener("visibilitychange", update);
+    };
+  }, [src, paused, preferences.motion]);
+  if (!src || failedSrc === src || !preferences.motion) return null;
+  return (
+    <video
+      ref={video}
+      className={`canvas-video ${className}`}
+      loop
+      muted
+      playsInline
+      preload="metadata"
+      aria-hidden="true"
+      onError={() => setFailedSrc(src)}
+    />
+  );
+}
