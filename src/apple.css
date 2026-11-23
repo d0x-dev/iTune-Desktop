@@ -3329,3 +3329,86 @@ button:not(:disabled):active {
   background: color-mix(in srgb, var(--panel-color) 77%, transparent);
   box-shadow: inset 0 1px rgba(255,255,255,.13), 0 22px 60px #0008;
   backdrop-filter: blur(32px) saturate(185%);
+  -webkit-backdrop-filter: blur(32px) saturate(185%);
+  animation: context-menu-in 140ms ease-out both;
+}
+.glass-select-menu button {
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 9px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--foreground);
+  font-size: 12px;
+  text-align: left;
+  border-radius: 8px;
+}
+.glass-select-menu button:hover,
+.glass-select-menu button.selected {
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent-color), #e61f4a);
+}
+.ai-settings-grid .glass-select { width: 100%; }
+
+@media (max-width: 1050px) {
+  [data-player-placement="floating"] .player-bar {
+    left: 2%; right: 2%;
+    grid-template-columns: minmax(180px,.75fr) minmax(290px,1.3fr) minmax(190px,.75fr);
+    gap: 10px;
+    padding: 0 14px;
+  }
+  [data-player-placement="floating"] .volume-control input { width: 48px; }
+}
+@media (max-width: 760px) {
+  .glass-select { width: min(220px, 44vw); }
+  [data-player-placement="floating"] .player-bar {
+    grid-template-columns: auto minmax(0,1fr) auto;
+  }
+  [data-player-placement="floating"] .transport-controls > :first-child,
+  [data-player-placement="floating"] .transport-controls > :last-child,
+  [data-player-placement="floating"] .volume-control { display: none; }
+}
+
+/* Compact lyrics must not paint a square overlay behind its rounded glass card. */
+.lyrics-overlay.compact-lyrics {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.compact-lyrics .lyrics-dialog {
+  overflow: hidden;
+  border-radius: 14px;
+  background-clip: padding-box;
+}
+
+/* The Android iTune wave follows the foreground color in light mode. */
+[data-theme="light"] .brand-app-icon,
+[data-theme="light"] .settings-app-mark {
+  color: #111114;
+}
+[data-theme="light"] .brand-app-icon svg,
+[data-theme="light"] .settings-app-mark svg {
+  color: #111114;
+  fill: currentColor;
+}
+
+/* Keep search suggestions readable above categories and match both filter rows. */
+.search-form {
+  position: relative;
+  z-index: 30;
+}
+
+.search-suggestions {
+  z-index: 80;
+  max-height: min(380px, 52vh);
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-radius: 14px !important;
+  background: rgba(38, 30, 34, 0.98) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.1),
+    0 22px 58px rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(40px) saturate(135%) !important;
