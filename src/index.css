@@ -1877,3 +1877,85 @@ input[type="range"]:disabled {
   .transport-controls {
     gap: 0;
   }
+  .transport-controls > button:first-child,
+  .transport-controls > button:last-child,
+  .player-tools > button:last-child,
+  .favorite-button {
+    display: none;
+  }
+  .player-art {
+    width: 39px;
+    height: 54px;
+  }
+  .now-playing-title {
+    font-size: 9px;
+  }
+  .now-playing-details {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+  .player-timeline > span {
+    display: none;
+  }
+  .now-playing-details > p {
+    font-size: 8px;
+  }
+  .page {
+    padding: 22px 19px 40px;
+  }
+  .page-heading h1 {
+    font-size: 29px;
+  }
+  .content-toolbar {
+    padding: 0 15px;
+  }
+  .media-shelf {
+    grid-auto-columns: calc((100% - 16px) / 2);
+  }
+  .editorial-section .media-shelf {
+    grid-auto-columns: 84%;
+  }
+  .section-heading h2 {
+    font-size: 18px;
+  }
+  .home-discovery {
+    align-items: flex-start;
+  }
+  .home-discovery h3 {
+    font-size: 13px;
+  }
+  .home-discovery > div > svg {
+    display: none;
+  }
+  .home-discovery > button {
+    max-width: 95px;
+    text-align: right;
+  }
+  .album-grid,
+  .artist-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .collection-header {
+    gap: 17px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .collection-header > .artwork {
+    width: 155px;
+    height: 155px;
+  }
+  .artist-hero {
+    height: 315px;
+  }
+  .artist-hero-content {
+    left: 20px;
+    bottom: 24px;
+  }
+  .artist-hero h1 {
+    letter-spacing: -1px;
+  }
+  .artist-customize {
+    right: 13px;
+    bottom: 24px;
+  }
+  .asset-actions,
