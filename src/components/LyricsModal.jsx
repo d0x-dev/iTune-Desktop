@@ -439,3 +439,47 @@ export default function LyricsModal({
               <MoreHorizontal size={19} />
             </button>
             <button
+              className={`icon-button ${preferences.lyricsTranslation ? "selected" : ""}`}
+              aria-label="Translate lyrics"
+              title="Translate every lyric line"
+              onClick={() =>
+                updatePreference(
+                  "lyricsTranslation",
+                  !preferences.lyricsTranslation,
+                )
+              }
+            >
+              {translating ? (
+                <Loader2 size={17} className="animate-spin" />
+              ) : (
+                <Languages size={18} />
+              )}
+            </button>
+            <button
+              className="icon-button"
+              aria-label={compact ? "Expand lyrics" : "Compact lyrics popup"}
+              onClick={onToggleCompact}
+            >
+              {compact ? <Maximize2 size={18} /> : <Minimize2 size={18} />}
+            </button>
+            <button
+              className="icon-button"
+              aria-label="Close lyrics"
+              onClick={onClose}
+            >
+              <X size={21} />
+            </button>
+          </div>
+        </div>
+        <input
+          type="file"
+          ref={fileInput}
+          hidden
+          accept=".ttml,.xml,.lrc,.txt"
+          onChange={importLyrics}
+        />
+        <AnimatedPresence
+          show={Boolean(toolsPage)}
+          duration={220}
+          className="presence-lyrics-tools"
+        >
