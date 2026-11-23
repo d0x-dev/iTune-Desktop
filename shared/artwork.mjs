@@ -13,3 +13,19 @@ export function artworkCandidates(source, size = 1440) {
     const candidate = (pixels) => {
       const resized = new URL(url);
       resized.pathname = `${base}=w${pixels}-h${pixels}-l90-rj`;
+      return resized.href;
+    };
+    return [...new Set([candidate(size), candidate(768), source])];
+  }
+  if (/(^|\.)ytimg\.com$/.test(host) && /\/vi(?:_webp)?\//.test(url.pathname)) {
+    const base = url.pathname.replace(/\/[^/]+\.(jpg|webp)$/, "");
+    return [
+      ...new Set(
+        ["maxresdefault", "sddefault", "hqdefault"]
+          .map((quality) => `${url.origin}${base}/${quality}.jpg`)
+          .concat(source),
+      ),
+    ];
+  }
+  if (host.endsWith(".mzstatic.com")) {
+    const resized = source
