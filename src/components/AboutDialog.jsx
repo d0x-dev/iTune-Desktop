@@ -109,3 +109,40 @@ export default function AboutDialog({
               <AboutInfoLine
                 label="Last update"
                 value={latest?.publishedAt ? new Date(latest.publishedAt).toLocaleDateString() : "—"}
+              />
+              <AboutInfoLine
+                label="Status"
+                value={updateResult?.updateAvailable ? "Update available" : checking ? "Checking" : latest ? "Up to date" : "Release unavailable"}
+              />
+            </div>
+          </header>
+
+          <div className="about-update-area">
+            {latest && updateResult?.updateAvailable ? (
+              <section className="about-update-card">
+                <div className="about-update-title">
+                  <span>What’s New</span>
+                  <strong>{latest.name}</strong>
+                </div>
+                <ReleaseNotes notes={latest.notes} />
+                {downloadProgress ? (
+                  <div className="about-download-progress" role="status">
+                    <span>Downloading {downloadProgress.assetName}</span>
+                    {downloadPercent == null ? (
+                      <LoaderCircle className="about-spin" size={17} />
+                    ) : <span>{downloadPercent}%</span>}
+                    <progress max={downloadProgress.totalBytes || undefined} value={downloadProgress.totalBytes ? downloadProgress.downloadedBytes : undefined} />
+                  </div>
+                ) : updateResult.downloadedAsset ? (
+                  <button className="about-primary-action" type="button" onClick={() => openDownloaded({ name: updateResult.downloadedAsset })}>
+                    Install iTune {latest.tag}
+                  </button>
+                ) : updateResult.downloadUnavailable || updateResult.downloadError ? (
+                  <button className="about-primary-action" type="button" onClick={() => window.api.updates.openReleases()}>
+                    View iTune {latest.tag} Release <ArrowUpRight size={15} />
+                  </button>
+                ) : (
+                  <div className="about-download-progress" role="status">
+                    <span>Preparing update download…</span>
+                    <LoaderCircle className="about-spin" size={17} />
+                  </div>
