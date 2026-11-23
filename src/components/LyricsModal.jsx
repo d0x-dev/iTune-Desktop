@@ -174,3 +174,47 @@ export default function LyricsModal({
         if (!active || revision.current !== requestRevision) return;
         setRawLyrics(result?.lyrics || "");
         setLines(parseLyrics(result?.lyrics));
+        setSource(result?.source || "");
+      } catch {
+        if (active && revision.current === requestRevision)
+          setError("Lyrics couldn’t load. You can import a lyrics file.");
+      } finally {
+        if (active && revision.current === requestRevision) setLoading(false);
+      }
+    }
+    load();
+    return () => {
+      active = false;
+    };
+  }, [track.id, reload, preferences.lyricsProvider, lyricsDuration]);
+
+  useEffect(() => {
+    let active = true;
+    setTranslations([]);
+    setTranslationError("");
+    if (!preferences.lyricsTranslation || !lines.length) return;
+    setTranslating(true);
+    window.api.yt
+      .translateLyrics(
+        lines.map((line) => line.text || ""),
+        preferences.translationLanguage,
+        preferences.translationMode,
+      )
+      .then((result) => {
+        if (!active) return;
+        if (!result?.ok) throw new Error(result?.error);
+        setTranslations(result.translations || []);
+      })
+      .catch(() => {
+        if (active) setTranslationError("Lyrics translation is unavailable.");
+      })
+      .finally(() => {
+        if (active) setTranslating(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [
+    lines,
+    preferences.lyricsTranslation,
+    preferences.translationLanguage,
