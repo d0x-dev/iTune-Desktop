@@ -183,3 +183,40 @@ export default function AboutDialog({
                         <div className="about-asset" key={asset.name}>
                           <div><strong>{asset.name}</strong><small>{formatSize(asset.size)}</small></div>
                           {downloaded ? (
+                            <button type="button" aria-label={`Open ${asset.name}`} onClick={() => openDownloaded(asset)}><Check size={15} /></button>
+                          ) : (
+                            <button type="button" aria-label={`Download ${asset.name}`} disabled={Boolean(busyAsset)} onClick={() => downloadAsset(release, asset)}>
+                              {downloading ? <LoaderCircle className="about-spin" size={15} /> : <ArrowDownToLine size={15} />}
+                            </button>
+                          )}
+                        </div>
+                      );
+                    }) : <p className="about-status">No downloadable files were attached to this release.</p>}
+                  </div>
+                </details>
+              )) : (
+                <p className="about-empty">{updateResult?.error || "No GitHub release downloads are available yet."}</p>
+              )}
+              <button className="about-link-button about-release-link" type="button" onClick={() => window.api.updates.openReleases()}>
+                All GitHub releases <ExternalLink size={14} />
+              </button>
+            </div>
+          </details>
+
+          <div className="about-links-card">
+            <button type="button" onClick={() => window.api.updates.openLicense()}>
+              <span><strong>License</strong><small>GNU GPL v3.0 or later · Copyright © 2026 iTune Project</small></span>
+              <span>View</span>
+            </button>
+            <button type="button" onClick={() => window.api.updates.openRepository()}>
+              <span>GitHub Repository</span>
+              <span>Open</span>
+            </button>
+          </div>
+
+          <button className="about-done" type="button" onClick={onClose}>Done</button>
+        </section>
+      </div>
+    </AnimatedPresence>
+  );
+}
