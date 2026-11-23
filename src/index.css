@@ -1223,3 +1223,85 @@ input[type="range"]:disabled {
   align-items: center;
   width: 100%;
   border-radius: 5px;
+  text-align: left;
+}
+.queue-track:hover {
+  background: #ffffff08;
+}
+.queue-track .artwork {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.queue-track > span {
+  min-width: 0;
+}
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #0008;
+  backdrop-filter: blur(8px);
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+  animation: fade-in 180ms ease both;
+}
+.dialog {
+  background: #2c2c2e;
+  border: 1px solid #ffffff15;
+  border-radius: 12px;
+  padding: 25px;
+  max-width: 430px;
+  width: 100%;
+  box-shadow: 0 25px 80px #0008;
+  animation: dialog-in 250ms var(--ease-out) both;
+}
+.dialog p {
+  font-size: 12px;
+  color: #aaaab0;
+  line-height: 1.7;
+}
+.dialog form {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+  margin-top: 18px;
+}
+.dialog textarea,
+.dialog input {
+  border: 1px solid #ffffff13;
+  border-radius: 6px;
+  background: #222;
+  padding: 12px;
+  color: white;
+  font-size: 12px;
+  width: 100%;
+  resize: none;
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.error-text {
+  color: #ff8593;
+  font-size: 12px;
+  padding: 10px 0;
+}
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: calc(50% + 80px);
+  transform: translateX(-50%);
+  z-index: 130;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 85vw;
+  border: 1px solid #ffffff15;
+  background: #353538;
+  color: white;
+  padding: 12px 15px;
