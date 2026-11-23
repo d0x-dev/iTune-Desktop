@@ -2849,3 +2849,68 @@ function registerIpcHandlers() {
     const light = theme === "light";
     mainWindow.setBackgroundColor(
       glass ? "#00000000" : light ? "#f5f5f7" : "#252525",
+    );
+    mainWindow.setBackgroundMaterial?.(glass ? "acrylic" : "none");
+  });
+  ipcMain.on("window:minimize", () => {
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.minimize();
+  });
+  ipcMain.on("window:maximize", () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      if (mainWindow.isMaximized()) mainWindow.unmaximize();
+      else mainWindow.maximize();
+    }
+  });
+  ipcMain.on("window:fullscreen", () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.setFullScreen(!mainWindow.isFullScreen());
+    }
+  });
+  ipcMain.on("window:lyricsFullscreen", (_event, enabled) => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    if (enabled) {
+      if (lyricsFullscreenRestore === null)
+        lyricsFullscreenRestore = mainWindow.isFullScreen();
+      if (!mainWindow.isFullScreen()) mainWindow.setFullScreen(true);
+    } else if (lyricsFullscreenRestore !== null) {
+      if (!lyricsFullscreenRestore && mainWindow.isFullScreen())
+        mainWindow.setFullScreen(false);
+      lyricsFullscreenRestore = null;
+    }
+  });
+  ipcMain.on("window:close", () => {
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.close();
+  });
+}
+
+app.whenReady().then(async () => {
+  registerWindowsMediaIdentity();
+  ({ highQualityArtwork } = await import("../shared/artwork.mjs"));
+  if (app.userAgentFallback) {
+    app.userAgentFallback = app.userAgentFallback
+      .replace(/Electron\/[^\s]+\s*/i, "")
+      .replace(/itune-desktop\/[^\s]+\s*/i, "")
+      .replace(/iTune Desktop\/[^\s]+\s*/i, "")
+      .trim();
+  }
+  registerIpcHandlers();
+  const savedCookie = loadSavedCookie();
+  initYouTube(savedCookie);
+  createMainWindow();
+
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createMainWindow();
+    }
+  });
+});
+
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+});
+
+app.on("before-quit", () => {
+  ishareLan.stopHost();
+});
