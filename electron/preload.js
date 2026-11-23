@@ -129,3 +129,36 @@ contextBridge.exposeInMainWorld("api", {
     next: () => ipcRenderer.invoke("player:next"),
     previous: () => ipcRenderer.invoke("player:previous"),
     seek: (seconds) => ipcRenderer.invoke("player:seek", seconds),
+    setVolume: (volume) => ipcRenderer.invoke("player:setVolume", volume),
+    onStateChange: (callback) => {
+      const handler = (_event, state) => callback(state);
+      ipcRenderer.on("player:state", handler);
+      return () => ipcRenderer.removeListener("player:state", handler);
+    },
+    onTrackChanged: (callback) => {
+      const handler = (_event, track) => callback(track);
+      ipcRenderer.on("player:trackChanged", handler);
+      return () => ipcRenderer.removeListener("player:trackChanged", handler);
+    },
+    onEnded: (callback) => {
+      const handler = () => callback();
+      ipcRenderer.on("player:ended", handler);
+      return () => ipcRenderer.removeListener("player:ended", handler);
+    },
+  },
+  window: {
+    setAppearance: (theme, glass) =>
+      ipcRenderer.send("window:appearance", { theme, glass }),
+    minimize: () => ipcRenderer.send("window:minimize"),
+    maximize: () => ipcRenderer.send("window:maximize"),
+    fullscreen: () => ipcRenderer.send("window:fullscreen"),
+    setLyricsFullscreen: (enabled) =>
+      ipcRenderer.send("window:lyricsFullscreen", Boolean(enabled)),
+    close: () => ipcRenderer.send("window:close"),
+  },
+  onAuthChanged: (callback) => {
+    const handler = (_event, data) => callback(data);
+    ipcRenderer.on("auth:changed", handler);
+    return () => ipcRenderer.removeListener("auth:changed", handler);
+  },
+});
