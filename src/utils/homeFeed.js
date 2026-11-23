@@ -31,3 +31,37 @@ export function mergeSections(previous, incoming) {
     );
   }
   return sections;
+}
+export function orderedSections(sections, signedIn) {
+  const priority = (section) => {
+    if (/quick picks/i.test(section.title)) return 0;
+    if (section.group === "personal") return 1;
+    if (!signedIn && section.group === "trending") return 2;
+    if (section.group === "feed" || !section.group) return 3;
+    if (section.group === "trending") return 4;
+    if (section.group === "charts") return 5;
+    if (section.group === "podcasts") return 6;
+    return 7;
+  };
+  return [...sections].sort((a, b) => priority(a) - priority(b));
+}
+export function useHomeFeed(kind, userProfile) {
+  const [sections, setSections] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [continuation, setContinuation] = useState(null);
+  const [error, setError] = useState("");
+  const [revision, setRevision] = useState(0);
+  const generation = useRef(0);
+  const loadingNext = useRef(false);
+  const tokens = useRef(new Set());
+  const browseId = kind === "new" ? "FEmusic_explore" : "FEmusic_home";
+  const append = useCallback(
+    (data) =>
+      setSections((previous) => mergeSections(previous, data?.sections || [])),
+    [],
+  );
+  useEffect(() => {
+    let active = true;
+    const currentGeneration = ++generation.current;
+    tokens.current.clear();
