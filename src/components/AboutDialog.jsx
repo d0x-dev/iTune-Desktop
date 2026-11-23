@@ -72,3 +72,40 @@ export default function AboutDialog({
       setBusyAsset("");
     }
   };
+
+  const openDownloaded = async (asset) => {
+    const result = await window.api.updates.install(asset.name);
+    if (!result?.ok) setMessage(result?.error || "The file could not be opened.");
+  };
+
+  const releases = updateResult?.releases || [];
+  const latest = updateResult?.latestRelease;
+  const downloadPercent = downloadProgress?.totalBytes
+    ? Math.round(downloadProgress.downloadedBytes / downloadProgress.totalBytes * 100)
+    : null;
+
+  return (
+    <AnimatedPresence show={show} duration={230} className="presence-modal">
+      <div
+        className="modal-backdrop about-backdrop"
+        onMouseDown={(event) => {
+          if (event.target === event.currentTarget) onClose();
+        }}
+      >
+        <section className="about-dialog" role="dialog" aria-modal="true" aria-labelledby="about-title">
+          <button className="about-close" type="button" aria-label="Close About" onClick={onClose}>
+            <X size={17} />
+          </button>
+          <header className="about-header">
+            <span className="about-app-icon"><ITuneWaveIcon size={32} /></span>
+            <h2 id="about-title">iTune</h2>
+            <div className="about-build-card">
+              <AboutInfoLine label="Version" value={info?.version || "Loading…"} />
+              <AboutInfoLine label="Platform" value={info ? `${info.platform} · ${info.architecture}` : "—"} />
+              <AboutInfoLine label="Electron" value={info?.electron || "—"} />
+              <AboutInfoLine label="Chromium" value={info?.chromium || "—"} />
+              <AboutInfoLine label="Latest on GitHub" value={latest?.tag || (checking ? "Checking…" : "No release found")} />
+              <AboutInfoLine label="Release codename" value={latest?.name || "Not published"} />
+              <AboutInfoLine
+                label="Last update"
+                value={latest?.publishedAt ? new Date(latest.publishedAt).toLocaleDateString() : "—"}
