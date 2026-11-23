@@ -243,3 +243,84 @@ img {
 .nav-item {
   display: flex;
   align-items: center;
+  gap: 11px;
+  width: 100%;
+  min-height: 35px;
+  border-radius: 5px;
+  padding: 7px 12px;
+  font-size: 13px;
+  text-align: left;
+  margin-bottom: 2px;
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+.nav-item svg {
+  color: var(--accent-color);
+  flex-shrink: 0;
+}
+.nav-item:hover {
+  background: #ffffff09;
+}
+.nav-item.active {
+  background: #fa586a;
+  color: white;
+}
+.nav-item.active svg {
+  color: white;
+}
+.sidebar-account {
+  margin-top: auto;
+  border-top: 1px solid var(--border-subtle);
+  padding: 12px 5px 0;
+}
+.account-button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  width: 100%;
+  text-align: left;
+  font-size: 12px;
+}
+.account-button > span:nth-child(2) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.account-avatar,
+.account-button > img {
+  width: 27px;
+  height: 27px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #ffffff13;
+  color: #bbb;
+  object-fit: cover;
+}
+.session-link {
+  font-size: 10px;
+  color: #8f8f93;
+  margin: 8px 0 0 36px;
+}
+.session-link:hover {
+  color: var(--accent-color);
+}
+.workspace {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.player-bar {
+  height: 80px;
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: minmax(190px, 1fr) minmax(260px, 1.8fr) minmax(
+      190px,
+      1fr
+    );
