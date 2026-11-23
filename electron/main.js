@@ -386,3 +386,68 @@ function loadSavedCookie() {
 function saveCookie(cookieStr) {
   try {
     const cleaned = sanitizeAndDeduplicateCookie(cookieStr);
+    const payload = JSON.stringify({ cookie: cleaned, savedAt: Date.now() });
+    for (const sessionFile of getSessionPaths()) {
+      try {
+        fs.mkdirSync(path.dirname(sessionFile), { recursive: true });
+        fs.writeFileSync(sessionFile, payload, "utf-8");
+        logToFile("Saved sanitized session cookie to:", sessionFile);
+      } catch (e) {}
+    }
+  } catch (err) {
+    logToFile("Failed to save session cookie:", err);
+  }
+}
+
+function clearSavedCookie() {
+  try {
+    for (const sessionFile of getSessionPaths()) {
+      if (fs.existsSync(sessionFile)) {
+        fs.unlinkSync(sessionFile);
+      }
+    }
+    logToFile("Cleared active session cookies.");
+  } catch (err) {
+    logToFile("Failed to delete session cookie:", err);
+  }
+}
+
+async function syncCookiesToSession(cookieStr) {
+  if (!cookieStr || !cookieStr.trim()) return;
+  try {
+    const authSession = session.fromPartition("persist:google_auth");
+    const pairs = cookieStr.split(";");
+    for (const pair of pairs) {
+      const idx = pair.indexOf("=");
+      if (idx === -1) continue;
+      const name = pair.slice(0, idx).trim();
+      const value = pair.slice(idx + 1).trim();
+      if (!name || !value) continue;
+      try {
+        await authSession.cookies.set({
+          url: "https://music.youtube.com",
+          domain: ".youtube.com",
+          name,
+          value,
+          path: "/",
+          secure: true,
+          httpOnly:
+            name.toLowerCase().includes("sapisid") ||
+            name.toLowerCase().includes("ssid") ||
+            name.startsWith("__Secure"),
+        });
+      } catch (e) {}
+    }
+    logToFile(
+      "Synced session cookies to Chromium persist:google_auth partition.",
+    );
+  } catch (err) {
+    logToFile("Error syncing cookies to partition:", err.message);
+  }
+}
+
+let streamClient = null;
+let streamInitPromise = null;
+async function getStreamClient() {
+  if (streamClient) return streamClient;
+  if (!streamInitPromise) {
