@@ -267,3 +267,42 @@ export function WelcomeExperience({
       await wait(timing(220));
       await type("iTune");
       await wait(timing(520));
+      setRevealing(true);
+      await wait(timing(960));
+      setTravel("to-home");
+      await wait(timing(860));
+      if (active) completeRef.current(finalName.current);
+    };
+    run();
+    return () => {
+      active = false;
+    };
+  }, [step, reducedMotion]);
+
+  const brandTraveling = step === "outro" && travel;
+  return (
+    <section className={`intro-screen welcome-screen ${fromSplash ? "from-splash" : ""} ${travel} ${revealing ? "reveal-app" : ""}`}>
+      <AmbientMesh />
+      {!brandTraveling && (
+        <header className="welcome-corner-brand">
+          <ITuneWaveIcon size={34} />
+          <strong>iTune</strong>
+        </header>
+      )}
+
+      {step === "name" && (
+        <div className="welcome-panel name-step">
+          <TypingHeadline text="Welcome to iTune" />
+          <label className={`welcome-name-field ${nameError ? "error" : ""}`}>
+            <input
+              value={name}
+              autoFocus
+              placeholder="Your Name"
+              onChange={(event) => {
+                setName(event.target.value);
+                if (event.target.value.trim()) setNameError(false);
+              }}
+              onKeyDown={(event) => event.key === "Enter" && submitName()}
+            />
+          </label>
+          {nameError && <p>Enter your name to personalize iTune</p>}
