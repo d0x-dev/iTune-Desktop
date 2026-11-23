@@ -710,3 +710,68 @@ function getThumbnailUrl(item) {
   }
   // Fallback to hqdefault for known YouTube video IDs
   if (
+    typeof item === "object" &&
+    /^[\w-]{11}$/.test(item.id || "") &&
+    !item.thumbnail
+  ) {
+    return highQualityArtwork(
+      "https://i.ytimg.com/vi/" + item.id + "/hqdefault.jpg",
+    );
+  }
+  return null;
+}
+
+function normalizeSearchTrack(item) {
+  if (!item) return null;
+  const id =
+    item.id ||
+    item.videoId ||
+    item.endpoint?.payload?.videoId ||
+    item.endpoint?.payload?.browseId ||
+    item.overlay?.musicItemThumbnailOverlayRenderer?.content
+      ?.musicPlayButtonRenderer?.playNavigationEndpoint?.watchEndpoint?.videoId;
+
+  const title =
+    item.title?.text ||
+    item.title?.toString() ||
+    (typeof item.title === "string" ? item.title : "") ||
+    item.name ||
+    "";
+
+  if (!id || !title) return null;
+
+  const artists = parseArtistsFromItem(item);
+  const albumName =
+    item.album?.name ||
+    item.album?.title ||
+    (typeof item.album === "string" ? item.album : null);
+  const albumId = item.album?.id;
+
+  let durationText = "";
+  let durationSeconds = null;
+  if (typeof item.duration === "string") {
+    durationText = item.duration;
+  } else if (item.duration?.text) {
+    durationText = item.duration.text;
+    durationSeconds = item.duration.seconds || null;
+  } else if (item.duration?.seconds) {
+    durationSeconds = item.duration.seconds;
+    const m = Math.floor(durationSeconds / 60);
+    const s = (durationSeconds % 60).toString().padStart(2, "0");
+    durationText = `${m}:${s}`;
+  }
+
+  const thumbnail =
+    getThumbnailUrl(item) || `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+
+  return {
+    id,
+    title,
+    artists: artists.length > 0 ? artists : [{ name: "YouTube Music" }],
+    album: albumName ? { name: albumName, id: albumId } : null,
+    duration: durationText,
+    durationSeconds,
+    thumbnail,
+    type: item.item_type || item.type || "track",
+    isExplicit: hasExplicitBadge(item),
+  };
