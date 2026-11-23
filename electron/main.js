@@ -2460,3 +2460,68 @@ function registerIpcHandlers() {
             logToFile(
               "Resolved stream via getInfo decipher:",
               format.mime_type,
+              "bitrate:",
+              format.bitrate,
+            );
+            return {
+              streamUrl,
+              format: {
+                container: format.container,
+                codec: format.codecs,
+                bitrate: format.bitrate,
+                audioQuality: format.audio_quality,
+              },
+              metadata: {
+                title: info.basic_info?.title || "",
+                author: info.basic_info?.author || "",
+                duration: info.basic_info?.duration || 0,
+                thumbnail:
+                  info.basic_info?.thumbnail?.[
+                    info.basic_info?.thumbnail?.length - 1
+                  ]?.url || null,
+              },
+            };
+          }
+        }
+      } catch (decipherErr) {
+        logToFile("Decipher fallback error:", decipherErr.message);
+      }
+
+      return { streamUrl: null, error: "No playable stream formats found" };
+    } catch (err) {
+      logToFile("Stream resolution error for videoId", videoId, err);
+      return { streamUrl: null, error: err.message };
+    }
+  });
+
+  ipcMain.handle(
+    "yt:reportPlayback",
+    async (_event, { videoId, seconds = 0 } = {}) => {
+      if (!videoId || String(videoId).startsWith("radio:"))
+        return { ok: false, skipped: true };
+      if (initPromise) await initPromise;
+      if (!yt || !userProfile.isLoggedIn)
+        return { ok: false, skipped: true, error: "Sign in to sync history." };
+      const lastReport = playbackReports.get(videoId) || 0;
+      if (Date.now() - lastReport < 10 * 60 * 1000)
+        return { ok: true, skipped: true };
+      try {
+        const info = await yt.music.getInfo(videoId);
+        await info.addToWatchHistory();
+        playbackReports.set(videoId, Date.now());
+        logToFile("Synced YouTube Music listening history:", videoId, seconds);
+        return { ok: true };
+      } catch (err) {
+        logToFile("Playback history sync failed:", videoId, err.message);
+        return { ok: false, error: err.message };
+      }
+    },
+  );
+
+  ipcMain.handle("download:song", async (_event, data = {}) => {
+    const sourceUrl = String(data.streamUrl || "");
+    if (!/^https?:\/\//i.test(sourceUrl))
+      return { ok: false, error: "The song stream is unavailable." };
+    let partialPath = "";
+    try {
+      const declaredType = String(data.container || data.contentType || "");
