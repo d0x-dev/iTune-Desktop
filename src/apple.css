@@ -414,3 +414,86 @@ body {
   backdrop-filter: none;
 }
 [data-acrylic="true"] .track-row:not(.track-header),
+[data-acrylic="true"] .shelf-song,
+[data-acrylic="true"] .queue-track {
+  background: #ffffff07;
+  border: 1px solid transparent;
+}
+[data-acrylic="true"] .track-row:nth-child(odd):not(.track-header),
+[data-acrylic="true"] .shelf-song:nth-child(odd),
+[data-acrylic="true"] .queue-track:nth-child(odd) {
+  background: #ffffff0b;
+}
+[data-acrylic="true"] .track-row:hover:not(.track-header),
+[data-acrylic="true"] .track-row.current,
+[data-acrylic="true"] .shelf-song:hover,
+[data-acrylic="true"] .queue-track:hover {
+  background: #ffffff14;
+  border-color: #ffffff16;
+  box-shadow: inset 0 1px #ffffff0e;
+}
+[data-acrylic="true"] .media-cover,
+[data-acrylic="true"] .artist-hero,
+[data-acrylic="true"] .latest-release,
+[data-acrylic="true"] .search-category {
+  border: 1px solid #ffffff20;
+  box-shadow:
+    inset 0 1px #ffffff16,
+    0 16px 38px #00000028;
+}
+[data-acrylic="true"] .cover-play,
+[data-acrylic="true"] .artist-actions .secondary-button,
+[data-acrylic="true"] .hero-follow,
+[data-acrylic="true"] .artist-customize,
+[data-acrylic="true"] .follow-lyrics,
+[data-acrylic="true"] .secondary-button {
+  background: #ffffff18;
+  border: 1px solid #ffffff19;
+  box-shadow: inset 0 1px #ffffff16;
+  backdrop-filter: none;
+}
+[data-acrylic="true"] .queue-panel,
+[data-acrylic="true"] .search-suggestions,
+[data-acrylic="true"] .dialog,
+[data-acrylic="true"] .toast,
+[data-acrylic="true"] .lyrics-dialog {
+  background: var(--acrylic-panel-strong);
+  border: 1px solid var(--acrylic-border);
+  box-shadow:
+    inset 0 1px var(--acrylic-highlight),
+    0 28px 80px #00000052;
+  backdrop-filter: none;
+}
+[data-acrylic="true"] .modal-backdrop,
+[data-acrylic="true"] .compact-lyrics,
+[data-acrylic="true"] .lyrics-overlay {
+  background: #13080d63;
+  backdrop-filter: none;
+}
+[data-acrylic="true"] .lyrics-ambient > img,
+[data-acrylic="true"] .lyrics-ambient .canvas-video {
+  opacity: 0.45;
+}
+[data-motion="false"] *,
+[data-motion="false"] *::before,
+[data-motion="false"] *::after {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+}
+.player-bar {
+  position: relative;
+  background: var(--glass-player);
+  backdrop-filter: blur(35px) saturate(1.4);
+  border-bottom-color: var(--border-subtle);
+}
+
+.collection-atmosphere-active .desktop-titlebar,
+[data-glass="true"] .desktop-titlebar {
+  background: #15141c8a;
+  backdrop-filter: blur(32px) saturate(1.45);
+  box-shadow: inset 0 1px #ffffff0e;
+}
+.app-container > .artwork-backdrop.collection-atmosphere {
+  opacity: 0.72;
+}
+.app-container > .artwork-backdrop.collection-atmosphere .artwork img {
