@@ -390,3 +390,47 @@ export default function SettingsView({
       </section>
       <section className="settings-section">
         <h2>Playback & Downloads</h2>
+        <Setting
+          title="Audio Effects Engine"
+          description="Process music through the desktop Web Audio engine. Live radio stays direct for compatibility."
+        >
+          <Toggle
+            label="Audio Effects Engine"
+            value={preferences.audioEffectsEnabled}
+            onChange={(value) => updatePreference("audioEffectsEnabled", value)}
+          />
+        </Setting>
+        <Setting
+          title="Dolby Atmos-style Spatializer"
+          description="A real virtual surround stage using stereo delay taps and room reflections; it does not decode licensed Dolby Atmos tracks."
+        >
+          <Toggle
+            label="Dolby Atmos-style Spatializer"
+            value={preferences.virtualAtmos}
+            disabled={!preferences.audioEffectsEnabled}
+            onChange={(value) => updatePreference("virtualAtmos", value)}
+          />
+        </Setting>
+        <Setting title="Sound Preset" description="Apply a working equalizer curve.">
+          <GlassSelect
+            label="Audio preset"
+            value={preferences.audioPreset}
+            disabled={!preferences.audioEffectsEnabled}
+            onChange={(value) => updatePreference("audioPreset", value)}
+            options={[
+              { value: "balanced", label: "Balanced" },
+              { value: "bass", label: "Bass Boost" },
+              { value: "vocal", label: "Vocal Clarity" },
+              { value: "bright", label: "Bright Detail" },
+              { value: "night", label: "Night Listening" },
+            ]}
+          />
+        </Setting>
+        <Setting title="Spatial Width" description={`${Math.round(preferences.spatialWidth * 100)}%`}>
+          <input
+            className="settings-range"
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={preferences.spatialWidth}
