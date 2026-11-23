@@ -997,3 +997,86 @@ body {
 }
 .artist-back { left: 24px; }
 .artist-customize { right: 24px; }
+.artist-actions { justify-content: center; gap: 22px; margin-top: 21px; }
+.artist-actions .icon-button { display: grid; place-items: center; border-radius: 50%; }
+.artist-info,
+.artist-actions .hero-follow {
+  width: 49px;
+  height: 49px;
+  color: white;
+  background: #ffffff1c;
+  border: 1px solid #ffffff2b;
+  backdrop-filter: blur(14px);
+}
+.artist-play {
+  width: 70px;
+  height: 70px;
+  background: white;
+  color: #312c31;
+}
+.artist-page > .artwork-backdrop { display: none; }
+.artist-page > .artist-overview,
+.artist-page > .media-section,
+.artist-page > .artist-about,
+.artist-page > .artist-asset-panel,
+.artist-page > .empty-state,
+.artist-page > .error-text { position: relative; }
+.artist-about p,
+.artist-asset-panel p {
+  color: var(--muted-strong);
+}
+.artist-asset-panel {
+  backdrop-filter: blur(24px);
+  background: var(--plate);
+}
+.artist-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr);
+  gap: 40px;
+  padding-top: 30px;
+  margin-bottom: 30px;
+}
+.artist-overview .songs-shelf {
+  display: grid;
+  grid-template-rows: repeat(3, 64px);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 100%);
+  overflow-x: auto;
+  max-height: 200px;
+}
+.artist-overview .shelf-controls { display: none; }
+.artist-overview .media-section { min-width: 0; }
+.latest-release {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-top: 5px;
+}
+.latest-release .artwork {
+  width: min(52%, 195px);
+  aspect-ratio: 1;
+  border-radius: 7px;
+  flex-shrink: 0;
+}
+.latest-release > span {
+  min-width: 0;
+  text-align: left;
+}
+.latest-release strong {
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--foreground);
+}
+.latest-release small {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 7px;
+}
+.queue-panel {
+  background: var(--glass-sidebar);
+  backdrop-filter: blur(35px);
+  border-color: var(--border-subtle);
+}
+.queue-track strong {
