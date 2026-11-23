@@ -202,3 +202,37 @@ export default function Sidebar({
                 <span>Sign In</span>
               </button>
               <button
+                className="session-link"
+                onClick={() => setShowCookieModal(true)}
+              >
+                Import existing session
+              </button>
+            </>
+          )}
+        </div>
+      </aside>
+      <AnimatedPresence
+        show={showCookieModal}
+        duration={250}
+        className="presence-modal"
+      >
+        <div
+          className="modal-backdrop"
+          onClick={(event) => {
+            if (event.target === event.currentTarget && !importing)
+              setShowCookieModal(false);
+          }}
+        >
+          <section
+            className="dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="session-title"
+          >
+            <div className="section-heading">
+              <h2 id="session-title">Connect your session</h2>
+              <button
+                className="icon-button"
+                aria-label="Close session import"
+                disabled={importing}
+                onClick={() => setShowCookieModal(false)}
