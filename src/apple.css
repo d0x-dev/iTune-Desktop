@@ -914,3 +914,86 @@ body {
   padding-top: 27px;
 }
 .collection-page > .artwork-backdrop {
+  opacity: 0.85;
+}
+.artist-page > .artwork-backdrop {
+  opacity: 0.9;
+}
+.artist-page > .artwork-backdrop .artwork-backdrop-shade {
+  background: linear-gradient(180deg, #16161c70, #16161caa 50%, #16161cee);
+}
+[data-theme="light"] .artist-page > .artwork-backdrop .artwork-backdrop-shade {
+  background: linear-gradient(180deg, #ffffff80, #ffffffc0 50%, #fffffff0);
+}
+.artist-hero {
+  height: clamp(610px, 78vh, 880px);
+  border-radius: 0;
+  margin: -29px -36px 0;
+  background: var(--surface);
+  overflow: visible;
+}
+.artist-hero-content {
+  left: 24px;
+  right: 24px;
+  bottom: 58px;
+  text-align: center;
+  z-index: 2;
+}
+.artist-hero h1 {
+  color: white;
+  font-size: 64px;
+  letter-spacing: 0;
+}
+.artist-signature {
+  height: 108px;
+  max-width: min(60%, 530px);
+  object-position: center;
+  filter: drop-shadow(0 4px 16px #0003);
+}
+.artist-hero-image img { object-position: center 28%; }
+.artist-hero-shade {
+  background: linear-gradient(180deg, #0005 0%, transparent 26%, #16151a24 47%, #201d257a 72%, var(--surface) 100%);
+}
+.artist-hero-blur {
+  position: absolute;
+  z-index: 1;
+  inset: 48% 0 0;
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  mask-image: linear-gradient(to bottom, transparent, #000 58%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 58%);
+  pointer-events: none;
+}
+.artist-hero::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: auto 0 0;
+  height: 26%;
+  background: linear-gradient(to bottom, transparent, var(--surface));
+  pointer-events: none;
+}
+.artist-hero::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: auto 0 -220px;
+  height: 220px;
+  background: linear-gradient(to bottom, var(--surface), transparent);
+  pointer-events: none;
+}
+.artist-back,
+.artist-customize {
+  position: absolute;
+  z-index: 3;
+  top: 22px;
+  bottom: auto;
+  width: 42px;
+  height: 42px;
+  color: white;
+  background: #2229;
+  border-radius: 50%;
+  backdrop-filter: blur(14px);
+}
+.artist-back { left: 24px; }
+.artist-customize { right: 24px; }
