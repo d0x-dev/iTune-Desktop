@@ -483,3 +483,47 @@ export default function LyricsModal({
           duration={220}
           className="presence-lyrics-tools"
         >
+          <div
+            className="lyrics-tools-scrim"
+            onClick={() => setToolsPage(null)}
+          >
+            <div
+              className="lyrics-tools-popover"
+              role="dialog"
+              aria-label="Lyrics options"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="lyrics-tools-header">
+                {toolsPage !== "menu" && (
+                  <button
+                    className="icon-button"
+                    aria-label="Back to lyrics options"
+                    onClick={() => setToolsPage("menu")}
+                  >
+                    <ArrowLeft size={18} />
+                  </button>
+                )}
+                <div>
+                  <strong>
+                    {toolsPage === "menu"
+                      ? "Lyrics"
+                      : toolsPage === "search"
+                        ? "Search Lyrics"
+                        : toolsPage === "edit"
+                          ? "Edit Lyrics"
+                          : "Lyrics Offset"}
+                  </strong>
+                  <small>
+                    {toolsPage === "offset"
+                      ? offsetLabel
+                      : source || "No source selected"}
+                  </small>
+                </div>
+                <button
+                  className="icon-button lyrics-tools-close"
+                  aria-label="Close lyrics options"
+                  onClick={() => setToolsPage(null)}
+                >
+                  <X size={18} />
+                </button>
+              </div>
