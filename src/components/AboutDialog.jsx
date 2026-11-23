@@ -35,3 +35,40 @@ export default function AboutDialog({
   updateResult,
   downloadProgress,
   onCheckUpdates,
+}) {
+  const [info, setInfo] = useState(null);
+  const [checking, setChecking] = useState(false);
+  const [busyAsset, setBusyAsset] = useState("");
+  const [downloadedAssets, setDownloadedAssets] = useState(() => new Set());
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (!show) return;
+    window.api.updates.getInfo().then(setInfo).catch(() => {});
+  }, [show]);
+
+  const checkForUpdates = async () => {
+    setChecking(true);
+    setMessage("");
+    try {
+      const result = await onCheckUpdates();
+      setMessage(result?.downloadError || result?.error || "");
+    } finally {
+      setChecking(false);
+    }
+  };
+
+  const downloadAsset = async (release, asset) => {
+    setBusyAsset(asset.name);
+    setMessage("");
+    try {
+      const result = await window.api.updates.download(release.tag, asset.name);
+      if (!result?.ok) {
+        setMessage(result?.error || "The download could not be completed.");
+        return;
+      }
+      setDownloadedAssets((current) => new Set(current).add(asset.name));
+    } finally {
+      setBusyAsset("");
+    }
+  };
