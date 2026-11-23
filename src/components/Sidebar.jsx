@@ -100,3 +100,37 @@ export default function Sidebar({
         throw new Error(result?.error || "Couldn’t connect this session.");
       setShowCookieModal(false);
       setCookieInput("");
+    } catch (error) {
+      setImportStatus(error.message);
+    } finally {
+      setImporting(false);
+    }
+  };
+  return (
+    <>
+      <aside className="sidebar">
+        <FestivalBrand />
+        <button
+          className="sidebar-search"
+          onClick={() => setActiveTab("search")}
+        >
+          <Search size={14} />
+          <span>Search</span>
+          <kbd>Ctrl K</kbd>
+        </button>
+        <nav aria-label="Main navigation">
+          {groups.map((group, index) => (
+            <div className="nav-group" key={index}>
+              {group.label && <h2>{group.label}</h2>}
+              {group.items.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  className={`nav-item ${activeTab === id ? "active" : ""}`}
+                  aria-current={activeTab === id ? "page" : undefined}
+                  onClick={() => setActiveTab(id)}
+                >
+                  {iconNames[id] ? (
+                    <AndroidIcon
+                      name={
+                        id === "favorites" && activeTab === id
+                          ? "ic_star_filled"
