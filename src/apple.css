@@ -1497,3 +1497,86 @@ body {
 .lyrics-tools-menu button > span,
 .lyrics-search-result > span {
   min-width: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+.lyrics-tools-menu strong,
+.lyrics-search-result strong { font-size: 13px; }
+.lyrics-tools-menu small,
+.lyrics-search-result small {
+  margin-top: 2px;
+  overflow: hidden;
+  color: #ffffff82;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lyrics-tools-menu em,
+.lyrics-search-result em {
+  padding: 3px 7px;
+  flex-shrink: 0;
+  color: #ffffffb5;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 700;
+  background: #ffffff16;
+  border-radius: 999px;
+}
+.lyrics-search-result em.synced {
+  color: #ff91a0;
+  background: #fa2d4830;
+}
+.lyrics-search-tools,
+.lyrics-edit-tools,
+.lyrics-offset-tools { padding: 13px; }
+.lyrics-search-tools label {
+  display: block;
+  margin-bottom: 9px;
+}
+.lyrics-search-tools label > span {
+  display: block;
+  margin: 0 0 4px 3px;
+  color: #ffffff8f;
+  font-size: 10px;
+}
+.lyrics-search-tools input:not([type="range"]),
+.lyrics-edit-tools textarea {
+  width: 100%;
+  color: #fff;
+  background: #ffffff0d;
+  border: 1px solid #ffffff1d;
+  border-radius: 10px;
+  outline: none;
+}
+.lyrics-search-tools input:not([type="range"]) { height: 37px; padding: 0 11px; }
+.lyrics-search-tools input:focus,
+.lyrics-edit-tools textarea:focus { border-color: #ffffff55; box-shadow: 0 0 0 3px #ffffff0b; }
+.lyrics-primary-action {
+  min-height: 34px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #171014 !important;
+  font-weight: 700;
+  background: #fffffff0 !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+}
+.lyrics-search-tools > .lyrics-primary-action { width: 100%; }
+.lyrics-search-results {
+  max-height: 330px;
+  margin: 12px -7px -7px;
+  overflow-y: auto;
+  border-top: 1px solid #ffffff15;
+}
+.lyrics-search-result { border-radius: 0; border-bottom: 1px solid #ffffff12; }
+.lyrics-tools-message {
+  padding: 24px 12px;
+  color: #ffffff9e;
+  font-size: 12px;
+  text-align: center;
+}
+.lyrics-edit-tools textarea {
