@@ -346,3 +346,47 @@ export default function SettingsView({
                       ...current,
                       model: event.target.value,
                     }))
+                  }
+                  placeholder="Model · leave blank for recommended"
+                />
+                <input
+                  aria-label="AI base URL"
+                  value={aiConfig.baseUrl}
+                  onChange={(event) =>
+                    setAiConfig((current) => ({
+                      ...current,
+                      baseUrl: event.target.value,
+                    }))
+                  }
+                  placeholder="Base URL · optional"
+                />
+              </>
+            )}
+            <button className="secondary-button">Save AI Settings</button>
+          </div>
+          {aiStatus && <p className="settings-status">{aiStatus}</p>}
+        </form>
+        <form className="signature-settings" onSubmit={saveSignature}>
+          <label htmlFor="signature-service">Signature Service</label>
+          <p>
+            Use the same signature service address configured in your Android
+            app.
+          </p>
+          <div>
+            <input
+              id="signature-service"
+              value={signatureUrl}
+              onChange={(event) => setSignatureUrl(event.target.value)}
+              placeholder="https://your-signature-service"
+            />
+            <button className="secondary-button">Save</button>
+          </div>
+          {error && (
+            <p role="alert" className="error-text">
+              {error}
+            </p>
+          )}
+        </form>
+      </section>
+      <section className="settings-section">
+        <h2>Playback & Downloads</h2>
