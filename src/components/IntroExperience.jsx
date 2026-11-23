@@ -75,3 +75,41 @@ function TypingHeadline({ text, multiline = false }) {
         if (!active) break;
         setCursor(false);
         await wait(5500);
+        if (!active) break;
+        setCursor(true);
+        await wait(750);
+        for (let deleted = 0; active && deleted < text.length; deleted += 1) {
+          await wait(deleted === 0 ? 86 : deleted === 1 ? 62 : deleted === 2 ? 48 : 34 + (deleted % 3) * 4);
+          if (active) setVisible(text.slice(0, Math.max(0, text.length - deleted - 1)));
+        }
+        await wait(520);
+      }
+    };
+    run();
+    return () => {
+      active = false;
+    };
+  }, [text]);
+  return (
+    <h1 className={`welcome-typing ${multiline ? "multiline" : ""}`}>
+      {visible}
+      <span className={`typing-caret ${cursor ? "" : "hidden"}`} />
+    </h1>
+  );
+}
+
+export function SplashExperience({ newUser, onFinished }) {
+  const [text, setText] = useState("");
+  const [typing, setTyping] = useState(false);
+  const [travel, setTravel] = useState("");
+  const [revealing, setRevealing] = useState(false);
+  const reducedMotion = useReducedMotion();
+  const finishRef = useRef(onFinished);
+  finishRef.current = onFinished;
+
+  useEffect(() => {
+    let active = true;
+    let currentText = "";
+    const type = async (value, delay) => {
+      setTyping(true);
+      for (let index = 1; active && index <= value.length; index += 1) {
