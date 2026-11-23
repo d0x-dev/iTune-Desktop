@@ -3496,3 +3496,86 @@ button:not(:disabled):active {
   width: min(410px, calc(100vw - 32px));
   max-height: min(88vh, 760px);
   flex-direction: column;
+  overflow: auto;
+  padding: 20px 0 0;
+  color: var(--text-primary);
+  background: var(--bg-sidebar);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 22px;
+  box-shadow: 0 28px 80px #0009;
+  animation: about-window-in 250ms var(--ease-apple) both;
+}
+
+.about-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  color: var(--text-secondary);
+  background: #ffffff08;
+  border: 1px solid #ffffff12;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.about-header {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.about-app-icon {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  margin: 0 0 7px;
+  place-items: center;
+  color: #fff;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.about-app-icon svg { fill: #fff; }
+
+.about-header h2 {
+  margin: 0 0 14px;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -.035em;
+}
+
+.about-build-card {
+  display: grid;
+  width: calc(100% - 36px);
+  gap: 9px;
+  margin: 0 18px;
+  padding: 14px;
+  background: #080808;
+  border: 1px solid #ffffff24;
+  border-radius: 16px;
+}
+
+.about-info-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  color: var(--text-primary);
+  font-size: 12px;
+}
+
+.about-info-line > span { color: #ffffff91; }
+.about-info-line > strong { overflow: hidden; font-weight: 550; text-align: right; text-overflow: ellipsis; }
+
+.about-update-area {
+  display: grid;
+  gap: 8px;
+  margin: 12px 18px 0;
+}
+
+.about-update-card {
