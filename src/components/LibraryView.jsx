@@ -111,3 +111,40 @@ export default function LibraryView({
         if (data?.error) throw new Error(data.error);
         setDetail(data);
       })
+      .catch(() => {
+        if (active) setError("This album couldn’t load.");
+      })
+      .finally(() => {
+        if (active) setLoadingAlbum(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [album?.id]);
+
+  const filtered = items.filter(
+    (item) =>
+      (mode !== "favorites" || likedSongIds?.has(item.videoId || item.id)) &&
+      `${item.title} ${getArtistName(item)}`
+        .toLowerCase()
+        .includes(query.toLowerCase()),
+  );
+  const sorted =
+    sort === "recent"
+      ? filtered
+      : [...filtered].sort((a, b) =>
+          sort === "artist"
+            ? getArtistName(a).localeCompare(getArtistName(b))
+            : a.title.localeCompare(b.title),
+        );
+  if (album)
+    return (
+      <div className="page collection-page">
+        <ArtworkBackdrop
+          src={albumArtwork?.heroUrl || album.thumbnail || detail?.thumbnail}
+          canvas={albumArtwork?.videoUrl}
+        />
+        <button
+          className="text-button back-link"
+          onClick={() => setAlbum(null)}
+        >
