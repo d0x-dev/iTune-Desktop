@@ -322,3 +322,67 @@ async function youtubeSubtitleLyrics(client, videoId) {
     if (!Array.isArray(segments) || !segments.length) return null;
     const lines = segments
       .filter((segment) => segment?.snippet?.toString && segment.start_ms != null)
+      .map(
+        (segment) =>
+          `[${lrcTime(segment.start_ms)}]${segment.snippet.toString().trim()}`,
+      )
+      .filter((line) => line.length > 12);
+    return lines.length
+      ? { lyrics: lines.join("\n"), source: "YouTube Subtitles", synced: true }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+// Sanitize and deduplicate cookie string (giving priority to YouTube cookies over Google cookies)
+function sanitizeAndDeduplicateCookie(rawCookie) {
+  if (!rawCookie || typeof rawCookie !== "string") return "";
+  const pairs = rawCookie.split(";");
+  const map = new Map();
+  for (const p of pairs) {
+    const trimmed = p.trim();
+    if (!trimmed) continue;
+    const eqIdx = trimmed.indexOf("=");
+    if (eqIdx === -1) continue;
+    const k = trimmed.slice(0, eqIdx).trim();
+    const v = trimmed.slice(eqIdx + 1).trim();
+    if (k) map.set(k, v);
+  }
+  return Array.from(map.entries())
+    .map(([k, v]) => `${k}=${v}`)
+    .join("; ");
+}
+
+// Check multiple locations for saved session cookies
+function getSessionPaths() {
+  const legacyWindowsPaths = process.env.APPDATA
+    ? [
+        path.join(process.env.APPDATA, "itune-desktop", "itune_session.json"),
+        path.join(process.env.APPDATA, "iTune Desktop", "itune_session.json"),
+      ]
+    : [];
+  return [...legacyWindowsPaths, path.join(app.getPath("userData"), "itune_session.json")];
+}
+
+function loadSavedCookie() {
+  try {
+    for (const sessionFile of getSessionPaths()) {
+      if (fs.existsSync(sessionFile)) {
+        const data = JSON.parse(fs.readFileSync(sessionFile, "utf-8"));
+        if (data.cookie && data.cookie.trim()) {
+          const cleaned = sanitizeAndDeduplicateCookie(data.cookie.trim());
+          logToFile("Loaded and sanitized session cookie from:", sessionFile);
+          return cleaned;
+        }
+      }
+    }
+  } catch (err) {
+    logToFile("Failed to load saved session cookie:", err);
+  }
+  return "";
+}
+
+function saveCookie(cookieStr) {
+  try {
+    const cleaned = sanitizeAndDeduplicateCookie(cookieStr);
