@@ -581,3 +581,42 @@ const Player = forwardRef(function Player(
         <div className="now-playing-details">
           <div className="now-playing-title">
             {currentTrack ? <ExplicitTitle item={currentTrack} /> : <Music2 size={24} />}
+          </div>
+          <p>
+            {error ||
+              (currentTrack
+                ? getArtistName(currentTrack)
+                : "Choose something to play")}
+          </p>
+          {error && (
+            <span className="sr-only" role="alert">
+              {error}
+            </span>
+          )}
+          <div className="player-timeline">
+            <span>{formatTime(currentTime)}</span>
+            <input
+              className="apple-seekbar player-seekbar"
+              aria-label="Playback position"
+              type="range"
+              min="0"
+              max={duration || 1}
+              step="0.1"
+              value={Math.min(currentTime, duration || 1)}
+              disabled={!currentTrack || !duration}
+              onChange={(event) => seek(Number(event.target.value))}
+              style={{
+                "--progress": `${duration ? (currentTime / duration) * 100 : 0}%`,
+              }}
+            />
+            <span>
+              {duration
+                ? `−${formatTime(Math.max(0, duration - currentTime))}`
+                : "0:00"}
+            </span>
+          </div>
+        </div>
+        <button
+          className={`icon-button favorite-button ${isLiked ? "selected" : ""}`}
+          onClick={onToggleLike}
+          aria-label={isLiked ? "Remove favorite" : "Favorite song"}
