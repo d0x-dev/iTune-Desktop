@@ -114,3 +114,42 @@ const Player = forwardRef(function Player(
       const progress = Math.min(1, (now - startedAt) / milliseconds);
       const liveTarget = settings.current.muted
         ? 0
+        : settings.current.volume || targetVolume;
+      incoming.volume = liveTarget * Math.sin((progress * Math.PI) / 2);
+      outgoing.volume = liveTarget * Math.cos((progress * Math.PI) / 2);
+      if (progress < 1) {
+        fadeFrame.current = requestAnimationFrame(step);
+      } else {
+        resetDeck(outgoing);
+        incoming.volume = liveTarget;
+        fadeState.current = null;
+        fadeFrame.current = null;
+      }
+    };
+    fadeFrame.current = requestAnimationFrame(step);
+  };
+
+  const loadStream = async () => {
+    const trackId = currentTrack?.id;
+    const revision = ++requestId.current;
+    const outgoingIndex = activeDeck.current;
+    const outgoing = decks.current[outgoingIndex];
+    if (!outgoing || !trackId) return;
+    stopFade();
+    const canCrossfade = Boolean(
+      preferences.crossfadeEnabled &&
+        currentTrack.type !== "radio" &&
+        previousTrackType.current !== "radio" &&
+        outgoing.getAttribute("src") &&
+        !outgoing.paused &&
+        !outgoing.ended,
+    );
+    const incomingIndex = canCrossfade ? 1 - outgoingIndex : outgoingIndex;
+    const incoming = decks.current[incomingIndex];
+    if (!incoming) return;
+    if (incoming !== outgoing) resetDeck(incoming);
+    if (!canCrossfade) {
+      decks.current.forEach((deck, index) => {
+        if (deck && index !== incomingIndex) resetDeck(deck);
+      });
+      outgoing.pause();
