@@ -306,3 +306,47 @@ export default function LyricsModal({
     const id = track.id;
     try {
       const text = await file.text();
+      const parsed = parseLyrics(text);
+      if (!parsed.length) throw new Error("This file has no lyrics.");
+      await saveAsset(`lyrics:${id}`, file);
+      localStorage.setItem(`itune:lyrics-source:${id}`, "Imported lyrics");
+      if (revision.current !== requestRevision) return;
+      setLines(parsed);
+      setRawLyrics(text);
+      setSource("Imported lyrics");
+      setError("");
+      setFollowing(true);
+      setToolsPage(null);
+    } catch (failure) {
+      if (revision.current === requestRevision) setError(failure.message);
+    } finally {
+      if (revision.current === requestRevision) setLoading(false);
+    }
+  };
+  const applyLyrics = async (text, nextSource) => {
+    const parsed = parseLyrics(text);
+    if (!parsed.length) throw new Error("These lyrics have no readable lines.");
+    await saveAsset(
+      `lyrics:${track.id}`,
+      new Blob([text], { type: "text/plain;charset=utf-8" }),
+    );
+    localStorage.setItem(`itune:lyrics-source:${track.id}`, nextSource);
+    setRawLyrics(text);
+    setLines(parsed);
+    setSource(nextSource);
+    setError("");
+    setFollowing(true);
+    setToolsPage(null);
+  };
+  const restoreOnlineLyrics = async () => {
+    await saveAsset(`lyrics:${track.id}`, null);
+    localStorage.removeItem(`itune:lyrics-source:${track.id}`);
+    setToolsPage(null);
+    setReload((value) => value + 1);
+  };
+  const searchLyrics = async (event) => {
+    event?.preventDefault();
+    setSearching(true);
+    setSearchError("");
+    try {
+      const result = await window.api.yt.searchLyrics(track.id, {
