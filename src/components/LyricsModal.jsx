@@ -703,3 +703,47 @@ export default function LyricsModal({
                     )}
                   </span>
                 </div>
+              </div>
+              <div className="lyrics-transport">
+                <button
+                  className={`icon-button ${isShuffle ? "selected" : ""}`}
+                  aria-label="Lyrics shuffle"
+                  aria-pressed={isShuffle}
+                  onClick={onToggleShuffle}
+                >
+                  <AndroidIcon name="shuffle" size={17} />
+                </button>
+                <button
+                  className="icon-button"
+                  aria-label="Previous song"
+                  onClick={onPrevious}
+                >
+                  <AndroidIcon name="skip_previous" size={25} />
+                </button>
+                <button
+                  className="transport-play icon-button"
+                  aria-label={isPlaying ? "Pause" : "Play"}
+                  onClick={onTogglePlay}
+                >
+                  {isPlaying ? (
+                    <Pause size={35} fill="currentColor" />
+                  ) : (
+                    <Play size={35} fill="currentColor" />
+                  )}
+                </button>
+                <button
+                  className="icon-button"
+                  aria-label="Next song"
+                  onClick={() => onNext()}
+                >
+                  <AndroidIcon name="skip_next" size={25} />
+                </button>
+                <button
+                  className={`icon-button ${repeatMode !== "off" ? "selected" : ""}`}
+                  aria-label={`Lyrics repeat ${repeatMode}`}
+                  onClick={onToggleRepeat}
+                >
+                  <AndroidIcon
+                    name={repeatMode === "one" ? "repeat_one" : "repeat"}
+                    size={17}
+                  />
