@@ -236,3 +236,38 @@ export default function Sidebar({
                 aria-label="Close session import"
                 disabled={importing}
                 onClick={() => setShowCookieModal(false)}
+              >
+                <X size={19} />
+              </button>
+            </div>
+            <p>
+              Paste your YouTube Music session cookies to connect your library.
+            </p>
+            <form onSubmit={importSession}>
+              <textarea
+                aria-label="Session cookies"
+                value={cookieInput}
+                onChange={(event) => setCookieInput(event.target.value)}
+                placeholder="SAPISID=…; SSID=…"
+                rows={5}
+                autoFocus
+              />
+              {importStatus && (
+                <p role="alert" className="error-text">
+                  {importStatus}
+                </p>
+              )}
+              <button
+                className="primary-button"
+                disabled={importing || !cookieInput.trim()}
+              >
+                {importing && <Loader2 size={16} className="animate-spin" />}
+                Connect
+              </button>
+            </form>
+          </section>
+        </div>
+      </AnimatedPresence>
+    </>
+  );
+}
