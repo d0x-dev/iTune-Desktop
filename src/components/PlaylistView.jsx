@@ -302,3 +302,41 @@ export default function PlaylistView({
           <Library />
           <h2>Your next collection starts here</h2>
           <p>Create a playlist for the songs you love.</p>
+          <button
+            className="primary-button"
+            onClick={() => setShowCreate(true)}
+          >
+            <Plus size={16} />
+            New Playlist
+          </button>
+        </div>
+      )}
+      <AnimatedPresence
+        show={showCreate}
+        duration={250}
+        className="presence-modal"
+      >
+        <div
+          className="modal-backdrop"
+          onClick={(event) => {
+            if (event.target === event.currentTarget && !creating)
+              setShowCreate(false);
+          }}
+        >
+          <section
+            className="dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-playlist-title"
+          >
+            <div className="section-heading">
+              <h2 id="create-playlist-title">New Playlist</h2>
+              <button
+                className="icon-button"
+                aria-label="Close new playlist"
+                disabled={creating}
+                onClick={() => setShowCreate(false)}
+              >
+                <X size={19} />
+              </button>
+            </div>
