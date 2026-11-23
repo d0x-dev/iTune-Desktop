@@ -1034,3 +1034,68 @@ function createMainWindow() {
 function registerWindowsMediaIdentity() {
   if (process.platform !== "win32" || !app.isPackaged || !process.env.APPDATA)
     return;
+
+  const shortcutPath = path.join(
+    process.env.APPDATA,
+    "Microsoft",
+    "Windows",
+    "Start Menu",
+    "Programs",
+    "iTune Desktop.lnk",
+  );
+  const executable = process.env.PORTABLE_EXECUTABLE_FILE || process.execPath;
+  try {
+    const existing = fs.existsSync(shortcutPath)
+      ? shell.readShortcutLink(shortcutPath)
+      : null;
+    if (existing?.target === executable && existing.appUserModelId === APP_USER_MODEL_ID)
+      return;
+    const registered = shell.writeShortcutLink(shortcutPath, existing ? "replace" : "create", {
+      target: executable,
+      cwd: path.dirname(executable),
+      description: "iTune Desktop",
+      appUserModelId: APP_USER_MODEL_ID,
+      icon: executable,
+      iconIndex: 0,
+    });
+    if (!registered) logToFile("Windows media identity registration failed.");
+  } catch (error) {
+    logToFile("Windows media identity registration failed:", error);
+  }
+}
+
+// In-App Google Login Browser Popup Window
+function openGoogleLogin() {
+  return new Promise((resolve) => {
+    let isCompleted = false;
+    loginResolver = resolve;
+
+    if (authWindow && !authWindow.isDestroyed()) {
+      authWindow.focus();
+      return;
+    }
+
+    const authSession = session.fromPartition("persist:google_auth");
+
+    // Genuine Mobile Android User-Agent: Proven to bypass Google's "This browser or app may not be secure" block in Electron
+    const mobileUA =
+      "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.6723.137 Mobile Safari/537.36";
+    authSession.setUserAgent(mobileUA);
+
+    authWindow = new BrowserWindow({
+      width: 480,
+      height: 720,
+      title: "Sign In - YouTube Music",
+      parent: mainWindow,
+      modal: false,
+      autoHideMenuBar: true,
+      backgroundColor: "#ffffff",
+      webPreferences: {
+        session: authSession,
+        nodeIntegration: false,
+        contextIsolation: true,
+        sandbox: true,
+      },
+    });
+
+    authWindow.setMenuBarVisibility(false);
