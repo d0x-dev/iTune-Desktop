@@ -581,3 +581,86 @@ body {
   letter-spacing: 0.7px;
   margin-bottom: 5px;
 }
+.media-caption h3 {
+  color: var(--foreground);
+  font-size: 14px;
+  font-weight: 400;
+}
+.media-caption p {
+  color: var(--muted);
+  font-size: 12px;
+}
+.editorial-caption h3 {
+  color: var(--foreground);
+  font-size: 20px;
+  font-weight: 500;
+}
+.editorial-caption p,
+.editorial-caption > span {
+  color: var(--muted);
+}
+.editorial-caption {
+  margin-bottom: 10px;
+}
+.editorial-section .media-cover .artwork {
+  aspect-ratio: 1.72;
+}
+.editorial-section .media-shelf {
+  display: grid;
+  justify-content: start;
+}
+.editorial-section.hero-landscape .media-shelf {
+  grid-auto-columns: minmax(290px, 320px);
+}
+.editorial-section.hero-portrait .media-shelf {
+  grid-auto-columns: 235px;
+}
+.editorial-section.hero-apple .media-shelf {
+  grid-auto-columns: 250px;
+}
+.hero-media-card {
+  width: 100%;
+}
+.hero-cover {
+  background: var(--surface);
+}
+.hero-landscape-card .hero-cover .artwork {
+  aspect-ratio: 320 / 210;
+}
+.hero-portrait-card .hero-cover {
+  border-radius: 26px;
+}
+.hero-portrait-card .hero-cover .artwork {
+  aspect-ratio: 235 / 325;
+}
+.hero-apple-card .hero-cover {
+  border-radius: 9px;
+}
+.hero-apple-card .hero-cover .artwork {
+  aspect-ratio: 250 / 320;
+}
+.hero-external-tag {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0 2px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hero-brand {
+  position: absolute;
+  z-index: 2;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  text-shadow: 0 1px 12px #0008;
+}
+.hero-brand.align-right {
+  left: auto;
+  right: 16px;
