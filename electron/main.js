@@ -581,3 +581,68 @@ function initYouTube(cookie = "") {
                 isLoggedIn: true,
               };
               logToFile("Parsed profile via getInfo:", name);
+            }
+          } catch (e) {
+            logToFile("yt.account.getInfo fallback error:", e.message);
+          }
+        }
+
+        userProfile = parsedProfile || {
+          name: "YouTube User",
+          email: "",
+          photo: null,
+          isLoggedIn: true,
+        };
+      } else {
+        userProfile = {
+          name: null,
+          email: null,
+          photo: null,
+          isLoggedIn: false,
+        };
+      }
+
+      logToFile(
+        "Innertube initialized. Logged in:",
+        userProfile.isLoggedIn,
+        "User:",
+        userProfile.name,
+      );
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send("auth:changed", userProfile);
+      }
+      return userProfile;
+    } catch (err) {
+      logToFile("Error initializing Innertube:", err);
+      return userProfile;
+    }
+  })();
+
+  return initPromise;
+}
+
+// Helper to extract artist names reliably
+function parseArtistsFromItem(item) {
+  if (item.artists && Array.isArray(item.artists) && item.artists.length > 0) {
+    const list = item.artists
+      .map((a) => ({
+        name: (a.name || a.toString() || "").trim(),
+        id: a.channel_id || a.id,
+      }))
+      .filter((a) => a.name && a.name !== "Unknown Artist");
+    if (list.length > 0) return list;
+  }
+  if (item.author) {
+    const authName = (
+      typeof item.author === "object" ? item.author.name : item.author || ""
+    ).trim();
+    if (authName && authName !== "Unknown Artist") {
+      return [
+        { name: authName, id: item.author?.channel_id || item.author?.id },
+      ];
+    }
+  }
+  const subText = (
+    item.subtitle?.text ||
+    item.subtitle?.toString() ||
+    item.subtitle ||
