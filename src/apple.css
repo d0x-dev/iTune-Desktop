@@ -2663,3 +2663,86 @@ button:not(:disabled):active {
 }
 .welcome-typing.multiline {
   min-height: 148px;
+  max-width: 540px;
+  font-size: 27px;
+  line-height: 35px;
+}
+.welcome-name-field {
+  display: block;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 48%, transparent);
+  transition: border-color 220ms ease, transform 220ms var(--ease-out);
+}
+.welcome-name-field:focus-within { border-bottom-width: 2px; border-color: currentColor; }
+.welcome-name-field:focus-within,
+.welcome-name-field input:focus-visible {
+  outline: none;
+}
+.welcome-name-field.error {
+  color: #f21e3e;
+  animation: welcome-name-shake 340ms ease;
+}
+@keyframes welcome-name-shake {
+  20% { transform: translateX(-18px); }
+  40% { transform: translateX(18px); }
+  60% { transform: translateX(-10px); }
+  80% { transform: translateX(8px); }
+}
+.welcome-name-field input {
+  width: 100%;
+  padding: 9px 0;
+  border: 0;
+  outline: 0;
+  color: inherit;
+  caret-color: #f21e3e;
+  background: transparent;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 24px;
+}
+.welcome-name-field input::placeholder { color: color-mix(in srgb, currentColor 64%, transparent); }
+.welcome-panel > p { margin-top: 8px; color: #f21e3e; font-size: 12px; font-weight: 500; }
+.welcome-primary,
+.welcome-skip {
+  width: 100%;
+  min-height: 54px;
+  border-radius: 999px;
+  transition: transform 180ms var(--ease-out), filter 180ms ease;
+}
+.welcome-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  margin-top: 24px;
+  padding: 0 24px;
+  color: #fff;
+  background: linear-gradient(90deg, #fa2446, #e01435);
+  box-shadow: 0 12px 30px #f21e3e59;
+  font-size: 16.5px;
+  font-weight: 700;
+}
+.name-step .welcome-primary { justify-content: space-between; }
+.welcome-primary:hover { filter: brightness(1.06); }
+.welcome-primary:active,
+.welcome-skip:active { transform: scale(.97); }
+.welcome-primary:disabled { opacity: .7; }
+.welcome-panel.google-step {
+  top: 50%;
+  bottom: auto;
+  display: block;
+}
+.welcome-google-mark {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 26px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 8px 25px #0004;
+}
+.welcome-google-mark img { width: 30px; height: 30px; }
+.welcome-google-actions { width: 100%; margin-top: 30px; }
+.welcome-primary.google { margin: 0; }
+.google-button-logo {
