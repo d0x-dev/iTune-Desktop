@@ -182,3 +182,40 @@ function post(pathname, body) {
     method: "POST",
     body: JSON.stringify(body),
   });
+}
+
+module.exports = {
+  create(displayName, state) {
+    const encoded = encodeStateForOnline(state);
+    return post("/sessions", {
+      name: displayName,
+      state: encoded,
+      settings: encoded.settings,
+    }).then(decodeSession);
+  },
+  join(code, displayName) {
+    return post(
+      `/sessions/${encodeURIComponent(code.trim().toUpperCase())}/join`,
+      { name: displayName },
+    ).then(decodeSession);
+  },
+  get(code) {
+    return withFallback(
+      `/sessions/${encodeURIComponent(code.trim().toUpperCase())}`,
+      { method: "GET" },
+    ).then(decodeSession);
+  },
+  update(code, participantId, state) {
+    const encoded = encodeStateForOnline(state);
+    return post(
+      `/sessions/${encodeURIComponent(code.trim().toUpperCase())}/state`,
+      { participantId, state: encoded, settings: encoded.settings },
+    ).then(decodeSession);
+  },
+  leave(code, participantId) {
+    return post(
+      `/sessions/${encodeURIComponent(code.trim().toUpperCase())}/leave`,
+      { participantId },
+    ).catch(() => ({ ok: true }));
+  },
+};
