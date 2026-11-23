@@ -264,3 +264,41 @@ export default function PlaylistView({
           >
             Try again
           </button>
+        </div>
+      ) : playlists.length ? (
+        <div className="album-grid">
+          {playlists.map((playlist) => (
+            <button
+              className="media-card"
+              key={playlist.id}
+              onClick={() => setSelected(playlist)}
+              onContextMenu={(event) =>
+                onContextMenu?.(
+                  event,
+                  { ...playlist, type: "playlist" },
+                  playlists,
+                )
+              }
+            >
+              <div className="media-cover">
+                <Artwork src={playlist.thumbnail} title={playlist.title} />
+                <span className="cover-play">
+                  <Play size={18} fill="currentColor" />
+                </span>
+              </div>
+              <div className="media-caption">
+                <h3>{playlist.title}</h3>
+                <p>
+                  {playlist.itemCount
+                    ? `${playlist.itemCount} songs`
+                    : playlist.author || "Playlist"}
+                </p>
+              </div>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="empty-state">
+          <Library />
+          <h2>Your next collection starts here</h2>
+          <p>Create a playlist for the songs you love.</p>
