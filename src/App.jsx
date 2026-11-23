@@ -417,3 +417,63 @@ export default function App() {
       return queueRef.current;
     } finally {
       queueRequests.current.delete(requestKey);
+    }
+  }, []);
+
+  const selectTrack = (track, list = []) => {
+    if (!track?.id) return;
+    const type = String(track.type || "").toLowerCase();
+    if (type.includes("artist") || track.id.startsWith("UC")) {
+      navigate("artists", {
+        artist: { ...track, name: track.name || track.title },
+      });
+      return;
+    }
+    if (type.includes("album") || track.id.startsWith("MPRE")) {
+      navigate("albums", { album: track });
+      return;
+    }
+    if (
+      type.includes("playlist") ||
+      type === "podcast" ||
+      /^(VL|PL|RD|OLAK)/.test(track.id)
+    ) {
+      navigate("playlists", { playlist: track });
+      return;
+    }
+    if (currentTrack?.id === track.id) {
+      player.current?.togglePlay();
+      return;
+    }
+    if (list === queue) {
+      const nextIndex = queue.findIndex((item) => item.id === track.id);
+      currentIndexRef.current = nextIndex;
+      currentTrackRef.current = track;
+      setCurrentIndex(nextIndex);
+      setCurrentTrack(track);
+      return;
+    }
+    const tracks = playableTracks(list.length ? list : [track]);
+    const index = tracks.findIndex((item) => item.id === track.id);
+    const collection = index >= 0 ? tracks : [track];
+    originalQueue.current = collection;
+    const generatedQueue = isShuffle
+      ? [
+          track,
+          ...shuffledCopy(collection.filter((item) => item.id !== track.id)),
+        ]
+      : collection;
+    const generatedIndex = isShuffle ? 0 : Math.max(0, index);
+    const generation = ++queueGeneration.current;
+    queueRequests.current.clear();
+    fetchedQueueSeeds.current.clear();
+    queueRef.current = generatedQueue;
+    currentIndexRef.current = generatedIndex;
+    currentTrackRef.current = track;
+    player.current?.preparePlayback(true);
+    setQueue(generatedQueue);
+    setCurrentIndex(generatedIndex);
+    setCurrentTrack(track);
+    if (track.type !== "radio") extendRelatedQueue(track, generation);
+  };
+  const shuffleTracks = (tracks) => {
