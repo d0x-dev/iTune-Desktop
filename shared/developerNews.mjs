@@ -23,3 +23,29 @@ const boolean = (value, fallback) => {
   return fallback;
 };
 
+function isITuneNews({ tag, id, title, message, actionUrl }) {
+  if ([tag, id, title, message, actionUrl].some((field) => /itune/i.test(field)))
+    return true;
+  return /^(announcement|news)?$/i.test(tag) && !/airbeats/i.test(`${title} ${message}`);
+}
+
+export function parseDeveloperNews(payload) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload) ||
+      boolean(payload.success, true) === false || payload.error ||
+      ("news" in payload && !Array.isArray(payload.news))) {
+    throw new Error("Invalid news feed");
+  }
+
+  return Object.entries(payload.news ?? payload)
+    .filter(([, item]) => item && typeof item === "object" && !Array.isArray(item))
+    .map(([key, item]) => ({
+      id: String(item.id ?? key).trim(),
+      title: string(item.title).trim(),
+      message: string(item.message ?? item.content),
+      author: string(item.author).trim() || string(item.authorName).trim(),
+      imageUrl: newsWebUrl(item.imageUrl),
+      actionUrl: newsWebUrl(item.actionUrl),
+      actionText: string(item.actionText).trim(),
+      tag: string(item.tag).trim(),
+      timestamp: Math.max(0, number(item.timestamp)),
+      priority: number(item.priority),
