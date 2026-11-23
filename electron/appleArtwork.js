@@ -35,3 +35,40 @@ async function publicCatalogToken() {
     const html = await get("https://music.apple.com/us/browse");
     const scripts = [
       ...new Set(
+        [
+          ...String(html || "").matchAll(
+            /\/assets\/index(?:-legacy)?[~-][A-Za-z0-9_-]+\.js/g,
+          ),
+        ].map((match) => match[0]),
+      ),
+    ];
+    for (const script of scripts.slice(0, 3)) {
+      const body = await get(`https://music.apple.com${script}`);
+      for (const match of String(body || "").matchAll(
+        /ey[A-Za-z0-9_-]+\.ey[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,
+      )) {
+        try {
+          const payload = JSON.parse(
+            Buffer.from(match[0].split(".")[1], "base64url").toString(),
+          );
+          if (payload.exp * 1000 > Date.now() + 60000) {
+            tokenExpiry = payload.exp * 1000;
+            return match[0];
+          }
+        } catch {}
+      }
+    }
+    return null;
+  })().catch(() => null);
+  return tokenRequest;
+}
+async function catalogMotion(type, id) {
+  const token = await publicCatalogToken();
+  if (!token) return null;
+  const data = await get(
+    `https://amp-api.music.apple.com/v1/catalog/us/${type}/${id}?extend=editorialVideo`,
+    true,
+    { Authorization: `Bearer ${token}`, Origin: "https://music.apple.com" },
+  );
+  return motionUrl(data?.data?.[0]?.attributes?.editorialVideo);
+}
