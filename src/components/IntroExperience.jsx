@@ -152,3 +152,41 @@ export function SplashExperience({ newUser, onFinished }) {
       if (!active) return;
       if (!newUser) {
         setRevealing(true);
+        await wait(reducedMotion ? 80 : 700);
+      }
+      setTravel(newUser ? "to-welcome" : "to-home");
+      await wait(reducedMotion ? 100 : 850);
+      if (active) finishRef.current();
+    };
+    run();
+    return () => {
+      active = false;
+    };
+  }, [newUser, reducedMotion]);
+
+  return (
+    <section className={`intro-screen splash-screen ${travel} ${revealing ? "reveal-app" : ""}`}>
+      <AmbientMesh />
+      <div className="splash-wave"><ITuneWaveIcon size={92} /></div>
+      <div className="splash-word">
+        {text}<span className={`typing-caret ${typing ? "active" : ""}`} />
+      </div>
+    </section>
+  );
+}
+
+export function WelcomeExperience({
+  userProfile,
+  authLoading,
+  onLogin,
+  onComplete,
+  fromSplash = false,
+}) {
+  const [step, setStep] = useState("name");
+  const [name, setName] = useState(userProfile?.name || "");
+  const [nameError, setNameError] = useState(false);
+  const [loginBusy, setLoginBusy] = useState(false);
+  const [outroText, setOutroText] = useState("");
+  const [showLoader, setShowLoader] = useState(false);
+  const [travel, setTravel] = useState("");
+  const [revealing, setRevealing] = useState(false);
