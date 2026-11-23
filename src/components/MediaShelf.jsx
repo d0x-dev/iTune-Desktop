@@ -130,3 +130,36 @@ export default function MediaShelf({
               </div>
             </button>
           ) : (
+            <button
+              className={`media-card ${item.type === "artist" ? "artist-media-card" : ""}`}
+              key={`${item.id}-${index}`}
+              onClick={() => onSelect(item, items)}
+              onContextMenu={(event) => onContextMenu?.(event, item, items)}
+            >
+              <div className="media-cover">
+                <Artwork
+                  src={item.thumbnail}
+                  title={item.title}
+                  eager={false}
+                />
+                <span className="cover-play">
+                  <Play size={19} fill="currentColor" />
+                </span>
+              </div>
+              <div className="media-caption">
+                <h3><ExplicitTitle item={item} /></h3>
+                <p>{getArtistName(item)}</p>
+              </div>
+            </button>
+          ),
+        )}
+      </div>
+    </section>
+  );
+}
+
+function heroCategory(item) {
+  if (item.type === "album") return "Featured Album";
+  if (item.type === "playlist") return "Made for You";
+  return "Top Pick";
+}
