@@ -36,3 +36,41 @@ export default function PlaylistView({
       selected ? { heroUrl: selected.thumbnail || detail?.thumbnail } : null,
     );
     return () => onArtworkChange?.(null);
+  }, [selected?.id, detail?.thumbnail, onArtworkChange]);
+  const [loading, setLoading] = useState(true);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
+  const [title, setTitle] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [reload, setReload] = useState(0);
+  const [error, setError] = useState("");
+  const [createError, setCreateError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    setPlaylists([]);
+    setError("");
+    if (!userProfile?.isLoggedIn) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    window.api.yt
+      .getPlaylists()
+      .then((data) => {
+        if (!active) return;
+        if (data?.error) throw new Error(data.error);
+        setPlaylists(data?.playlists || []);
+      })
+      .catch(() => {
+        if (active) setError("Your playlists couldn’t load. Try again.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [userProfile?.isLoggedIn, reload]);
+  useEffect(() => {
