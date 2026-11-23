@@ -2590,3 +2590,67 @@ function registerIpcHandlers() {
 
           const input = Readable.fromWeb(response.body);
           input.on("data", resetInactivityTimer);
+          await pipeline(
+            input,
+            fs.createWriteStream(partialPath, {
+              flags: isResume ? "a" : "w",
+            }),
+          );
+          clearTimeout(inactivityTimer);
+          const downloadedLength = (await fs.promises.stat(partialPath)).size;
+          if (expectedLength && downloadedLength < expectedLength)
+            throw new Error("The connection ended before the song finished downloading.");
+          completed = true;
+        } catch (err) {
+          clearTimeout(inactivityTimer);
+          lastError = err;
+          logToFile(
+            `Song download attempt ${attempt + 1} failed:`,
+            err.message,
+          );
+        }
+      }
+      if (!completed) throw lastError || new Error("The download did not complete.");
+
+      await fs.promises.rename(partialPath, target);
+      partialPath = "";
+      shell.showItemInFolder(target);
+      return { ok: true, path: target };
+    } catch (err) {
+      if (partialPath) await fs.promises.rm(partialPath, { force: true }).catch(() => {});
+      logToFile("Song download failed:", err.message);
+      return { ok: false, error: err.message };
+    }
+  });
+
+  ipcMain.handle("radio:getCountries", async () => {
+    try {
+      const rows = await fetchRadioJson(
+        "/json/countries?order=stationcount&reverse=true&hidebroken=true",
+      );
+      return {
+        countries: rows
+          .map((country) => ({
+            code: String(country.iso_3166_1 || "").toUpperCase(),
+            name: country.name,
+            stationCount: Number(country.stationcount) || 0,
+          }))
+          .filter((country) => country.code.length === 2 && country.stationCount)
+          .filter(
+            (country, index, items) =>
+              items.findIndex((item) => item.code === country.code) === index,
+          ),
+      };
+    } catch (err) {
+      return { countries: [], error: err.message };
+    }
+  });
+
+  ipcMain.handle("radio:getStations", async (_event, options = {}) => {
+    try {
+      const params = new URLSearchParams({
+        limit: String(Math.min(100, Math.max(12, Number(options.limit) || 48))),
+        offset: String(Math.max(0, Number(options.offset) || 0)),
+        hidebroken: "true",
+        order: options.query ? "votes" : "clickcount",
+        reverse: "true",
