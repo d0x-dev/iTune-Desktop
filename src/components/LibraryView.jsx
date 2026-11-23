@@ -35,3 +35,41 @@ export default function LibraryView({
   const [detail, setDetail] = useState(null);
   const albumArtwork = useRemoteArtwork(
     "getAlbum",
+    album ? { title: album.title, artist: getArtistName(album) } : null,
+  );
+  useEffect(() => {
+    onArtworkChange?.(
+      album
+        ? {
+            heroUrl:
+              albumArtwork?.heroUrl || album.thumbnail || detail?.thumbnail,
+            videoUrl: albumArtwork?.videoUrl,
+          }
+        : null,
+    );
+    return () => onArtworkChange?.(null);
+  }, [album?.id, albumArtwork, detail?.thumbnail, onArtworkChange]);
+  const [loading, setLoading] = useState(true);
+  const [loadingAlbum, setLoadingAlbum] = useState(false);
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState("recent");
+  const [error, setError] = useState("");
+  const [retry, setRetry] = useState(0);
+  const title =
+    mode === "albums"
+      ? "Albums"
+      : mode === "favorites"
+        ? "Favorite Songs"
+        : "Songs";
+
+  useEffect(() => {
+    let active = true;
+    setItems([]);
+    setQuery("");
+    setError("");
+    if (!userProfile?.isLoggedIn) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    const request =
