@@ -1413,3 +1413,87 @@ body {
 .toast {
   background: var(--surface);
   color: var(--foreground);
+  border-color: var(--border-subtle);
+}
+.lyrics-dialog {
+  color-scheme: dark;
+  --foreground: white;
+  --muted: #ffffff88;
+  --plate: #ffffff0b;
+  --plate-hover: #ffffff15;
+}
+[data-lyrics-fullscreen="true"] .lyrics-overlay:not(.compact-lyrics) {
+  inset: 0 !important;
+  z-index: 20000;
+}
+[data-lyrics-fullscreen="true"] .lyrics-overlay:not(.compact-lyrics) .lyrics-dialog {
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+.lyrics-tools-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: #0804072e;
+}
+.lyrics-tools-popover {
+  position: absolute;
+  top: 47px;
+  right: 12px;
+  width: min(390px, calc(100% - 24px));
+  max-height: min(650px, calc(100% - 62px));
+  overflow: hidden;
+  color: #fff;
+  border: 1px solid #ffffff2b;
+  border-radius: 17px;
+  background: color-mix(in srgb, #24171d 76%, transparent);
+  box-shadow: 0 24px 90px #0009, inset 0 1px #ffffff20;
+  backdrop-filter: blur(34px) saturate(185%);
+  -webkit-backdrop-filter: blur(34px) saturate(185%);
+  animation: menu-in 180ms var(--ease-out) both;
+}
+.lyrics-tools-header {
+  min-height: 58px;
+  padding: 9px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #ffffff17;
+}
+.lyrics-tools-header > div {
+  min-width: 0;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+.lyrics-tools-header strong { font-size: 14px; }
+.lyrics-tools-header small {
+  margin-top: 2px;
+  overflow: hidden;
+  color: #ffffff8c;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lyrics-tools-close { margin-left: auto; }
+.lyrics-tools-menu { padding: 6px; }
+.lyrics-tools-menu > button,
+.lyrics-search-result {
+  width: 100%;
+  min-height: 57px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 11px;
+}
+.lyrics-tools-menu > button:hover,
+.lyrics-search-result:hover { background: #ffffff13; }
+.lyrics-tools-menu > button + button { border-top: 1px solid #ffffff12; border-radius: 0; }
+.lyrics-tools-menu button > span,
+.lyrics-search-result > span {
+  min-width: 0;
