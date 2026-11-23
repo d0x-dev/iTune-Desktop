@@ -31,3 +31,37 @@ export default function TrackList({
         <span role="columnheader">Time</span>
       </div>
       {tracks.map((track, index) => {
+        const videoId = track.videoId || track.id;
+        const selected = currentTrack?.id === track.id;
+        const liked = likedSongIds?.has(videoId);
+        return (
+          <div
+            className={`track-row ${selected ? "current" : ""}`}
+            role="row"
+            key={`${track.id}-${index}`}
+            onContextMenu={(event) => onContextMenu?.(event, track, tracks)}
+          >
+            <div className="track-number" role="cell">
+              <span>
+                {selected && isPlaying ? (
+                  <span className="equalizer">
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                ) : (
+                  index + 1
+                )}
+              </span>
+              <button
+                className="icon-button"
+                aria-label={`Play ${track.title}`}
+                onClick={() => onSelectTrack(track, tracks)}
+              >
+                <Play size={14} fill="currentColor" />
+              </button>
+            </div>
+            <div role="cell">
+              <button
+                className="track-song"
+                onClick={() => onSelectTrack(track, tracks)}
