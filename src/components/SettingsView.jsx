@@ -434,3 +434,46 @@ export default function SettingsView({
             max="1"
             step="0.01"
             value={preferences.spatialWidth}
+            style={{ "--progress": `${preferences.spatialWidth * 100}%` }}
+            disabled={!preferences.audioEffectsEnabled || !preferences.virtualAtmos}
+            onChange={(event) => updatePreference("spatialWidth", Number(event.target.value))}
+          />
+        </Setting>
+        <Setting title="Bass" description={`${preferences.bassBoost > 0 ? "+" : ""}${preferences.bassBoost} dB`}>
+          <input
+            className="settings-range"
+            type="range"
+            min="-6"
+            max="12"
+            step="1"
+            value={preferences.bassBoost}
+            style={{ "--progress": `${((preferences.bassBoost + 6) / 18) * 100}%` }}
+            disabled={!preferences.audioEffectsEnabled}
+            onChange={(event) => updatePreference("bassBoost", Number(event.target.value))}
+          />
+        </Setting>
+        <Setting title="Treble" description={`${preferences.trebleBoost > 0 ? "+" : ""}${preferences.trebleBoost} dB`}>
+          <input
+            className="settings-range"
+            type="range"
+            min="-6"
+            max="10"
+            step="1"
+            value={preferences.trebleBoost}
+            style={{ "--progress": `${((preferences.trebleBoost + 6) / 16) * 100}%` }}
+            disabled={!preferences.audioEffectsEnabled}
+            onChange={(event) => updatePreference("trebleBoost", Number(event.target.value))}
+          />
+        </Setting>
+        <Setting title="Room Reverb" description={`${Math.round(preferences.reverbAmount * 100)}%`}>
+          <input
+            className="settings-range"
+            type="range"
+            min="0"
+            max="0.55"
+            step="0.01"
+            value={preferences.reverbAmount}
+            style={{ "--progress": `${(preferences.reverbAmount / 0.55) * 100}%` }}
+            disabled={!preferences.audioEffectsEnabled}
+            onChange={(event) => updatePreference("reverbAmount", Number(event.target.value))}
+          />
