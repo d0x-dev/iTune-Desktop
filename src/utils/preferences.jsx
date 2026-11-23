@@ -22,3 +22,27 @@ const defaults = {
   explicitContent: true,
   collectionVisualEffects: true,
   audioEffectsEnabled: false,
+  audioPreset: "balanced",
+  virtualAtmos: false,
+  spatialWidth: 0.35,
+  bassBoost: 0,
+  trebleBoost: 0,
+  reverbAmount: 0,
+  loudnessNormalization: true,
+  playerPlacement: "top",
+};
+const PreferencesContext = createContext({
+  preferences: defaults,
+  updatePreference: () => {},
+});
+export function PreferencesProvider({ children }) {
+  const [preferences, setPreferences] = useState(() => {
+    try {
+      const loaded = {
+        ...defaults,
+        ...JSON.parse(localStorage.getItem("itune-preferences") || "{}"),
+      };
+      if (loaded.desktopTransparency) {
+        loaded.glass = false;
+        loaded.backgroundArtwork = false;
+      }
