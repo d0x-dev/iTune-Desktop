@@ -119,3 +119,44 @@ export default function SearchView({
             (item) =>
               `${item.title} ${item.name || ""} ${item.artists?.map((artist) => artist.name).join(" ") || ""}`
                 .toLowerCase()
+                .includes(value.trim().toLowerCase()) &&
+              (!type || item.type === type),
+          ),
+        };
+      } else data = await window.api.yt.search(value.trim(), type || undefined);
+      if (searchRevision.current !== revision) return;
+      if (data?.error) throw new Error(data.error);
+      setResults(data?.results || []);
+    } catch (failure) {
+      if (searchRevision.current === revision) {
+        setError(failure.message || "Search couldn’t load. Try again.");
+        setResults([]);
+      }
+    } finally {
+      if (searchRevision.current === revision) setLoading(false);
+    }
+  };
+  const collections = results.filter(
+    (item) =>
+      /album|artist|playlist/i.test(item.type || "") ||
+      /^(MPRE|VL|PL|RD|UC|OLAK)/.test(item.id || ""),
+  );
+  const songs = results.filter((item) => !collections.includes(item));
+  return (
+    <div className="page search-page">
+      <header className="page-heading">
+        <h1>Search</h1>
+        <p>Find your next favorite song.</p>
+      </header>
+      <div className="search-scope" aria-label="Search scope">
+        <button
+          className={scope === "catalog" ? "active" : ""}
+          onClick={() => {
+            setScope("catalog");
+            if (query.trim()) search(query, filter, "catalog");
+          }}
+        >
+          YouTube Music
+        </button>
+        <button
+          className={scope === "library" ? "active" : ""}
