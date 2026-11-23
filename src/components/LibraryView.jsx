@@ -261,3 +261,41 @@ export default function LibraryView({
                 />
               </label>
               <select
+                aria-label="Sort library"
+                value={sort}
+                onChange={(event) => setSort(event.target.value)}
+              >
+                <option value="recent">Recently Added</option>
+                <option value="title">Title</option>
+                <option value="artist">Artist</option>
+              </select>
+            </div>
+          </div>
+          {loading ? (
+            <div className="empty-state">
+              <Loader2 className="animate-spin" />
+              <p>Loading your library…</p>
+            </div>
+          ) : error ? (
+            <div className="empty-state">
+              <h2>Let’s try again</h2>
+              <p role="alert">{error}</p>
+              <button
+                className="primary-button"
+                onClick={() => setRetry(retry + 1)}
+              >
+                Try again
+              </button>
+            </div>
+          ) : !sorted.length ? (
+            <div className="empty-state">
+              <Disc3 />
+              <h2>{query ? "No matches" : "Make room for your favorites"}</h2>
+              <p>
+                {query
+                  ? "Try another title or artist."
+                  : "Music saved to your YouTube Music library appears here."}
+              </p>
+            </div>
+          ) : mode === "albums" ? (
+            <div className="album-grid">
