@@ -257,3 +257,68 @@ async function translateLyricsWithAI(lines, targetLanguage, mode, config) {
     mode === "hinglish"
       ? "Translate into natural Hinglish using only the English/Latin alphabet. Never use Devanagari."
       : mode === "romanized"
+        ? "Romanize/transliterate into plain Latin alphabet characters."
+        : "Translate naturally while preserving poetic meaning, rhythm, and emotion.";
+  const prompt = `${modeInstruction}\nTarget language code: ${targetLanguage}.\nReturn ONLY a valid JSON array containing exactly ${lineCount} strings, one for each input line. Preserve empty lines.\n\nLyrics:\n${lines.join("\n")}`;
+  const headers = { "Content-Type": "application/json" };
+  let body;
+  if (provider === "claude") {
+    headers["x-api-key"] = config.apiKey;
+    headers["anthropic-version"] = "2023-06-01";
+    body = {
+      model,
+      max_tokens: Math.max(1024, lineCount * 70),
+      messages: [{ role: "user", content: prompt }],
+    };
+  } else {
+    headers.Authorization = `Bearer ${config.apiKey}`;
+    if (provider === "openrouter") {
+      headers["HTTP-Referer"] = "https://github.com/Darkxvenom/iTune";
+      headers["X-Title"] = "iTune Desktop";
+    }
+    body = {
+      model,
+      messages: [
+        {
+          role: "system",
+          content: "You are an expert song-lyrics translator. Output JSON only.",
+        },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.25,
+      max_tokens: Math.max(1024, lineCount * 70),
+    };
+  }
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(90000),
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok)
+    throw new Error(
+      result?.error?.message || result?.message || `AI request failed (${response.status}).`,
+    );
+  const content =
+    provider === "claude"
+      ? result?.content?.find((part) => part.type === "text")?.text
+      : result?.choices?.[0]?.message?.content;
+  return parseAiTranslation(content, lineCount);
+}
+
+function lrcTime(milliseconds) {
+  const total = Math.max(0, Number(milliseconds) || 0) / 1000;
+  const minutes = Math.floor(total / 60);
+  const seconds = (total % 60).toFixed(2).padStart(5, "0");
+  return `${String(minutes).padStart(2, "0")}:${seconds}`;
+}
+
+async function youtubeSubtitleLyrics(client, videoId) {
+  try {
+    const info = await client.getInfo(videoId);
+    const transcriptInfo = await info.getTranscript();
+    const segments = transcriptInfo?.transcript?.content?.body?.initial_segments;
+    if (!Array.isArray(segments) || !segments.length) return null;
+    const lines = segments
+      .filter((segment) => segment?.snippet?.toString && segment.start_ms != null)
