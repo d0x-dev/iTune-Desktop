@@ -71,3 +71,40 @@ function sendJson(response, status, body) {
 
 class IShareLanHost {
   constructor({ displayName, state, settings, port = 8765 }) {
+    this.displayName = displayName || "iTune Desktop";
+    this.state = state || null;
+    this.settings = {
+      allowGuestsToControlPlayback: false,
+      allowGuestsToAddTracks: true,
+      ...(settings || {}),
+    };
+    this.port = Number(port) || 8765;
+    this.ip = localIpv4();
+    this.sessionId = crypto.randomBytes(4).toString("hex").toUpperCase();
+    this.stateVersion = 1;
+    this.participants = new Map([
+      ["host", participant("host", this.displayName, true)],
+    ]);
+    this.pendingActions = [];
+    this.server = null;
+    this.discovery = null;
+  }
+
+  snapshot(participantId = "host") {
+    const queue = this.state?.queue || [];
+    return {
+      code: `${this.ip}:${this.port}`,
+      participantId,
+      joinUrl: `airbeats://together?host=${this.ip}&port=${this.port}&sid=${this.sessionId}`,
+      participants: this.participants.size,
+      participantList: [...this.participants.values()].sort(
+        (a, b) => Number(b.isHost) - Number(a.isHost),
+      ),
+      hostName: this.displayName,
+      controllerId: "host",
+      controllerName: this.displayName,
+      stateVersion: this.stateVersion,
+      serverNow: Date.now(),
+      state: this.state ? { ...this.state, settings: this.settings, queue } : null,
+      settings: this.settings,
+      queue,
