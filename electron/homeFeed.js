@@ -182,3 +182,40 @@ function parseHomePage(
         types.size === 1 && types.has("song")
           ? "songs"
           : types.size === 1 && types.has("artist")
+            ? "artists"
+            : [...types].every((type) => type === "video" || type === "episode")
+              ? "videos"
+              : "cards";
+      return {
+        key: `${key}:${index}`,
+        title,
+        strapline: text(header?.strapline),
+        group,
+        layout,
+        contents: unique,
+      };
+    })
+    .filter(Boolean);
+  const continuation =
+    list?.continuations?.[0]?.nextContinuationData?.continuation || null;
+  return { sections, continuation };
+}
+function parseRadioTracks(data, upgrade = (url) => url) {
+  const tracks = [];
+  const seen = new Set();
+  function walk(node) {
+    if (!node || typeof node !== "object") return;
+    if (node.playlistPanelVideoRenderer || node.musicResponsiveListItemRenderer) {
+      const track = parseItem(node, upgrade);
+      if (track && !seen.has(track.id)) {
+        seen.add(track.id);
+        tracks.push(track);
+      }
+      return;
+    }
+    for (const value of Object.values(node)) walk(value);
+  }
+  walk(data);
+  return tracks;
+}
+module.exports = { parseHomePage, parseRadioTracks };
