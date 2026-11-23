@@ -19,3 +19,25 @@ export default function Artwork({
       {currentSource ? (
         <img
           key={currentSource}
+          src={currentSource}
+          alt={title}
+          loading={eager ? "eager" : "lazy"}
+          decoding="async"
+          onError={nextCandidate}
+          onLoad={(event) => {
+            if (
+              currentSource.includes("/maxresdefault.") &&
+              event.currentTarget.naturalWidth <= 120
+            )
+              nextCandidate();
+          }}
+        />
+      ) : (
+        <div className="artwork-placeholder">
+          <Music2 aria-hidden="true" />
+        </div>
+      )}
+      {children}
+    </div>
+  );
+}
