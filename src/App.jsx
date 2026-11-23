@@ -1377,3 +1377,63 @@ export default function App() {
           }
           onVolumeChange={(value) => player.current?.setVolume(value)}
         />
+      </AnimatedPresence>
+      <AnimatedPresence
+        show={showListenTogether}
+        className="presence-listen-together"
+      >
+        <ListenTogetherPanel
+          session={listenTogether?.session}
+          role={listenTogether?.role}
+          connectionMode={listenTogether?.mode || "online"}
+          displayName={
+            listenTogether?.displayName ||
+            appUserProfile.name ||
+            "iTune Listener"
+          }
+          settings={ishareSettings}
+          error={listenError}
+          busy={listenBusy}
+          onCreate={createListenTogether}
+          onJoin={joinListenTogether}
+          onHostLan={hostLanListenTogether}
+          onJoinLan={joinLanListenTogether}
+          onScanLan={scanLanHosts}
+          lanHosts={lanHosts}
+          scanningLan={scanningLan}
+          localIp={localLanIp}
+          onLeave={leaveListenTogether}
+          onSettingsChange={setIshareSettings}
+          onClose={() => setShowListenTogether(false)}
+        />
+      </AnimatedPresence>
+      <AnimatedPresence
+        show={Boolean(developerNews.popup && !introStage)}
+        duration={300}
+        className="presence-news"
+      >
+        <DeveloperNewsPopup
+          item={developerNews.popup}
+          onDismiss={developerNews.dismissPopup}
+          onOpenNews={() => {
+            const item = developerNews.popup;
+            developerNews.dismissPopup();
+            setNavigation((previous) => ({
+              entries: [
+                ...previous.entries.slice(0, previous.index + 1),
+                { tab: "news", newsItemKey: JSON.stringify([item.id, item.timestamp]) },
+              ],
+              index: previous.index + 1,
+            }));
+          }}
+        />
+      </AnimatedPresence>
+      <AnimatedPresence show={Boolean(message)} duration={220} className="presence-toast">
+        <div className="toast" role="status">
+          <span>{message}</span>
+          <button
+            className="icon-button"
+            aria-label="Dismiss message"
+            onClick={() => setMessage("")}
+          >
+            <X size={16} />
