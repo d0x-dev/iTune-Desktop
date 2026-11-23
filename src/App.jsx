@@ -777,3 +777,63 @@ export default function App() {
         }),
       ].filter(Boolean),
     );
+    const remoteTrack =
+      importedQueue.find((item) => item.id === state.songId) ||
+      sharedQueueTrack({
+        id: state.songId,
+        title: state.title,
+        artist: (state.artists || [])[0],
+        thumbnailUrl: String(state.thumbnailUrl || "").split("#")[0],
+        durationMs: state.durationMs,
+      });
+    if (!remoteTrack) return;
+    const orderedQueue = mergeUniqueTracks([remoteTrack], importedQueue);
+    const remoteIndex = orderedQueue.findIndex(
+      (item) => item.id === remoteTrack.id,
+    );
+    const elapsedMs = state.isPlaying
+      ? Math.max(0, (sessionData.serverNow || Date.now()) - state.updatedAt)
+      : 0;
+    const targetSeconds = Math.max(0, (state.positionMs + elapsedMs) / 1000);
+    const changedTrack = currentTrackRef.current?.id !== remoteTrack.id;
+
+    if (changedTrack) {
+      player.current?.preparePlayback(state.isPlaying);
+      ++queueGeneration.current;
+      queueRequests.current.clear();
+      fetchedQueueSeeds.current.clear();
+      queueRef.current = orderedQueue;
+      currentIndexRef.current = remoteIndex;
+      currentTrackRef.current = remoteTrack;
+      originalQueue.current = orderedQueue;
+      setQueue(orderedQueue);
+      setCurrentIndex(remoteIndex);
+      setCurrentTrack(remoteTrack);
+    }
+
+    const applyTransport = () => {
+      const localTime = playbackRef.current.currentTime || 0;
+      if (changedTrack || Math.abs(localTime - targetSeconds) > 1.8)
+        player.current?.seek(targetSeconds);
+      if (state.isPlaying) player.current?.play();
+      else player.current?.pause();
+    };
+    if (changedTrack) setTimeout(applyTransport, 650);
+    else applyTransport();
+  }, []);
+
+  const createListenTogether = async (displayName) => {
+    setListenBusy(true);
+    setListenError("");
+    try {
+      const result = await window.api.ishare.create(
+        displayName,
+        buildSharedState(),
+      );
+      if (!result?.ok || !result.session) throw new Error(result?.error);
+      setListenTogether({
+        role: "host",
+        mode: "online",
+        displayName,
+        session: result.session,
+      });
