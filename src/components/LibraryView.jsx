@@ -299,3 +299,41 @@ export default function LibraryView({
             </div>
           ) : mode === "albums" ? (
             <div className="album-grid">
+              {sorted.map((item) => (
+                <button
+                  className="media-card"
+                  key={item.id}
+                  onClick={() => setAlbum(item)}
+                  onContextMenu={(event) =>
+                    onContextMenu?.(event, item, sorted)
+                  }
+                >
+                  <div className="media-cover">
+                    <Artwork src={item.thumbnail} title={item.title} />
+                    <span className="cover-play">
+                      <Play size={18} fill="currentColor" />
+                    </span>
+                  </div>
+                  <div className="media-caption">
+                    <h3><ExplicitTitle item={item} /></h3>
+                    <p>{getArtistName(item)}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <TrackList
+              tracks={sorted}
+              currentTrack={currentTrack}
+              isPlaying={isPlaying}
+              onSelectTrack={onSelectTrack}
+              likedSongIds={likedSongIds}
+              onToggleLike={onToggleLike}
+              onContextMenu={onContextMenu}
+            />
+          )}
+        </>
+      )}
+    </div>
+  );
+}
