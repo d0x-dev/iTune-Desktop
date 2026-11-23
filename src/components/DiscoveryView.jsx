@@ -132,3 +132,37 @@ export default function DiscoveryView({
           {!feed.sections.length && (
             <div className="empty-state">
               <Radio />
+              <h2>
+                {feed.error ? "Music couldn’t load" : "Find your next favorite"}
+              </h2>
+              <p>{feed.error || "Search for the music you love."}</p>
+              <button className="primary-button" onClick={feed.refresh}>
+                Try again
+              </button>
+            </div>
+          )}
+          <div ref={sentinel} className="feed-pagination">
+            {feed.loadingMore ? (
+              <>
+                <Loader2 size={19} className="animate-spin" />
+                <span>Loading more music…</span>
+              </>
+            ) : feed.continuation && !feed.error ? (
+              <button className="text-button" onClick={feed.loadMore}>
+                Load More
+              </button>
+            ) : null}
+            {feed.error && !feed.loadingMore && feed.sections.length > 0 && (
+              <button
+                className="text-button"
+                onClick={feed.continuation ? feed.loadMore : feed.refresh}
+              >
+                Try loading more music again
+              </button>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
