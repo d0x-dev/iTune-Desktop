@@ -1795,3 +1795,85 @@ input[type="range"]:disabled {
   }
   .editorial-section .media-shelf {
     grid-auto-columns: calc((100% - 18px) / 2);
+  }
+  .media-shelf {
+    grid-auto-columns: calc((100% - 32px) / 3);
+  }
+  .artist-grid,
+  .album-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .track-row {
+    grid-template-columns: 26px minmax(120px, 1fr) 62px;
+    gap: 7px;
+  }
+  .track-album {
+    display: none;
+  }
+  .track-end {
+    gap: 1px;
+  }
+  .track-song strong {
+    font-size: 11px;
+  }
+  .collection-header > .artwork {
+    width: 170px;
+    height: 170px;
+  }
+  .library-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .lyrics-layout {
+    gap: 35px;
+    padding: 0 35px 35px;
+    grid-template-columns: minmax(220px, 0.9fr) minmax(260px, 1.1fr);
+  }
+  .lyrics-cover {
+    width: min(100%, 38vh);
+  }
+  .queue-panel {
+    position: absolute;
+    right: 0;
+    top: 161px;
+    bottom: 0;
+    z-index: 20;
+    box-shadow: -20px 0 50px #0003;
+  }
+}
+@media (max-width: 650px) {
+  .sidebar {
+    width: 65px;
+    padding: 14px 7px;
+  }
+  .sidebar-brand {
+    padding: 4px 11px 20px;
+  }
+  .sidebar-brand > span,
+  .sidebar-search,
+  .nav-group h2,
+  .nav-item > span,
+  .session-link,
+  .account-button > span:nth-child(2),
+  .account-button > button {
+    display: none;
+  }
+  .nav-item {
+    justify-content: center;
+    padding: 10px;
+  }
+  .nav-group {
+    margin-bottom: 18px;
+  }
+  .sidebar-account {
+    padding: 12px 8px 0;
+  }
+  .player-bar {
+    height: 75px;
+    grid-template-columns: 83px minmax(100px, 1fr) 28px;
+    padding: 0 10px;
+    gap: 6px;
+  }
+  .transport-controls {
+    gap: 0;
+  }
