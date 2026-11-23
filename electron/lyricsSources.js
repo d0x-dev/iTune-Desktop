@@ -317,3 +317,43 @@ async function megalobiz(metadata) {
   return result(decodeHtml(detail), "Megalobiz", true);
 }
 
+async function lyricsOvh(metadata) {
+  if (!metadata.title || !metadata.artist) return null;
+  const data = await request(
+    `https://api.lyrics.ovh/v1/${encodeURIComponent(metadata.artist)}/${encodeURIComponent(metadata.title)}`,
+    { json: true },
+  );
+  return result(data?.lyrics, "Lyrics.ovh", false);
+}
+
+async function genius(metadata) {
+  const query = [metadata.title, metadata.artist].filter(Boolean).join(" ");
+  if (!query) return null;
+  const data = await request(
+    `https://genius.com/api/search/multi?per_page=5&q=${encodeURIComponent(query)}`,
+    { json: true },
+  );
+  const hit = (data?.response?.sections || [])
+    .flatMap((section) => section.hits || [])
+    .find((item) => item.result?.url);
+  if (!hit) return null;
+  const page = await request(hit.result.url);
+  const blocks = [
+    ...page.matchAll(
+      /data-lyrics-container=["']true["'][^>]*>([\s\S]*?)<\/div>/gi,
+    ),
+  ];
+  return result(
+    blocks.map((match) => decodeHtml(match[1])).join("\n").trim(),
+    "Genius",
+    false,
+  );
+}
+
+const PROVIDERS = {
+  lrclib: lrcLib,
+  kugou: kuGou,
+  simpmusic: simpMusic,
+  paxsenix: (metadata) => paxsenix(metadata),
+  spotify: (metadata) =>
+    paxsenix(metadata, "spotify", "Spotify via Paxsenix"),
