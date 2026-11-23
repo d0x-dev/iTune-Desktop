@@ -338,3 +338,46 @@ export default function ArtistsView({
                   kind: "canvas",
                   label: "Canvas video",
                   accept: ".mp4,.webm",
+                  present: canvas,
+                },
+              ].map((asset) => (
+                <div key={asset.kind}>
+                  <label
+                    className={`secondary-button file-label ${saving ? "disabled" : ""}`}
+                  >
+                    <Upload size={15} />
+                    {asset.label}
+                    <input
+                      type="file"
+                      hidden
+                      accept={asset.accept}
+                      disabled={saving}
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        event.target.value = "";
+                        if (file) changeAsset(asset.kind, file);
+                      }}
+                    />
+                  </label>
+                  {asset.present && (
+                    <button
+                      className="text-button"
+                      disabled={saving}
+                      onClick={() => changeAsset(asset.kind, null)}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        </AnimatedPresence>
+        {error && (
+          <p role="alert" className="error-text">
+            {error}
+          </p>
+        )}
+        {loadingDetail ? (
+          <div className="empty-state">
+            <Loader2 className="animate-spin" />
