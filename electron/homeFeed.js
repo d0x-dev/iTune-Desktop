@@ -108,3 +108,40 @@ function parseItem(item, upgrade = (url) => url) {
   else if (
     /PLAYLIST/.test(pageType) ||
     /^(VL|PL|RD)/.test(browseId || "") ||
+    playlist
+  )
+    type = "playlist";
+  else if (browseId?.startsWith("MPED")) {
+    type = "episode";
+    videoId = browseId.slice(4);
+  } else if (row === item.musicMultiRowListItemRenderer) type = "episode";
+  else if (
+    /OMV|UGC/.test(
+      watch?.watchEndpointMusicSupportedConfigs?.watchEndpointMusicConfig
+        ?.musicVideoType || "",
+    )
+  )
+    type = "video";
+  const id = type === "episode" ? videoId : browseId || videoId || playlistId;
+  if (!id || !title) return null;
+  const duration = text(
+    row.lengthText ||
+      row.fixedColumns?.[0]?.musicResponsiveListItemFixedColumnRenderer?.text,
+  );
+  return {
+    id,
+    videoId,
+    browseId,
+    playlistId,
+    title,
+    type,
+    ...meta,
+    duration,
+    thumbnail: thumbnail(
+      row.thumbnailRenderer || row.thumbnail || row.thumbnails,
+      upgrade,
+    ),
+    isExplicit: JSON.stringify(row.badges || row.subtitleBadges || []).includes(
+      "MUSIC_EXPLICIT_BADGE",
+    ),
+  };
