@@ -2006,3 +2006,68 @@ function registerIpcHandlers() {
       } catch (error) {
         return { tracks: [], error: error.message };
       }
+    }
+    try {
+      logToFile("Fetching playlist tracks for playlistId:", playlistId);
+
+      const isLikedMusic =
+        playlistId === "LM" ||
+        playlistId === "VLLM" ||
+        playlistId === "FEmusic_liked_videos";
+      const browseIdsToTry = isLikedMusic
+        ? ["FEmusic_liked_videos", "VLLM", "LM"]
+        : [
+            playlistId.startsWith("VL") || playlistId.startsWith("PL")
+              ? playlistId
+              : `VL${playlistId}`,
+            playlistId,
+          ];
+
+      let parsedTracks = [];
+      let playlistTitle = isLikedMusic ? "Liked Music" : "Playlist";
+      let headerThumb = null;
+
+      for (const browseId of browseIdsToTry) {
+        try {
+          logToFile("Attempting /browse for:", browseId);
+          const res = await yt.actions.execute("/browse", {
+            browseId,
+            client: "YTMUSIC",
+          });
+          const data = res?.data;
+          if (data) {
+            const tracks = extractTracksFromBrowseData(data);
+            if (tracks.length > 0) {
+              parsedTracks = tracks;
+              logToFile(
+                `Extracted ${tracks.length} tracks via browseId: ${browseId}`,
+              );
+
+              const header =
+                data.header?.musicResponsiveHeaderRenderer ||
+                data.header?.musicDetailHeaderRenderer ||
+                data.contents?.twoColumnBrowseResultsRenderer?.tabs?.[0]
+                  ?.tabRenderer?.content?.sectionListRenderer?.contents?.[0]
+                  ?.musicResponsiveHeaderRenderer;
+              if (header?.title?.runs?.[0]?.text || header?.title?.text) {
+                playlistTitle =
+                  header.title.runs?.[0]?.text || header.title.text;
+              }
+              const thumbs =
+                header?.thumbnail?.musicThumbnailRenderer?.thumbnail
+                  ?.thumbnails;
+              if (thumbs && thumbs.length > 0) {
+                headerThumb = thumbs[thumbs.length - 1]?.url;
+              }
+              break;
+            }
+          }
+        } catch (e) {
+          logToFile(`Browse error for ${browseId}:`, e.message);
+        }
+      }
+
+      // Fallback: yt.music.getPlaylist
+      if (parsedTracks.length === 0) {
+        logToFile("Falling back to yt.music.getPlaylist for:", playlistId);
+        try {
