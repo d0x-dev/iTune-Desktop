@@ -1877,3 +1877,68 @@ function registerIpcHandlers() {
             subtitle,
             itemCount: null,
             author: userProfile?.name || "You",
+          });
+        }
+
+        if (playlists.length > 0) {
+          logToFile(
+            `Fetched ${playlists.length} playlists via FEmusic_liked_playlists`,
+          );
+          return { playlists };
+        }
+      } catch (err) {
+        logToFile(
+          "FEmusic_liked_playlists browse error, falling back to getLibrary:",
+          err.message,
+        );
+      }
+
+      const library = await yt.music.getLibrary();
+      const grid =
+        library.contents?.find((c) => c.type === "Grid") ||
+        library.contents?.[0];
+      const items = grid?.items || [];
+      const playlists = items
+        .filter((i) => i.item_type === "playlist")
+        .map((p) => ({
+          id: p.id,
+          title: p.title?.text || p.title?.toString() || "Playlist",
+          thumbnail: getThumbnailUrl(p) || null,
+          itemCount: p.item_count || null,
+          author: userProfile?.name || "You",
+        }));
+
+      return { playlists };
+    } catch (err) {
+      logToFile("Get Playlists error:", err);
+      return { playlists: [], error: err.message };
+    }
+  });
+
+  ipcMain.handle("yt:getSongs", async () => {
+    if (initPromise) await initPromise;
+    if (!yt) return { tracks: [], error: "Music service is unavailable" };
+    try {
+      return { tracks: await getLibraryItems("Songs") };
+    } catch (error) {
+      logToFile("Get Songs error:", error.message);
+      return { tracks: [], error: error.message };
+    }
+  });
+
+  ipcMain.handle("yt:getAlbums", async () => {
+    if (initPromise) await initPromise;
+    if (!yt) return { albums: [], error: "Music service is unavailable" };
+    try {
+      return {
+        albums: (await getLibraryItems("Albums")).map((album) => ({
+          ...album,
+          type: "album",
+        })),
+      };
+    } catch (error) {
+      logToFile("Get Albums error:", error.message);
+      return { albums: [], error: error.message };
+    }
+  });
+
