@@ -394,3 +394,48 @@ export default function LyricsModal({
       className={`lyrics-overlay ${compact ? "compact-lyrics" : ""} ${compact && !controlsVisible ? "lyrics-controls-hidden" : ""}`}
       onPointerMove={scheduleControlsHide}
       onPointerDown={() => {
+        pointerActive.current = true;
+        clearTimeout(idleTimer.current);
+        setControlsVisible(true);
+      }}
+      onPointerUp={() => {
+        pointerActive.current = false;
+        scheduleControlsHide();
+      }}
+      onPointerCancel={() => {
+        pointerActive.current = false;
+        scheduleControlsHide();
+      }}
+      onWheel={scheduleControlsHide}
+      onTouchStart={scheduleControlsHide}
+      onClick={(event) => {
+        scheduleControlsHide();
+        if (!compact && event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        className="lyrics-dialog"
+        ref={dialog}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal={!compact}
+        aria-label={`Lyrics for ${track.title}`}
+      >
+        <div className="lyrics-ambient" aria-hidden="true">
+          {track.thumbnail && (
+            <img src={highQualityArtwork(track.thumbnail)} alt="" />
+          )}
+          <Canvas src={video} paused={!isPlaying} />
+        </div>
+        <div className="lyrics-topline">
+          <span>Lyrics{source && <small> · {source}</small>}</span>
+          <div>
+            <button
+              className={`icon-button ${toolsPage ? "selected" : ""}`}
+              aria-label="Lyrics options"
+              title="Search, choose, edit, or synchronize lyrics"
+              onClick={() => setToolsPage((page) => (page ? null : "menu"))}
+            >
+              <MoreHorizontal size={19} />
+            </button>
+            <button
