@@ -2413,3 +2413,86 @@ body {
 .animated-presence[data-state="closing"] .news-popup[open] {
   animation: presence-window-out 220ms ease both !important;
 }
+.animated-presence[data-state="closing"] .queue-panel,
+.animated-presence[data-state="closing"] .listen-together-panel {
+  animation: presence-panel-out 220ms ease both !important;
+}
+.animated-presence[data-state="closing"] .apple-context-menu,
+.animated-presence[data-state="closing"] .audio-effects-panel,
+.animated-presence[data-state="closing"] .search-suggestions,
+.animated-presence[data-state="closing"] .toast,
+.animated-presence[data-state="closing"] .artist-asset-panel {
+  animation: presence-menu-out 180ms ease both !important;
+}
+.animated-presence[data-state="closing"] .news-popup[open]::backdrop {
+  animation: presence-scrim-out 220ms ease both;
+}
+.animated-presence[data-state="closing"] .lyrics-tools-scrim {
+  animation: presence-scrim-out 180ms ease both !important;
+}
+.animated-presence[data-state="closing"] .lyrics-tools-popover {
+  animation: presence-window-out 180ms ease both !important;
+}
+.animated-presence[data-state="closing"] .glass-select-menu {
+  animation: presence-menu-out 160ms ease both !important;
+}
+
+button:not(:disabled):active {
+  transform: scale(0.975);
+  transition: transform 90ms var(--ease-apple);
+}
+
+[data-motion="false"] .animated-presence *,
+[data-motion="false"] .animated-presence *::before,
+[data-motion="false"] .animated-presence *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animated-presence,
+  .animated-presence *,
+  .animated-presence *::before,
+  .animated-presence *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Android iTune splash + welcome experience, ported from the GPL Android source. */
+.intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow: hidden;
+  color: #fff;
+  font-family: "iTune SF", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  user-select: none;
+  isolation: isolate;
+  contain: paint;
+  background: #0a031d !important;
+  backdrop-filter: none !important;
+}
+[data-acrylic="true"] .intro-screen,
+[data-glass="true"] .intro-screen {
+  background: #0a031d !important;
+  backdrop-filter: none !important;
+}
+.welcome-mesh {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #0a031d;
+  transition: opacity 820ms var(--ease-out);
+  opacity: 1;
+}
+.welcome-mesh-frame {
+  position: absolute;
+  inset: -8%;
+  opacity: 0;
+  background-size: 120% 120%;
+  animation:
+    welcome-ambient-frame 35s linear infinite var(--ambient-delay),
+    welcome-ambient-orbit 15s linear infinite;
+}
