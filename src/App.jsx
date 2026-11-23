@@ -897,3 +897,63 @@ export default function App() {
       setListenError(failure.message || "Couldn’t start LAN hosting.");
     } finally {
       setListenBusy(false);
+    }
+  };
+
+  const scanLanHosts = async () => {
+    setScanningLan(true);
+    setListenError("");
+    try {
+      const result = await window.api.ishare.lanScan();
+      if (!result?.ok) throw new Error(result?.error);
+      setLanHosts(result.hosts || []);
+      setLocalLanIp(result.localIp || "");
+      if (!result.hosts?.length)
+        setListenError("No AirBeats or iShare hosts were found on this network.");
+    } catch (failure) {
+      setListenError(failure.message || "The local network scan failed.");
+    } finally {
+      setScanningLan(false);
+    }
+  };
+
+  const joinLanListenTogether = async (address, displayName) => {
+    setListenBusy(true);
+    setListenError("");
+    try {
+      const result = await window.api.ishare.lanJoin(address, displayName);
+      if (!result?.ok || !result.session) throw new Error(result?.error);
+      setIshareSettings(
+        result.session.state?.settings ||
+          result.session.settings ||
+          ishareSettings,
+      );
+      setListenTogether({
+        role: "guest",
+        mode: "lan",
+        hostAddress: result.address,
+        displayName,
+        session: result.session,
+      });
+      applySharedSession(result.session);
+    } catch (failure) {
+      setListenError(failure.message || "Couldn’t join that LAN host.");
+    } finally {
+      setListenBusy(false);
+    }
+  };
+
+  const leaveListenTogether = async () => {
+    const active = listenTogether;
+    setListenBusy(true);
+    if (active?.mode === "lan" && active.role === "host") {
+      await window.api.ishare.lanStop().catch(() => {});
+    } else if (active?.mode === "lan" && active.hostAddress) {
+      await window.api.ishare
+        .lanLeave(active.hostAddress, active.session.participantId)
+        .catch(() => {});
+    } else if (active?.session?.code && active.session.participantId) {
+      await window.api.ishare
+        .leave(active.session.code, active.session.participantId)
+        .catch(() => {});
+    }
