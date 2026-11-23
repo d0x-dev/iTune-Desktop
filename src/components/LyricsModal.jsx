@@ -527,3 +527,47 @@ export default function LyricsModal({
                   <X size={18} />
                 </button>
               </div>
+
+              {toolsPage === "menu" && (
+                <div className="lyrics-tools-menu">
+                  <button onClick={() => openToolsPage("search")}>
+                    <Search size={19} />
+                    <span><strong>Search & choose</strong><small>Compare all online providers</small></span>
+                    <em>Online</em>
+                  </button>
+                  <button onClick={() => openToolsPage("edit")}>
+                    <Pencil size={19} />
+                    <span><strong>Edit lyrics</strong><small>Plain text, LRC, or TTML</small></span>
+                    {source.includes("Edited") && <em>Edited</em>}
+                  </button>
+                  <button onClick={() => openToolsPage("offset")}>
+                    <SlidersHorizontal size={19} />
+                    <span><strong>Lyrics offset</strong><small>Correct early or late timing</small></span>
+                    <em>{offsetLabel}</em>
+                  </button>
+                  <button onClick={() => fileInput.current?.click()}>
+                    <Upload size={19} />
+                    <span><strong>Import lyrics</strong><small>TTML, XML, LRC, or text</small></span>
+                  </button>
+                  <button onClick={restoreOnlineLyrics}>
+                    <RefreshCw size={19} />
+                    <span><strong>Reload online lyrics</strong><small>Remove a custom selection or edit</small></span>
+                  </button>
+                </div>
+              )}
+
+              {toolsPage === "search" && (
+                <form className="lyrics-search-tools" onSubmit={searchLyrics}>
+                  <label>
+                    <span>Song Name</span>
+                    <input
+                      value={searchTitle}
+                      onChange={(event) => setSearchTitle(event.target.value)}
+                    />
+                  </label>
+                  <label>
+                    <span>Artist Name</span>
+                    <input
+                      value={searchArtist}
+                      onChange={(event) => setSearchArtist(event.target.value)}
+                    />
