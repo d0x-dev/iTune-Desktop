@@ -34,3 +34,40 @@ function participant(id, name, isHost = false) {
 
 function readBody(request) {
   return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    request.on("data", (chunk) => {
+      size += chunk.length;
+      if (size > 1024 * 1024) {
+        reject(new Error("LAN request is too large."));
+        request.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+    request.on("end", () => {
+      try {
+        resolve(chunks.length ? JSON.parse(Buffer.concat(chunks).toString("utf8")) : {});
+      } catch {
+        resolve({});
+      }
+    });
+    request.on("error", reject);
+  });
+}
+
+function sendJson(response, status, body) {
+  const payload = JSON.stringify(body);
+  response.writeHead(status, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Content-Length": Buffer.byteLength(payload),
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type, Range",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    Connection: "close",
+  });
+  response.end(payload);
+}
+
+class IShareLanHost {
+  constructor({ displayName, state, settings, port = 8765 }) {
