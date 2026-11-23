@@ -297,3 +297,63 @@ export default function App() {
       .then((data) => {
         if (active)
           setLikedSongIds(
+            new Set((data?.tracks || []).map(getTrackVideoId).filter(Boolean)),
+          );
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [userProfile.isLoggedIn]);
+  useEffect(() => {
+    if (!message) return;
+    const timeout = setTimeout(() => setMessage(""), 6000);
+    return () => clearTimeout(timeout);
+  }, [message]);
+  useEffect(() => {
+    const expanded = showLyrics && !lyricsCompact;
+    document.documentElement.dataset.lyricsFullscreen = String(expanded);
+    window.api.window?.setLyricsFullscreen?.(expanded);
+    return () => {
+      document.documentElement.dataset.lyricsFullscreen = "false";
+      window.api.window?.setLyricsFullscreen?.(false);
+    };
+  }, [showLyrics, lyricsCompact]);
+
+  const login = async () => {
+    setAuthLoading(true);
+    try {
+      const result = await window.api.auth.login();
+      if (result?.error) throw new Error(result.error);
+      const profile =
+        result?.userProfile || (await window.api.auth.getStatus());
+      if (profile) setUserProfile(profile);
+      return profile;
+    } catch (failure) {
+      setMessage(failure.message || "Sign-in couldn’t finish. Try again.");
+      return null;
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+  const logout = async () => {
+    setAuthLoading(true);
+    try {
+      const result = await window.api.auth.logout();
+      setUserProfile(result?.userProfile || { isLoggedIn: false });
+      setLikedSongIds(new Set());
+    } catch {
+      setMessage("Sign-out couldn’t finish. Try again.");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+  const toggleLike = async (id) => {
+    if (!id || likeRequests.current.has(id)) return;
+    if (!userProfile.isLoggedIn) {
+      login();
+      return;
+    }
+    const wasLiked = likedSongIds.has(id);
+    const updateLike = (liked) =>
+      setLikedSongIds((previous) => {
