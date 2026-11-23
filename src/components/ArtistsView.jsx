@@ -423,3 +423,46 @@ export default function ArtistsView({
                 ) ? (
                 <MediaShelf
                   key={index}
+                  title={section.title}
+                  items={section.tracks}
+                  onSelect={selectArtistTrack}
+                  onContextMenu={onContextMenu}
+                />
+              ) : (
+                <MediaShelf
+                  key={index}
+                  title={section.title}
+                  layout={
+                    /video/i.test(section.title)
+                      ? "videos"
+                      : /artist/i.test(section.title)
+                        ? "artists"
+                        : "songs"
+                  }
+                  items={section.tracks}
+                  onSelect={selectArtistTrack}
+                  currentTrack={currentTrack}
+                  isPlaying={isPlaying}
+                  onContextMenu={onContextMenu}
+                />
+              ),
+            )}
+            {detail?.header && (
+              <section className="artist-about">
+                <h2>About {name}</h2>
+                <p>{detail.header.description || detail.header.subscribers || `${name} on YouTube Music.`}</p>
+              </section>
+            )}
+            {!sections.length && !error && (
+              <div className="empty-state compact">
+                <p>No releases available right now.</p>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    );
+  }
+  return (
+    <div className="page">
+      <header className="page-heading">
