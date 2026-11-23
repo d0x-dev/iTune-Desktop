@@ -840,3 +840,68 @@ function parseResponsiveListItem(row) {
     col0[0]?.navigationEndpoint?.watchEndpoint?.videoId ||
     row.navigationEndpoint?.watchEndpoint?.videoId;
 
+  if (!videoId || !title) return null;
+
+  return {
+    id: videoId,
+    title,
+    artists: [{ name: artistName || "YouTube Music", id: artistId }],
+    artistId,
+    album: albumName ? { name: albumName } : null,
+    duration,
+    thumbnail: thumbnail || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+    isExplicit: hasExplicitBadge(row),
+  };
+}
+
+function extractTracksFromBrowseData(data) {
+  const tracks = [];
+  const seen = new Set();
+
+  function scan(node) {
+    if (!node || typeof node !== "object") return;
+
+    if (Array.isArray(node)) {
+      for (const item of node) scan(item);
+      return;
+    }
+
+    if (node.musicResponsiveListItemRenderer) {
+      const t = parseResponsiveListItem(node.musicResponsiveListItemRenderer);
+      if (t && !seen.has(t.id)) {
+        seen.add(t.id);
+        tracks.push(t);
+      }
+      return;
+    }
+
+    for (const key of Object.keys(node)) {
+      if (
+        key === "trackingParams" ||
+        key === "frameworkUpdates" ||
+        key === "responseContext" ||
+        key === "clickTrackingParams" ||
+        key === "serviceTrackingParams"
+      ) {
+        continue;
+      }
+      scan(node[key]);
+    }
+  }
+
+  scan(data);
+  return tracks;
+}
+
+function extractTracksFromSearch(searchRes) {
+  const items = [];
+  const rawSections = searchRes.results || searchRes.contents || [];
+
+  for (const section of rawSections) {
+    if (!section) continue;
+
+    // Case 1: MusicCardShelf (Top Result)
+    if (section.type === "MusicCardShelf") {
+      const topTitle = section.title?.text || section.title?.toString() || "";
+      const topSubtitle =
+        section.subtitle?.text || section.subtitle?.toString() || "";
