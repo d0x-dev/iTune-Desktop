@@ -837,3 +837,63 @@ export default function App() {
         displayName,
         session: result.session,
       });
+    } catch (failure) {
+      setListenError(
+        failure.message || "Couldn’t start a Listen Together session.",
+      );
+    } finally {
+      setListenBusy(false);
+    }
+  };
+
+  const joinListenTogether = async (code, displayName) => {
+    setListenBusy(true);
+    setListenError("");
+    try {
+      const result = await window.api.ishare.join(code, displayName);
+      if (!result?.ok || !result.session) throw new Error(result?.error);
+      setIshareSettings(
+        result.session.state?.settings ||
+          result.session.settings ||
+          ishareSettings,
+      );
+      setListenTogether({
+        role: "guest",
+        mode: "online",
+        displayName,
+        session: result.session,
+      });
+      applySharedSession(result.session);
+    } catch (failure) {
+      setListenError(
+        failure.message || "Couldn’t join that Listen Together session.",
+      );
+    } finally {
+      setListenBusy(false);
+    }
+  };
+
+  const hostLanListenTogether = async (displayName) => {
+    setListenBusy(true);
+    setListenError("");
+    try {
+      const result = await window.api.ishare.lanStart({
+        displayName,
+        state: buildSharedState(),
+        settings: ishareSettings,
+        port: 8765,
+      });
+      if (!result?.ok || !result.session) throw new Error(result?.error);
+      const hostAddress = result.session.code;
+      setLocalLanIp(hostAddress.split(":")[0]);
+      setListenTogether({
+        role: "host",
+        mode: "lan",
+        hostAddress,
+        displayName,
+        session: result.session,
+      });
+    } catch (failure) {
+      setListenError(failure.message || "Couldn’t start LAN hosting.");
+    } finally {
+      setListenBusy(false);
