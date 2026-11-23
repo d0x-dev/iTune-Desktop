@@ -151,3 +151,42 @@ export function DeveloperNewsPopup({ item, onDismiss, onOpenNews }) {
   const dialog = useRef(null);
   const [linkError, setLinkError] = useState(false);
   const onLinkError = () => setLinkError(true);
+
+  useEffect(() => {
+    const element = dialog.current;
+    element.showModal();
+    return () => element.close();
+  }, []);
+
+  return (
+    <dialog
+      ref={dialog}
+      className="news-popup"
+      aria-labelledby="news-popup-title"
+      onCancel={(event) => { event.preventDefault(); onDismiss(); }}
+      onClick={(event) => { if (event.target === event.currentTarget) onDismiss(); }}
+    >
+      <div className="news-popup-inner">
+        <div className="news-popup-body" tabIndex={0}>
+          <header className="news-popup-heading">
+            <div className="news-popup-icon" aria-hidden="true"><ITuneWaveIcon size={26} /></div>
+            <h2 id="news-popup-title">{item.title || "iTune News"}</h2>
+            <NewsMetadata item={item} fallbackTag="News from Developer" />
+          </header>
+          <NewsImage key={item.imageUrl} src={item.imageUrl} className="news-banner" />
+          <NewsMarkdown message={item.message} onLinkError={onLinkError} />
+          {linkError && <p className="error-text" role="status">Couldn’t open the link.</p>}
+        </div>
+        <div className="news-popup-actions">
+          {item.actionUrl && (
+            <NewsLink href={item.actionUrl} onOpen={onDismiss} onError={onLinkError}>
+              {item.actionText || "Learn More"} <ArrowUpRight size={15} aria-hidden="true" />
+            </NewsLink>
+          )}
+          <button type="button" onClick={onOpenNews}>All News</button>
+          <button type="button" className="news-dismiss" onClick={onDismiss}>Dismiss</button>
+        </div>
+      </div>
+    </dialog>
+  );
+}
