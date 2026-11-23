@@ -205,3 +205,38 @@ export default function RadioView({
                         {station.bitrateKbps ? ` · ${station.bitrateKbps} kbps` : ""}
                       </span>
                     </span>
+                  </button>
+                  <button
+                    className={`icon-button radio-favorite ${favorite ? "selected" : ""}`}
+                    aria-label={`${favorite ? "Remove" : "Add"} ${station.title} favorite`}
+                    onClick={() => toggleFavorite(station)}
+                  >
+                    <FavoriteIcon filled={favorite} size={17} />
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+          {!favoritesOnly && hasMore && (
+            <div className="feed-pagination">
+              <button
+                className="secondary-button"
+                disabled={loadingMore}
+                onClick={() => loadStations({ append: true })}
+              >
+                {loadingMore && <Loader2 size={15} className="animate-spin" />}
+                Load More Stations
+              </button>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="empty-state">
+          <Radio />
+          <h2>{favoritesOnly ? "No favorite stations yet" : "No stations found"}</h2>
+          <p>{favoritesOnly ? "Star a station to keep it here." : "Try another search or country."}</p>
+        </div>
+      )}
+    </div>
+  );
+}
