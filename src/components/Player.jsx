@@ -464,3 +464,42 @@ const Player = forwardRef(function Player(
     if (repeatMode === "one") restart();
     else onNext(true);
   };
+
+  return (
+    <div className="player-bar" aria-label="Music player">
+      {[0, 1].map((index) => (
+        <audio
+          key={`audio-deck-${index}`}
+          ref={(node) => {
+            decks.current[index] = node;
+          }}
+          preload="auto"
+          onPlay={() => {
+            if (activeDeck.current !== index) return;
+            setIsPlaying(true);
+            setError("");
+          }}
+          onPause={() => {
+            if (activeDeck.current === index) setIsPlaying(false);
+          }}
+          onTimeUpdate={() => updateDeckTime(index)}
+          onLoadedMetadata={() => updateDeckDuration(index)}
+          onDurationChange={() => updateDeckDuration(index)}
+          onWaiting={() => {
+            if (activeDeck.current === index) setLoading(true);
+          }}
+          onPlaying={() => {
+            if (activeDeck.current === index) setLoading(false);
+          }}
+          onError={() => {
+            const audio = decks.current[index];
+            if (
+              activeDeck.current === index &&
+              audio?.getAttribute("src")
+            ) {
+              setLoading(false);
+              setIsPlaying(false);
+              setError("This song couldn’t play. Press play to try again.");
+            }
+          }}
+          onEnded={() => handleDeckEnded(index)}
