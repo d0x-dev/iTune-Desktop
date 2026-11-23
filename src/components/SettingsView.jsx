@@ -259,3 +259,47 @@ export default function SettingsView({
         </Setting>
         <Setting title="Translation Language">
           <GlassSelect
+            label="Lyrics translation language"
+            value={preferences.translationLanguage}
+            disabled={!preferences.lyricsTranslation}
+            onChange={(value) => updatePreference("translationLanguage", value)}
+            options={[
+              { value: "hi", label: "Hindi" },
+              { value: "en", label: "English" },
+              { value: "es", label: "Spanish" },
+              { value: "fr", label: "French" },
+              { value: "de", label: "German" },
+              { value: "pt", label: "Portuguese" },
+              { value: "ja", label: "Japanese" },
+              { value: "ko", label: "Korean" },
+              { value: "ar", label: "Arabic" },
+              { value: "bn", label: "Bengali" },
+              { value: "pa", label: "Punjabi" },
+              { value: "ta", label: "Tamil" },
+              { value: "te", label: "Telugu" },
+              { value: "ur", label: "Urdu" },
+            ]}
+          />
+        </Setting>
+        <Setting title="Translation Style">
+          <GlassSelect
+            label="Lyrics translation style"
+            value={preferences.translationMode}
+            disabled={!preferences.lyricsTranslation}
+            onChange={(value) => updatePreference("translationMode", value)}
+            options={[
+              { value: "literal", label: "Poetic Translation" },
+              { value: "hinglish", label: "Hinglish · Latin Alphabet" },
+              { value: "romanized", label: "Romanized / Transliteration" },
+            ]}
+          />
+        </Setting>
+        <form className="signature-settings ai-provider-settings" onSubmit={saveAITranslation}>
+          <label>AI Lyrics Translation</label>
+          <p>
+            Choose the provider here. API keys use your system secure storage and are
+            never stored in browser preferences.
+          </p>
+          <div className="ai-settings-grid">
+            <GlassSelect
+              label="AI translation provider"
