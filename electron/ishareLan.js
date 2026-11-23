@@ -144,3 +144,40 @@ class IShareLanHost {
         this.snapshot(url.searchParams.get("participantId") || "guest"),
       );
       return;
+    }
+    if (pathname === "/together/queue" && request.method === "GET") {
+      sendJson(response, 200, { queue: this.state?.queue || [] });
+      return;
+    }
+    if (pathname === "/together/state" && request.method === "POST") {
+      const body = await readBody(request);
+      const sender = body.participantId || "guest";
+      const isHost = sender === "host";
+      if (!isHost && !this.settings.allowGuestsToControlPlayback) {
+        sendJson(response, 403, { error: "Playback controls are disabled by the host" });
+        return;
+      }
+      if (body.state) {
+        this.state = { ...body.state, settings: this.settings };
+        this.stateVersion++;
+      }
+      sendJson(response, 200, this.snapshot(sender));
+      return;
+    }
+    if (pathname === "/together/action" && request.method === "POST") {
+      const body = await readBody(request);
+      const sender = body.participantId || "guest";
+      const controlActions = new Set([
+        "play",
+        "resume",
+        "pause",
+        "toggle_play_pause",
+        "seek",
+        "next",
+        "previous",
+      ]);
+      const queueActions = new Set(["add_to_queue", "play_next", "remove_from_queue"]);
+      if (
+        sender !== "host" &&
+        controlActions.has(body.action) &&
+        !this.settings.allowGuestsToControlPlayback
