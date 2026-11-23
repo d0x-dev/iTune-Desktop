@@ -3579,3 +3579,86 @@ button:not(:disabled):active {
 }
 
 .about-update-card {
+  padding: 13px;
+  background: #0a84ff16;
+  border: 1px solid #0a84ff38;
+  border-radius: 13px;
+}
+
+.about-update-title {
+  display: grid;
+  gap: 4px;
+}
+
+.about-update-title span {
+  color: #64afff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.about-update-title strong {
+  font-size: 14px;
+}
+
+.about-release-notes {
+  max-height: 112px;
+  overflow: auto;
+  margin: 8px 0 11px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.about-primary-action {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #64afff;
+  background: #0a84ff20;
+  border: 1px solid #0a84ff38;
+  border-radius: 13px;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.about-primary-action:disabled { cursor: wait; opacity: .7; }
+.about-primary-action + .about-status { margin: 0; }
+
+.about-downloads {
+  margin: 12px 18px 0;
+  background: #ffffff0b;
+  border: 1px solid #ffffff1e;
+  border-radius: 14px;
+}
+
+.about-downloads > summary {
+  display: flex;
+  min-height: 45px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.about-downloads > summary::-webkit-details-marker,
+.about-release summary::-webkit-details-marker { display: none; }
+
+.about-release-list {
+  display: grid;
+  gap: 7px;
+  max-height: 240px;
+  overflow: auto;
+  padding: 0 9px 10px;
+}
+
+.about-release {
