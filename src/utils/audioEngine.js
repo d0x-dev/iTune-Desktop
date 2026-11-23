@@ -109,3 +109,31 @@ export function applyAudioEffects(audio, preferences) {
     context,
   );
   const spatialAmount = enabled && preferences.virtualAtmos
+    ? Math.max(0, Math.min(1, Number(preferences.spatialWidth || 0))) * 0.34
+    : 0;
+  const reverbAmount = enabled
+    ? Math.max(0, Math.min(0.55, Number(preferences.reverbAmount || 0)))
+    : 0;
+  setNow(engine.spatial.gain, spatialAmount, context);
+  setNow(engine.reverb.gain, reverbAmount, context);
+  setNow(
+    engine.dry.gain,
+    Math.max(0.68, 1 - spatialAmount * 0.28 - reverbAmount * 0.18),
+    context,
+  );
+  setNow(engine.master.gain, 0.94, context);
+  const normalize = enabled && Boolean(preferences.loudnessNormalization);
+  engine.compressor.threshold.setValueAtTime(normalize ? -20 : 0, context.currentTime);
+  engine.compressor.knee.setValueAtTime(normalize ? 24 : 0, context.currentTime);
+  engine.compressor.ratio.setValueAtTime(normalize ? 4 : 1, context.currentTime);
+  engine.compressor.attack.setValueAtTime(normalize ? 0.01 : 0, context.currentTime);
+  engine.compressor.release.setValueAtTime(normalize ? 0.24 : 0.01, context.currentTime);
+  if (!audio.paused && context.state === "suspended") context.resume().catch(() => {});
+  return engine;
+}
+
+export function resumeAudioEffects(audio) {
+  const engine = engines.get(audio);
+  if (engine?.context.state === "suspended") return engine.context.resume();
+  return Promise.resolve();
+}
