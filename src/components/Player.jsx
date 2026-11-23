@@ -309,3 +309,42 @@ const Player = forwardRef(function Player(
         desiredPlaying.current = true;
         const audio = activeAudio();
         if (!audio?.getAttribute("src") || audio.error) loadStream();
+        else audio.play().catch(() => {});
+      },
+      pause: () => {
+        desiredPlaying.current = false;
+        decks.current.forEach((audio) => audio?.pause());
+      },
+      setVolume: (value) => changeVolume({ target: { value } }),
+    }),
+    [currentTrack, isPlaying, loading],
+  );
+  useEffect(() => {
+    onPlaybackChange({ currentTime, duration, volume: muted ? 0 : volume });
+  }, [currentTime, duration, volume, muted, onPlaybackChange]);
+
+  useEffect(() => {
+    const trackId = currentTrack?.id;
+    if (
+      !preferences.playbackHistorySync ||
+      !trackId ||
+      currentTrack?.type === "radio" ||
+      currentTime < 15 ||
+      reportedTracks.current.has(trackId)
+    )
+      return;
+    reportedTracks.current.add(trackId);
+    window.api.yt.reportPlayback(trackId, currentTime).then((result) => {
+      if (result?.ok === false && !result?.skipped)
+        reportedTracks.current.delete(trackId);
+    });
+  }, [currentTrack?.id, currentTrack?.type, currentTime, preferences.playbackHistorySync]);
+
+  useEffect(() => {
+    if (!("mediaSession" in navigator)) return;
+    navigator.mediaSession.playbackState = isPlaying ? "playing" : "paused";
+    if (!currentTrack) return;
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: currentTrack.title,
+      artist: getArtistName(currentTrack),
+      album: currentTrack.album?.name || "iTune Desktop",
