@@ -65,3 +65,37 @@ export default function TrackList({
               <button
                 className="track-song"
                 onClick={() => onSelectTrack(track, tracks)}
+              >
+                <Artwork src={track.thumbnail} title="" />
+                <span>
+                  <strong><ExplicitTitle item={track} /></strong>
+                  <small>{getArtistName(track)}</small>
+                </span>
+              </button>
+            </div>
+            <div className="track-album" role="cell">
+              {track.album?.name || "—"}
+            </div>
+            <div className="track-end" role="cell">
+              {onToggleLike && (
+                <button
+                  className={`icon-button track-heart ${liked ? "selected" : ""}`}
+                  aria-label={`${liked ? "Remove favorite" : "Favorite"} ${track.title}`}
+                  onClick={() => onToggleLike(videoId)}
+                >
+                  <FavoriteIcon filled={liked} size={17} />
+                </button>
+              )}
+              <span>
+                {track.duration ||
+                  (track.durationSeconds
+                    ? formatTime(track.durationSeconds)
+                    : "—")}
+              </span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
