@@ -357,3 +357,63 @@ export default function App() {
     const wasLiked = likedSongIds.has(id);
     const updateLike = (liked) =>
       setLikedSongIds((previous) => {
+        const next = new Set(previous);
+        if (liked) next.add(id);
+        else next.delete(id);
+        return next;
+      });
+    likeRequests.current.add(id);
+    updateLike(!wasLiked);
+    try {
+      const result = await (wasLiked
+        ? window.api.yt.unlikeSong(id)
+        : window.api.yt.likeSong(id));
+      if (result?.error || result?.ok === false) throw new Error(result.error);
+      setMessage(
+        wasLiked
+          ? "Removed from YouTube Music liked songs."
+          : "Added to YouTube Music liked songs.",
+      );
+    } catch {
+      updateLike(wasLiked);
+      setMessage("Your favorite couldn’t be saved. Try again.");
+    } finally {
+      likeRequests.current.delete(id);
+    }
+  };
+
+  const extendRelatedQueue = useCallback(async (seed, generation) => {
+    const seedId = seed?.videoId || seed?.id;
+    if (!seedId || seed?.type === "radio") return queueRef.current;
+    const requestKey = `${seedId}:${seed.playlistId || ""}`;
+    if (
+      queueRequests.current.has(requestKey) ||
+      fetchedQueueSeeds.current.has(requestKey)
+    )
+      return queueRef.current;
+    queueRequests.current.add(requestKey);
+    try {
+      const result = await window.api.yt.getRadioQueue(
+        seedId,
+        seed.playlistId,
+      );
+      if (result?.error) throw new Error(result.error);
+      if (
+        generation != null &&
+        generation !== queueGeneration.current
+      )
+        return queueRef.current;
+      const related = playableTracks(result?.tracks || []);
+      if (!related.length) return queueRef.current;
+      fetchedQueueSeeds.current.add(requestKey);
+      const merged = mergeUniqueTracks(queueRef.current, related);
+      if (merged.length !== queueRef.current.length) {
+        queueRef.current = merged;
+        originalQueue.current = mergeUniqueTracks(originalQueue.current, related);
+        setQueue(merged);
+      }
+      return merged;
+    } catch {
+      return queueRef.current;
+    } finally {
+      queueRequests.current.delete(requestKey);
