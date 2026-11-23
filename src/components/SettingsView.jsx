@@ -477,3 +477,47 @@ export default function SettingsView({
             disabled={!preferences.audioEffectsEnabled}
             onChange={(event) => updatePreference("reverbAmount", Number(event.target.value))}
           />
+        </Setting>
+        <Setting
+          title="Loudness Normalization"
+          description="Use dynamic compression to keep quiet and loud songs closer in level."
+        >
+          <Toggle
+            label="Loudness Normalization"
+            value={preferences.loudnessNormalization}
+            disabled={!preferences.audioEffectsEnabled}
+            onChange={(value) => updatePreference("loudnessNormalization", value)}
+          />
+        </Setting>
+        <Setting
+          title="YouTube Listening History"
+          description="Report songs after 15 seconds of real playback so they appear in your YouTube account history."
+        >
+          <Toggle
+            label="YouTube Listening History"
+            value={preferences.playbackHistorySync}
+            onChange={(value) => updatePreference("playbackHistorySync", value)}
+          />
+        </Setting>
+        <Setting
+          title="Continue Playing"
+          description="Automatically move to the next item in the current queue."
+        >
+          <Toggle
+            label="Continue Playing"
+            value={preferences.autoplay}
+            onChange={(value) => updatePreference("autoplay", value)}
+          />
+        </Setting>
+        <Setting
+          title="Crossfade"
+          description="Blend the ending of one song into the next using two preloaded audio decks and an equal-power fade."
+        >
+          <Toggle
+            label="Crossfade"
+            value={preferences.crossfadeEnabled}
+            onChange={(value) => updatePreference("crossfadeEnabled", value)}
+          />
+        </Setting>
+        <Setting
+          title="Crossfade Duration"
