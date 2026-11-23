@@ -97,3 +97,36 @@ function isInstallerAsset(name) {
 }
 
 function findPlatformUpdateAsset(assets, platform) {
+  if (platform === "win32") {
+    return assets.find((asset) => isInstallerAsset(asset.name)) || null;
+  }
+  if (platform === "darwin") {
+    return assets.find((asset) => /\.dmg$/i.test(asset.name)) ||
+      assets.find((asset) => /\.zip$/i.test(asset.name)) ||
+      null;
+  }
+  if (platform === "linux") {
+    return assets.find((asset) => /\.appimage$/i.test(asset.name)) ||
+      assets.find((asset) => /\.deb$/i.test(asset.name)) ||
+      null;
+  }
+  return null;
+}
+
+async function downloadReleaseAsset(asset, destination, onProgress) {
+  const response = await fetch(asset.downloadUrl, {
+    headers: { "User-Agent": "iTune-Desktop" },
+    signal: AbortSignal.timeout(5 * 60 * 1000),
+  });
+  if (!response.ok || !response.body) {
+    throw new Error(`The download failed with HTTP ${response.status}.`);
+  }
+
+  let downloadedBytes = 0;
+  const totalBytes = Number(response.headers.get("content-length")) || asset.size;
+  const temporaryDestination = `${destination}.download`;
+  const progress = new Transform({
+    transform(chunk, _encoding, callback) {
+      downloadedBytes += chunk.length;
+      onProgress({ downloadedBytes, totalBytes });
+      callback(null, chunk);
