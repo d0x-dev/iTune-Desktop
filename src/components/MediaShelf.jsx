@@ -97,3 +97,36 @@ export default function MediaShelf({
                   <span>{heroCategory(item)}</span>
                   <h3><ExplicitTitle item={item} /></h3>
                   <p>{getArtistName(item)}</p>
+                </div>
+              )}
+              {heroStyle === "apple" && (
+                <div className="hero-external-tag">{heroCategory(item)}</div>
+              )}
+              <div className="media-cover hero-cover">
+                <Artwork src={item.thumbnail} title={item.title} eager />
+                {heroStyle !== "landscape" && (
+                  <div
+                    className={`hero-brand ${heroStyle === "portrait" ? "align-right" : ""}`}
+                  >
+                    <AndroidIcon name="ic_itune_waves" size={16} />
+                    <span>iTune</span>
+                  </div>
+                )}
+                {heroStyle === "apple" && (
+                  <h3 className="hero-overlay-title"><ExplicitTitle item={item} /></h3>
+                )}
+                <div className="hero-detail-glass">
+                  {heroStyle === "portrait" && (
+                    <>
+                      <span>{heroCategory(item)}</span>
+                      <h3><ExplicitTitle item={item} /></h3>
+                    </>
+                  )}
+                  <p>{item.subtitle || getArtistName(item)}</p>
+                </div>
+                <span className="cover-play">
+                  <Play size={19} fill="currentColor" />
+                </span>
+              </div>
+            </button>
+          ) : (
