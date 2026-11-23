@@ -95,3 +95,36 @@ export default function HomeView({
             >
               {userProfile?.isLoggedIn ? "Open your library" : "Sign in"}{" "}
               <span aria-hidden="true">›</span>
+            </button>
+          </div>
+          {sections.slice(1).map((section, index) => (
+            <MediaShelf
+              key={`${section.title}-${index}`}
+              title={section.title}
+              items={section.contents}
+              onSelect={onSelectTrack}
+            />
+          ))}
+        </>
+      ) : (
+        <div className="empty-state">
+          <Headphones />
+          <h2>{error ? "Let’s try that again" : "Find something you love"}</h2>
+          <p>
+            {error ||
+              "Search for an artist, song, or album to start listening."}
+          </p>
+          <button
+            className="primary-button"
+            onClick={() =>
+              error ? setReload(reload + 1) : onNavigate("search")
+            }
+          >
+            {error && <RefreshCw size={16} />}
+            {error ? "Try again" : "Explore music"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
