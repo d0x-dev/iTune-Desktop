@@ -1,6 +1,8 @@
-# iTune Desktop (Windows .exe)
+![iTune Desktop](https://github.com/user-attachments/assets/faad570e-b0c8-4234-b106-049e9ab6a354)
 
-A standalone YouTube Music desktop player with an Apple Music–inspired dark glassmorphism interface.
+# iTune Desktop
+
+A cross-platform YouTube Music desktop player with an Apple Music–inspired dark glass interface. Windows, macOS, and Linux builds include the same React and Electron app.
 
 Unlike web-based alternatives (such as BitChord Web), **iTune Desktop does NOT require any browser extensions**. It has full native network capabilities, embeds a secure Google sign-in window, and talks directly to YouTube Music's InnerTube APIs.
 
@@ -26,20 +28,3 @@ To start the app with live reload:
 npm run electron:dev
 ```
 
-### Build Windows `.exe`
-To package the app into a standalone Windows executable:
-```bash
-npm run electron:build
-```
-The compiled executables will be generated in the `release/` directory:
-- `release/iTune Desktop 1.0.0.exe` (Standalone portable executable)
-- `release/win-unpacked/iTune Desktop.exe` (Unpacked executable for quick testing)
-
----
-
-## 🛠️ Architecture Overview
-
-- **Frontend:** React 19 + Tailwind CSS + Lucide Icons (bundled with Vite).
-- **Desktop Runtime:** Electron 33 (main process with native IPC handlers).
-- **Core Engine:** `youtubei.js` (InnerTube client handling YouTube Music catalog, search, and cipher deciphering).
-- **Session Management:** Secure local cookie persistence stored in `%APPDATA%/itune-desktop/itune_session.json`.
