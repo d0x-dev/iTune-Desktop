@@ -117,3 +117,63 @@ export default function App() {
   useEffect(() => {
     const unsubscribe = window.api.updates.onDownloadProgress(setDownloadProgress);
     return unsubscribe;
+  }, []);
+  useEffect(() => {
+    if (updatesStarted.current) return;
+    updatesStarted.current = true;
+    refreshUpdates().catch((error) => {
+      setUpdateResult({ ok: false, error: error.message });
+    });
+  }, [refreshUpdates]);
+  const [preferredName, setPreferredName] = useState(() =>
+    localStorage.getItem("itune:display-name") || "",
+  );
+  const [introStage, setIntroStage] = useState(() => {
+    const welcomeCompleted =
+      localStorage.getItem("itune:welcome-completed") === "true";
+    if (preferences.splashScreenEnabled)
+      return welcomeCompleted ? "splash-app" : "splash-welcome";
+    return welcomeCompleted ? null : "welcome";
+  });
+  const [welcomeFromSplash, setWelcomeFromSplash] = useState(false);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const systemDark = matchMedia("(prefers-color-scheme: dark)").matches;
+      const theme =
+        preferences.theme === "system"
+          ? systemDark
+            ? "dark"
+            : "light"
+          : preferences.theme;
+      window.api.window?.setAppearance?.(
+        introStage ? "dark" : theme,
+        introStage ? false : preferences.desktopTransparency,
+      );
+    }, 0);
+    return () => clearTimeout(timeout);
+  }, [introStage, preferences.desktopTransparency, preferences.theme]);
+  const trackArtwork = useRemoteArtwork(
+    "getCanvas",
+    currentTrack
+      ? {
+          title: currentTrack.title,
+          artist: getArtistName(currentTrack),
+          album: currentTrack.album?.name,
+        }
+      : null,
+    preferences.motion,
+  );
+  const [showQueue, setShowQueue] = useState(false);
+  const [isShuffle, setIsShuffle] = useState(false);
+  const [repeatMode, setRepeatMode] = useState("off");
+  const [endlessQueueEnabled, setEndlessQueueEnabled] = useState(() =>
+    localStorage.getItem("itune:endless-queue") !== "false",
+  );
+  const [showListenTogether, setShowListenTogether] = useState(false);
+  const [listenTogether, setListenTogether] = useState(null);
+  const [listenBusy, setListenBusy] = useState(false);
+  const [listenError, setListenError] = useState("");
+  const [lanHosts, setLanHosts] = useState([]);
+  const [scanningLan, setScanningLan] = useState(false);
+  const [localLanIp, setLocalLanIp] = useState("");
+  const [ishareSettings, setIshareSettings] = useState({
