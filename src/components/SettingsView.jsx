@@ -41,3 +41,47 @@ export default function SettingsView({
     event.preventDefault();
     const value = signatureUrl.trim().replace(/\/$/, "");
     if (value && !/^https?:\/\//.test(value)) {
+      setError("Enter an HTTP or HTTPS address.");
+      return;
+    }
+    updatePreference("signatureUrl", value);
+    setError("");
+  };
+  const saveAITranslation = async (event) => {
+    event.preventDefault();
+    setAiStatus("Saving…");
+    const result = await window.api.settings.saveAITranslation(aiConfig);
+    if (!result?.ok) {
+      setAiStatus(result?.error || "The AI settings couldn’t be saved.");
+      return;
+    }
+    setAiConfig((current) => ({
+      ...current,
+      ...result,
+      apiKey: "",
+    }));
+    setAiStatus("Saved securely with your system key store.");
+  };
+  return (
+    <div className="page settings-page">
+      <header className="page-heading settings-heading">
+        <span className="settings-app-mark"><ITuneWaveIcon size={32} /></span>
+        <div>
+          <h1>Settings</h1>
+          <p>Personalize iTune across appearance, lyrics, and playback.</p>
+        </div>
+      </header>
+      <section className="settings-profile-card">
+        {userProfile?.photo ? (
+          <img src={userProfile.photo} alt="" />
+        ) : (
+          <span className="settings-profile-avatar">
+            {(userProfile?.name || "L").slice(0, 1).toUpperCase()}
+          </span>
+        )}
+        <div>
+          <strong>{userProfile?.name || "Listener"}</strong>
+          <p>
+            {userProfile?.isLoggedIn
+              ? "Google and YouTube Music connected"
+              : "Your local iTune profile"}
