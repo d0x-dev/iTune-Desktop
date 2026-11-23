@@ -27,3 +27,32 @@ function lyricEase(progress) {
       3 * inverse * inverse * parameter * 0.41 +
       3 * inverse * parameter * parameter * 0.12 +
       parameter ** 3;
+    if (x < progress) low = parameter;
+    else high = parameter;
+    parameter = (low + high) / 2;
+  }
+  return 3 * (1 - parameter) * parameter * parameter * 0.99 + parameter ** 3;
+}
+
+export function animateLyricScroll(element, line, { duration, immediate, stagger }) {
+  const start = element.scrollTop;
+  const resolveTarget = () => {
+    const offset = line.offsetTop - element.clientHeight * 0.4;
+    return Math.max(0, Math.min(offset, element.scrollHeight - element.clientHeight));
+  };
+  if (immediate || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    element.scrollTop = resolveTarget();
+    return () => {};
+  }
+
+  const direction = Math.sign(resolveTarget() - start);
+  const rows = [];
+  if (stagger && direction) {
+    let row = direction > 0 ? line.nextElementSibling : line.previousElementSibling;
+    while (row && Math.abs(row.offsetTop - start) < element.clientHeight * 2) {
+      rows.push(row);
+      row = direction > 0 ? row.nextElementSibling : row.previousElementSibling;
+    }
+  }
+
+  const delays = Array.from({ length: STAGGER_STEPS }, (_, index) =>
