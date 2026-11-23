@@ -81,3 +81,31 @@ function createEngine(audio) {
   engines.set(audio, engine);
   return engine;
 }
+
+export function applyAudioEffects(audio, preferences) {
+  if (!audio) return null;
+  let engine = engines.get(audio);
+  if (!preferences.audioEffectsEnabled && !engine) return null;
+  engine = engine || createEngine(audio);
+  if (!engine) return null;
+  const enabled = Boolean(preferences.audioEffectsEnabled);
+  const preset = enabled ? ({
+    balanced: { bass: 0, mid: 0, treble: 0 },
+    bass: { bass: 5, mid: -0.5, treble: -1 },
+    vocal: { bass: -1, mid: 4, treble: 1.5 },
+    bright: { bass: 0, mid: 1, treble: 4 },
+    night: { bass: 2, mid: 1, treble: -2 },
+  }[preferences.audioPreset] || { bass: 0, mid: 0, treble: 0 }) : { bass: 0, mid: 0, treble: 0 };
+  const { context } = engine;
+  setNow(
+    engine.bass.gain,
+    preset.bass + (enabled ? Number(preferences.bassBoost || 0) : 0),
+    context,
+  );
+  setNow(engine.mid.gain, preset.mid, context);
+  setNow(
+    engine.treble.gain,
+    preset.treble + (enabled ? Number(preferences.trebleBoost || 0) : 0),
+    context,
+  );
+  const spatialAmount = enabled && preferences.virtualAtmos
