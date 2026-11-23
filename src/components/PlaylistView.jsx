@@ -112,3 +112,41 @@ export default function PlaylistView({
       if (!result?.ok)
         throw new Error(result?.error || "This playlist couldn’t be created.");
       setShowCreate(false);
+      setTitle("");
+      setReload((value) => value + 1);
+    } catch (failure) {
+      setCreateError(failure.message);
+    } finally {
+      setCreating(false);
+    }
+  };
+  const deletePlaylist = async () => {
+    if (
+      deleting ||
+      !window.confirm(
+        `Delete “${selected.title}” from your YouTube Music library?`,
+      )
+    )
+      return;
+    setDeleting(true);
+    setError("");
+    try {
+      const result = await window.api.yt.deletePlaylist(selected.id);
+      if (result?.error || result?.ok === false) throw new Error(result.error);
+      setSelected(null);
+      setReload((value) => value + 1);
+    } catch {
+      setError("This playlist couldn’t be deleted. Try again.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+  if (selected)
+    return (
+      <div className="page collection-page">
+        <ArtworkBackdrop src={selected.thumbnail || detail?.thumbnail} />
+        <button
+          className="text-button back-link"
+          onClick={() => setSelected(null)}
+        >
+          <ArrowLeft size={16} />
