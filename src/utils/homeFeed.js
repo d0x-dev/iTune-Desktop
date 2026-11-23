@@ -167,3 +167,37 @@ export function useHomeFeed(kind, userProfile) {
         window.api.yt
           .getPlaylists()
           .then((data) => {
+            if (active)
+              append({
+                sections: [
+                  {
+                    key: "personal-playlists",
+                    title: "Playlists for You",
+                    group: "playlists",
+                    layout: "cards",
+                    contents: (data?.playlists || []).map((item) => ({
+                      ...item,
+                      type: "playlist",
+                    })),
+                  },
+                ],
+              });
+          })
+          .catch(() => {});
+      }
+    }
+    return () => {
+      active = false;
+      if (generation.current === currentGeneration) generation.current++;
+    };
+  }, [
+    kind,
+    browseId,
+    userProfile?.isLoggedIn,
+    userProfile?.email,
+    revision,
+    append,
+  ]);
+  const loadMore = useCallback(async () => {
+    if (!continuation || loadingNext.current || loadingMore) return;
+    const currentGeneration = generation.current;
