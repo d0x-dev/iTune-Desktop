@@ -1437,3 +1437,63 @@ export default function App() {
             onClick={() => setMessage("")}
           >
             <X size={16} />
+          </button>
+        </div>
+      </AnimatedPresence>
+      <AboutDialog
+        show={showAbout}
+        onClose={() => setShowAbout(false)}
+        updateResult={updateResult}
+        downloadProgress={downloadProgress}
+        onCheckUpdates={refreshUpdates}
+      />
+      <AnimatedPresence
+        show={Boolean(contextMenu)}
+        duration={200}
+        className="presence-context-menu"
+      >
+        <ContextMenu
+          menu={contextMenu}
+          playlists={contextPlaylists}
+          isLiked={likedSongIds.has(getTrackVideoId(contextMenu?.item))}
+          onAction={handleContextAction}
+          onClose={() => setContextMenu(null)}
+        />
+      </AnimatedPresence>
+      {introStage?.startsWith("splash-") && (
+        <SplashExperience
+          newUser={introStage === "splash-welcome"}
+          onFinished={() => {
+            if (introStage === "splash-welcome") {
+              setWelcomeFromSplash(true);
+              setIntroStage("welcome");
+            } else {
+              setIntroStage(null);
+            }
+          }}
+        />
+      )}
+      {introStage === "welcome" && (
+        <WelcomeExperience
+          userProfile={{
+            ...userProfile,
+            name: userProfile.isLoggedIn ? userProfile.name : preferredName,
+          }}
+          authLoading={authLoading}
+          onLogin={login}
+          fromSplash={welcomeFromSplash}
+          onComplete={(name) => {
+            const displayName = userProfile.isLoggedIn
+              ? userProfile.name || name
+              : name;
+            localStorage.setItem("itune:display-name", displayName);
+            localStorage.setItem("itune:welcome-completed", "true");
+            setPreferredName(displayName);
+            setWelcomeFromSplash(false);
+            setIntroStage(null);
+          }}
+        />
+      )}
+    </div>
+  );
+}
