@@ -425,3 +425,42 @@ const Player = forwardRef(function Player(
       audio.dataset.trackId === currentTrack?.id &&
       crossfadeRequested.current !== currentTrack.id
     ) {
+      crossfadeRequested.current = currentTrack.id;
+      Promise.resolve(onNext(false)).then((moved) => {
+        if (
+          moved === false &&
+          crossfadeRequested.current === currentTrack.id
+        ) {
+          crossfadeRequested.current = null;
+          if (audio.ended) {
+            desiredPlaying.current = false;
+            setIsPlaying(false);
+          }
+        }
+      });
+    }
+  };
+
+  const updateDeckDuration = (index) => {
+    if (activeDeck.current !== index) return;
+    const audio = decks.current[index];
+    const knownDuration =
+      Number.isFinite(audio?.duration) && audio.duration > 0
+        ? audio.duration
+        : Number(audio?.dataset.durationSeconds) ||
+          Number(currentTrack?.durationSeconds) ||
+          0;
+    if (knownDuration) setDuration(knownDuration);
+  };
+
+  const handleDeckEnded = (index) => {
+    const audio = decks.current[index];
+    if (
+      activeDeck.current !== index ||
+      audio?.dataset.trackId !== currentTrack?.id
+    )
+      return;
+    if (crossfadeRequested.current === currentTrack.id) return;
+    if (repeatMode === "one") restart();
+    else onNext(true);
+  };
