@@ -117,3 +117,43 @@ async function betterLyrics(metadata) {
 }
 
 async function lrcLib(metadata) {
+  if (!metadata.title) return null;
+  const params = new URLSearchParams({ track_name: metadata.title });
+  if (metadata.artist) params.set("artist_name", metadata.artist);
+  const rows = await request(`https://lrclib.net/api/search?${params}`, {
+    json: true,
+  });
+  const target = Number(metadata.duration) || 0;
+  const score = (item) => {
+    const durationDifference = target && item.duration
+      ? Math.abs(Number(item.duration) - target)
+      : 8;
+    return (
+      (item.syncedLyrics ? 80 : 20) +
+      textMatchScore(metadata.title, item.trackName) +
+      textMatchScore(metadata.artist, item.artistName) -
+      Math.min(45, durationDifference * 2.5)
+    );
+  };
+  const ranked = [...rows].sort((a, b) => score(b) - score(a));
+  const best = ranked[0];
+  if (
+    target &&
+    best?.duration &&
+    Math.abs(Number(best.duration) - target) > 18
+  ) return null;
+  return result(
+    best?.syncedLyrics || best?.plainLyrics,
+    "LRC Lib",
+    Boolean(best?.syncedLyrics),
+    {
+      trackName: best?.trackName,
+      artistName: best?.artistName,
+      duration: Number(best?.duration) || 0,
+    },
+  );
+}
+
+async function kuGou(metadata) {
+  const keyword = [metadata.title, metadata.artist].filter(Boolean).join(" - ");
+  if (!keyword) return null;
