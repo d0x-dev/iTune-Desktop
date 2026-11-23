@@ -747,3 +747,47 @@ export default function LyricsModal({
                     name={repeatMode === "one" ? "repeat_one" : "repeat"}
                     size={17}
                   />
+                </button>
+              </div>
+              <div className="lyrics-volume">
+                <Volume2 size={16} />
+                <input
+                  className="apple-seekbar apple-volume-bar"
+                  aria-label="Lyrics volume"
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={playback.volume}
+                  onChange={(event) =>
+                    onVolumeChange?.(Number(event.target.value))
+                  }
+                  style={{ "--progress": `${playback.volume * 100}%` }}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="lyrics-text-panel">
+            <div
+              className="lyrics-scroll no-scrollbar"
+              ref={scroll}
+              tabIndex={0}
+              aria-label="Lyric lines"
+              onWheel={(event) => {
+                if (event.deltaY && !event.ctrlKey) browseLyrics();
+              }}
+              onTouchMove={browseLyrics}
+              onKeyDown={(event) => {
+                if (SCROLL_KEYS.has(event.key) ||
+                  (event.key === " " && event.target === event.currentTarget)) {
+                  browseLyrics();
+                }
+              }}
+            >
+              {loading ? (
+                <div className="empty-state">
+                  <Loader2 className="animate-spin" />
+                  <p>Loading lyrics…</p>
+                </div>
+              ) : lines.length ? (
+                <div className={`lyric-lines ${timed ? "timed" : ""}`}>
