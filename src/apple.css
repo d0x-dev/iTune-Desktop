@@ -1330,3 +1330,86 @@ body {
   backdrop-filter: blur(32px) saturate(1.65);
   animation: context-menu-in 120ms ease-out;
 }
+.audio-effects-panel header,
+.audio-effects-panel header > div,
+.audio-effect-toggle,
+.audio-effect-range > span,
+.audio-engine-badge {
+  display: flex;
+  align-items: center;
+}
+.audio-effects-panel header {
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.audio-effects-panel header > div { gap: 8px; font-weight: 650; }
+.audio-effects-notice {
+  margin: 5px 2px 10px;
+  padding: 9px;
+  border-radius: 9px;
+  background: #ff9f0a1a;
+  color: #ffb340;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.audio-effect-toggle {
+  justify-content: space-between;
+  gap: 15px;
+  padding: 10px 4px;
+  border-top: 1px solid var(--border-subtle);
+}
+.audio-effect-toggle > span { display: grid; gap: 2px; }
+.audio-effect-toggle small,
+.audio-effect-range small { color: var(--muted); font-size: 10px; }
+.audio-effect-toggle input { accent-color: var(--accent-color); }
+.audio-preset-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 9px 0 13px;
+}
+.audio-preset-row button {
+  padding: 7px 5px;
+  border-radius: 8px;
+  background: var(--plate);
+  color: var(--muted-strong);
+  font-size: 11px;
+}
+.audio-preset-row button.selected {
+  color: white;
+  background: var(--accent-color);
+}
+.audio-effect-range {
+  display: grid;
+  gap: 6px;
+  padding: 8px 4px;
+}
+.audio-effect-range > span { justify-content: space-between; }
+.audio-effect-range input { width: 100%; }
+.audio-engine-badge {
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 7px;
+  border-radius: 999px;
+  color: var(--accent-color);
+  background: color-mix(in srgb, var(--accent-color) 11%, transparent);
+  font-size: 11px;
+  text-transform: capitalize;
+}
+.dialog {
+  background: var(--surface);
+  border-color: var(--border-subtle);
+}
+.dialog input,
+.dialog textarea {
+  background: var(--plate);
+  border-color: var(--border-subtle);
+  color: var(--foreground);
+}
+.dialog p {
+  color: var(--muted);
+}
+.toast {
+  background: var(--surface);
+  color: var(--foreground);
