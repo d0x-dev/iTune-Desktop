@@ -72,3 +72,41 @@ async function catalogMotion(type, id) {
   );
   return motionUrl(data?.data?.[0]?.attributes?.editorialVideo);
 }
+async function cached(key, resolve) {
+  const entry = cache.get(key);
+  if (entry && Date.now() < entry.expires) return entry.promise;
+  const promise = Promise.resolve()
+    .then(resolve)
+    .catch(() => null);
+  cache.set(key, { promise, expires: Date.now() + 300000 });
+  const result = await promise;
+  if (result) cache.set(key, { promise, expires: Date.now() + 3600000 });
+  if (cache.size > 100) cache.delete(cache.keys().next().value);
+  return result;
+}
+function fillArtwork(art, width, format = "jpg") {
+  if (!art?.url) return null;
+  const height =
+    art.width && art.height
+      ? Math.round((width * art.height) / art.width)
+      : width;
+  return art.url
+    .replace(/\{w\}/g, width)
+    .replace(/\{h\}/g, height)
+    .replace(/\{c\}/g, "bb")
+    .replace(/\{f\}/g, format);
+}
+function find(node, predicate) {
+  if (!node || typeof node !== "object") return null;
+  if (predicate(node)) return node;
+  for (const child of Object.values(node)) {
+    const found = find(child, predicate);
+    if (found) return found;
+  }
+  return null;
+}
+function motionUrl(node) {
+  if (!node || typeof node !== "object") return null;
+  for (const key of [
+    "motionArtistSquare1x1",
+    "motionDetailSquare",
