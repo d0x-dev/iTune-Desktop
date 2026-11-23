@@ -2201,3 +2201,68 @@ function registerIpcHandlers() {
 
           const thumbs =
             r.thumbnail?.musicThumbnailRenderer?.thumbnail?.thumbnails || [];
+          const thumbnail = getThumbnailUrl(
+            r.thumbnail?.musicThumbnailRenderer?.thumbnail,
+          );
+
+          const duration =
+            r.fixedColumns?.[0]?.musicResponsiveListItemFixedColumnRenderer?.text?.runs
+              ?.map((x) => x.text)
+              .join("") || "";
+
+          contents.push({
+            id: videoId,
+            title,
+            artists: artistName
+              ? [{ name: artistName, id: artistId }]
+              : [{ name: "YouTube Music" }],
+            artistId,
+            album: albumName ? { name: albumName } : null,
+            duration,
+            thumbnail,
+            isExplicit: hasExplicitBadge(r),
+          });
+        }
+
+        if (contents.length > 0) {
+          sections.push({ title: sectionTitle, contents });
+        }
+      }
+
+      if (sections.length > 0) {
+        return { sections };
+      }
+
+      return { sections: [] };
+    } catch (err) {
+      logToFile("Get History error:", err);
+      return { sections: [], error: err.message };
+    }
+  });
+
+  ipcMain.handle("yt:getSubscribedArtists", async () => {
+    if (initPromise) await initPromise;
+    if (!yt) return { artists: [] };
+    try {
+      logToFile(
+        "Fetching Subscribed Artists via FEmusic_library_corpus_artists",
+      );
+      const res = await yt.actions.execute("/browse", {
+        browseId: "FEmusic_library_corpus_artists",
+        client: "YTMUSIC",
+      });
+
+      const shelf =
+        res.data?.contents?.singleColumnBrowseResultsRenderer?.tabs?.[0]
+          ?.tabRenderer?.content?.sectionListRenderer?.contents?.[0]
+          ?.musicShelfRenderer;
+      const items = shelf?.contents || [];
+      const artists = [];
+
+      for (const item of items) {
+        const r = item.musicResponsiveListItemRenderer;
+        if (!r) continue;
+
+        const flexCols = r.flexColumns || [];
+        const nameRuns =
+          flexCols[0]?.musicResponsiveListItemFlexColumnRenderer?.text?.runs ||
