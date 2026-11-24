@@ -66,6 +66,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download all platform packages
         uses: actions/download-artifact@v4
         with:
@@ -76,6 +79,7 @@ jobs:
       - name: Attach packages and publish release notes
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         shell: bash
         run: |
           shopt -s nullglob
