@@ -89,23 +89,105 @@ jobs:
             exit 1
           fi
           notes=$(cat <<'EOF'
-          <img width="1672" height="941" alt="iTune Desktop screenshot" src="https://github.com/user-attachments/assets/faad570e-b0c8-4234-b106-049e9ab6a354" />
+<p align="center">
+  <img width="1672" height="941" alt="iTune Desktop screenshot" src="https://github.com/user-attachments/assets/faad570e-b0c8-4234-b106-049e9ab6a354" />
+</p>
 
-          # iTune Desktop 1.0.0
+# iTune Desktop 1.0.0 — The Ultimate YouTube Music Experience
 
-          The first cross-platform iTune Desktop release brings your YouTube Music library, playback, lyrics, playlists, radio, and desktop audio controls to Windows, macOS, and Linux.
+Welcome to the official launch of **iTune Desktop 1.0.0**! iTune Desktop is a standalone, high-performance desktop music player that brings the elegance, fluidity, and aesthetic of **Apple Music** together with the boundless music catalog, personalized recommendations, and account synchronization of **YouTube Music**.
 
-          ## What’s new
+Engineered from the ground up for **Windows, macOS, and Linux**, iTune Desktop delivers an audiophile-grade listening experience with synchronized lyrics, multi-room group listening, live radio, and native OS integrations.
 
-          - Added an Android-style About panel with installed build details, GitHub release notes, update downloads, and every available platform package.
-          - Added automatic release checks and in-app downloads for Windows, macOS, and Linux.
-          - Added Windows setup and portable apps, macOS DMG and ZIP packages, and Linux AppImage and DEB packages.
-          - Improved playback when the app is minimized and brought the desktop Settings and About details in line with iTune for Android.
+---
 
-          ## Downloads
+## 🌟 Feature Breakdown
 
-          Choose the package for your operating system. Windows offers an installer and a portable executable, macOS includes DMG and ZIP builds, and Linux includes AppImage and DEB builds.
-          EOF
+### 🎨 Apple Music Inspired Design System
+- **Acrylic & Vibrancy Glassmorphism:** Immersive frosted glass backdrops that adapt dynamically to the dominant colors of the currently playing album artwork.
+- **Iconic Branding:** Accentuated with Apple Music's signature `#fa2d48` aesthetic, SF Pro typography, and refined micro-interactions.
+- **Adaptive Left Navigation Sidebar:** Instant navigation between **Home**, **Discovery**, **Radio**, and your complete **Library** (Songs, Albums, Artists, Playlists).
+- **Persistent Bottom Player:** Sleek, responsive playback bar featuring scrubbable timeline waveforms, interactive volume controls, audio output switcher, and hover thumbnail elevation.
+- **Frameless Window Controls:** Native OS window controls including macOS traffic lights and sleek Windows/Linux titlebar integration.
+
+---
+
+### 🎵 YouTube Music InnerTube Integration
+- **Direct Engine Connection:** Direct connection to YouTube Music without requiring browser extensions or external scraping services.
+- **Seamless Google Account Sync:** Sign in securely with your Google account to automatically synchronize your listening history, liked songs, custom playlists, and subscribed artists.
+- **Personalized Home Feed:** Discover dynamically curated sections including **Quick Picks**, **Listen Again**, **Mixed for You**, **Artist Spotlight**, and algorithmic mood carousels.
+- **Intelligent Search & Autocomplete:** Real-time search suggestions with instant category filtering across Songs, Albums, Artists, and Community Playlists.
+
+---
+
+### 🎤 Synchronized Karaoke Lyrics & Apple Music Sing
+- **Multi-Source Lyrics Engine:** Automatic lyrics aggregation and fallback chain across **LRCLIB**, **Kugou**, **Paxsenix**, **SimpMusic**, **Megalobiz**, and **YouTube Music timed subtitles**.
+- **Kinetic Line Animation:** Syllable-by-syllable, word-by-word active line karaoke synchronization with fluid auto-scrolling.
+- **Apple Music Sing Mode:** Built-in interactive vocal fader to reduce lead vocals in real time for an authentic karaoke singing experience.
+- **Interactive Tap-to-Seek:** Click or tap any lyric line to jump playback directly to that exact millisecond.
+- **AI-Powered Real-Time Translations:** Instant translation overlay for foreign language lyrics powered by Google Translate or custom AI LLMs (Gemini, OpenAI, Claude).
+- **Lyric Timing Fine-Tuning:** Manual calibration slider (±500ms) to ensure lyric synchronization matches your audio latency.
+
+---
+
+### 🎛️ Audiophile DSP Audio Engine & Equalizer
+- **10-Band Graphic Equalizer:** Studio-grade biquad filter audio processing with instant presets (*Bass Boost*, *Acoustic*, *Vocal*, *Electronic*, *Rock*, *Classical*, *Flat*).
+- **3D Spatial Audio & Virtualizer:** Multi-dimensional soundstage simulation for expanded depth on headphones and external stereo speakers.
+- **Sound Check Normalization:** EBU R128 volume leveling ensures consistent track volume without sudden loudness jumps.
+- **Fluid Crossfade:** Seamless track transitions customizable from 1 to 12 seconds.
+- **Lossless Audio Streaming:** High-bitrate audio stream extraction (up to 320kbps AAC / Opus) with local chunk buffering for jitter-free playback.
+- **Audio Output Routing:** One-click output switching between system speakers, Bluetooth headphones, USB DACs, and Bit-Perfect audio pipelines.
+
+---
+
+### 📻 Worldwide Live Radio Directory
+- **Global Radio Directory:** Access thousands of live online radio stations broadcast worldwide via community radio directory mirrors.
+- **Instant Filtering:** Browse and filter stations by country, language, genre, bitrate, and audio codec (MP3, AAC, OGG, HLS).
+- **Live Stream ICY Metadata:** Displays currently playing songs, show names, and live station information directly on the player bar.
+- **Custom Station Bookmarking:** Save your favorite radio streams to your personal library for one-click streaming.
+- **Automated Algorithmic Radio:** Generate endless smart radio queues based on any track, artist, or mood.
+
+---
+
+### 👥 iShare & Local LAN Group Listening (Listen Together)
+- **Real-Time Group Sessions:** Create an iShare room and share your unique invite code with friends anywhere in the world.
+- **Zero-Config LAN Discovery:** Automatically detect nearby devices on the same local Wi-Fi network using low-latency UDP multicast.
+- **Sub-Millisecond Clock Synchronization:** Drift-correction audio synchronization keeps multiple devices in perfect lockstep for synchronized multi-room house audio.
+
+---
+
+### 🖥️ Native Desktop Platform Integrations
+- **System Media Controls (SMTC / MPRIS):** Full integration with Windows Media Overlay, macOS Now Playing menu, and Linux D-Bus MPRIS controls.
+- **Global Hardware Hotkeys:** Control playback (Play/Pause, Next, Previous, Volume) even when iTune Desktop is minimized or in the background.
+- **System Tray Quick Controls:** Minimize the application to the system tray with a right-click context menu for instant playback management.
+- **Desktop Toast Notifications:** Displays rich track change notifications with high-resolution album artwork.
+- **Discord Rich Presence:** Displays your currently playing song, artist, album, and live playback timer on your Discord profile.
+- **Offline Download Manager:** Download your favorite tracks and playlists for offline playback.
+
+---
+
+### 🔄 In-App Updates & Android-Style About Dialog
+- **Android-Style About Dialog:** Clean, modern modal detailing application version, build architecture, runtime engine, and GitHub commit references.
+- **Automatic GitHub Release Checks:** Automatically checks for new releases on startup and notifies you when an update is available.
+- **In-App Package Downloads:** Download new releases and platform installers directly within the app.
+
+---
+
+## 📦 Downloads & Installation
+
+Choose the package specifically built for your operating system:
+
+| Platform | Package | Description |
+| :--- | :--- | :--- |
+| **Windows (x64)** | [`iTune-Desktop-Setup-1.0.0.exe`](https://github.com/d0x-dev/iTune-Desktop/releases/download/v1.0.0/iTune-Desktop-Setup-1.0.0.exe) | Windows Setup Installer with start menu shortcuts and auto-updater |
+| **Windows (x64)** | [`iTune-Desktop-Portable-1.0.0.exe`](https://github.com/d0x-dev/iTune-Desktop/releases/download/v1.0.0/iTune-Desktop-Portable-1.0.0.exe) | Portable single executable — run directly without installation |
+| **macOS (Apple Silicon)** | [`iTune.Desktop-1.0.0-arm64.dmg`](https://github.com/d0x-dev/iTune-Desktop/releases/download/v1.0.0/iTune.Desktop-1.0.0-arm64.dmg) | Drag-and-drop installer disk image for M1, M2, M3, M4 Macs |
+| **macOS (Apple Silicon)** | [`iTune.Desktop-1.0.0-arm64-mac.zip`](https://github.com/d0x-dev/iTune-Desktop/releases/download/v1.0.0/iTune.Desktop-1.0.0-arm64-mac.zip) | Standalone application ZIP archive for Apple Silicon |
+| **macOS (Intel)** | [`iTune.Desktop-1.0.0.dmg`](https://github.com/d0x-dev/iTune-Desktop/releases/download/v1.0.0/iTune.Desktop-1.0.0.dmg) | Drag-and-drop installer disk image for Intel Macs |
+| **macOS (Intel)** | [`iTune.Desktop-1.0.0-mac.zip`](https://github.com/d0x-dev/iTune-Desktop/releases/download/v1.0.0/iTune.Desktop-1.0.0-mac.zip) | Standalone application ZIP archive for Intel Macs |
+| **Linux (x64)** | [`iTune.Desktop-1.0.0.AppImage`](https://github.com/d0x-dev/iTune-Desktop/releases/download/v1.0.0/iTune.Desktop-1.0.0.AppImage) | Universal Linux executable (make executable with `chmod +x` and run) |
+| **Linux (x64)** | [`itune-desktop_1.0.0_amd64.deb`](https://github.com/d0x-dev/iTune-Desktop/releases/download/v1.0.0/itune-desktop_1.0.0_amd64.deb) | Debian / Ubuntu / Linux Mint package installer (`sudo dpkg -i`) |
+EOF
           )
           gh release create "$GITHUB_REF_NAME" "${files[@]}" \
             --title "iTune Desktop $GITHUB_REF_NAME" \
